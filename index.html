@@ -60,7 +60,6 @@
     <a class="brand" href="index.html">Niklaas Dumroese<span class="dot">.</span></a>
     <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
-      <a href="#work">Work</a>
       <a href="about.html">About</a>
       <a href="cv.pdf" download>CV</a>
       <a class="is-cta" href="#contact">Get in touch</a>
@@ -72,15 +71,13 @@
 
   <!-- HERO — everything above the fold -->
   <section class="hero wrap">
-    <p class="kicker reveal"><span class="idx">01</span> GTM Systems &amp; AI</p>
     <h1 class="display reveal" data-delay="60">I build&nbsp;GTM systems that run on <span class="accent">AI</span>.</h1>
 
     <div class="hero__row">
       <div class="reveal" data-delay="120">
         <p class="lead">I design the pipelines, models, and data behind how GTM teams execute. Then I automate the work itself.</p>
         <div class="hero__cta">
-          <a class="btn" href="#work">See the work <span class="arrow">→</span></a>
-          <a class="btn btn--ghost" href="#contact">Get in touch</a>
+          <a class="btn" href="#contact">Get in touch <span class="arrow">→</span></a>
         </div>
       </div>
 
@@ -97,14 +94,12 @@
 
   <!-- SELECTED WORK — accordions -->
   <section class="section wrap" id="work">
-    <p class="kicker reveal"><span class="idx">02</span> Selected Work</p>
+    <p class="kicker reveal">Selected Work</p>
     <div class="accordion" style="margin-top:28px">
 
       <details class="acc reveal" id="gtm-engine">
         <summary>
-          <span class="acc__num">01</span>
           <span class="acc__title">A proactive GTM engine, built end-to-end</span>
-          <span class="acc__tags"><span class="tag">Signal pipeline</span><span class="tag">ICP scoring</span><span class="tag">Agentic copy</span></span>
           <span class="acc__mark" aria-hidden="true"></span>
         </summary>
         <div class="acc__panel case__grid">
@@ -138,9 +133,7 @@
 
       <details class="acc reveal" id="agentic">
         <summary>
-          <span class="acc__num">02</span>
           <span class="acc__title">Production multi-agent marketing system</span>
-          <span class="acc__tags"><span class="tag">Orchestration</span><span class="tag">RAG memory</span><span class="tag">Self-improving</span></span>
           <span class="acc__mark" aria-hidden="true"></span>
         </summary>
         <div class="acc__panel case__grid">
@@ -173,9 +166,7 @@
 
       <details class="acc reveal" id="incrementality">
         <summary>
-          <span class="acc__num">03</span>
           <span class="acc__title">Incrementality testing framework</span>
-          <span class="acc__tags"><span class="tag">Python</span><span class="tag">Causal measurement</span><span class="tag">~15% CAC</span></span>
           <span class="acc__mark" aria-hidden="true"></span>
         </summary>
         <div class="acc__panel case__grid">
@@ -204,9 +195,7 @@
 
       <details class="acc reveal" id="data-infra">
         <summary>
-          <span class="acc__num">04</span>
           <span class="acc__title">GTM data infrastructure &amp; conversion tracking</span>
-          <span class="acc__tags"><span class="tag">Segment CDP</span><span class="tag">CAPI</span><span class="tag">Lifecycle events</span></span>
           <span class="acc__mark" aria-hidden="true"></span>
         </summary>
         <div class="acc__panel case__grid">
@@ -235,18 +224,15 @@
         </div>
       </details>
 
-    </div>
-  </section>
-
-  <hr class="rule wrap" style="max-width:var(--container)" />
-
-  <!-- OPEN SOURCE -->
-  <section class="section wrap" id="open-source">
-    <p class="kicker reveal"><span class="idx">03</span> Open source</p>
-    <p class="lead reveal" data-delay="80" style="max-width:48ch;margin-top:18px">Tools and agent skills I've built in the open.</p>
-    <div class="index" style="margin-top:32px">
+      <details class="acc reveal" id="open-source">
+        <summary>
+          <span class="acc__title">Open source</span>
+          <span class="acc__mark" aria-hidden="true"></span>
+        </summary>
+        <div class="acc__panel">
+          <p class="muted" style="max-width:48ch;margin-bottom:22px">Tools and agent skills I've built in the open.</p>
+          <div class="index">
       <a class="row reveal" href="https://github.com/nikdumroese/plain-language-skill" target="_blank" rel="noopener">
-        <span class="row__num">01</span>
         <span>
           <span class="row__title">plain-language-skill</span>
           <span class="row__desc">An agent skill that writes documents to the ISO 24495 plain-language standard. Works across Claude Code, Cursor, and Codex.</span>
@@ -255,7 +241,6 @@
         <span class="row__side"><span class="row__year">★ 2</span><span class="row__go">GitHub ↗</span></span>
       </a>
       <a class="row reveal" href="https://github.com/nikdumroese/audit-swarm" target="_blank" rel="noopener">
-        <span class="row__num">02</span>
         <span>
           <span class="row__title">audit-swarm</span>
           <span class="row__desc">A multi-agent swarm that audits code, verifies research, or stress-tests a plan, then reconciles the findings into one verdict.</span>
@@ -264,7 +249,6 @@
         <span class="row__side"><span class="row__year">★ 1</span><span class="row__go">GitHub ↗</span></span>
       </a>
       <a class="row reveal" href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">
-        <span class="row__num">03</span>
         <span>
           <span class="row__title">crm-refine</span>
           <span class="row__desc">Streaming CRM dedupe and field standardisation with reviewable recipes. Clean-room and dependency-free.</span>
@@ -273,7 +257,6 @@
         <span class="row__side"><span class="row__year">CLI</span><span class="row__go">GitHub ↗</span></span>
       </a>
       <a class="row reveal" href="https://github.com/nikdumroese/knowledge-base-ops" target="_blank" rel="noopener">
-        <span class="row__num">04</span>
         <span>
           <span class="row__title">knowledge-base-ops</span>
           <span class="row__desc">A persistent knowledge base that compresses large corpora at write time and loads only what a query needs, so the context window stays small.</span>
@@ -282,7 +265,6 @@
         <span class="row__side"><span class="row__year">Architecture</span><span class="row__go">GitHub ↗</span></span>
       </a>
       <a class="row reveal" href="https://github.com/nikdumroese/context-engineering" target="_blank" rel="noopener">
-        <span class="row__num">05</span>
         <span>
           <span class="row__title">context-engineering</span>
           <span class="row__desc">Templates and patterns for token-efficient CLAUDE.md files and layered agent context that loads in proportion to the task.</span>
@@ -291,7 +273,6 @@
         <span class="row__side"><span class="row__year">Patterns</span><span class="row__go">GitHub ↗</span></span>
       </a>
       <a class="row reveal" href="https://github.com/nikdumroese/agent-skills" target="_blank" rel="noopener">
-        <span class="row__num">06</span>
         <span>
           <span class="row__title">agent-skills</span>
           <span class="row__desc">A harness-agnostic collection of skills, commands, and eval patterns for agent workflows.</span>
@@ -300,7 +281,11 @@
         <span class="row__side"><span class="row__year">Collection</span><span class="row__go">GitHub ↗</span></span>
       </a>
     </div>
-    <p class="reveal" style="margin-top:24px"><a class="link" href="https://github.com/nikdumroese" target="_blank" rel="noopener">All repositories on GitHub ↗</a></p>
+          <p style="margin-top:24px"><a class="link" href="https://github.com/nikdumroese" target="_blank" rel="noopener">All repositories on GitHub ↗</a></p>
+        </div>
+      </details>
+
+    </div>
   </section>
 
 </main>
@@ -308,7 +293,7 @@
 <!-- FOOTER / CONTACT -->
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker"><span class="idx">04</span> Get in touch</p>
+    <p class="kicker">Get in touch</p>
     <p class="display" style="max-width:14ch;margin-top:18px">Let's build<br>something.</p>
     <p style="margin-top:22px;font-size:1.3rem"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
     <div class="foot__links">
