@@ -176,6 +176,37 @@ a.row:hover .row__go { opacity: 1; color: var(--accent); }
 @keyframes slide { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .marquee__track { animation: none; } }
 
+/* ---------- accordion (home work) ---------- */
+.accordion { border-top: 1px solid var(--ink-20); }
+.acc { border-bottom: 1px solid var(--ink-20); }
+.acc > summary {
+  list-style: none; cursor: pointer;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: baseline;
+  gap: clamp(14px, 3vw, 40px); padding-block: clamp(20px, 3vw, 30px);
+  transition: padding-left .25s ease;
+}
+.acc > summary::-webkit-details-marker { display: none; }
+.acc > summary:hover { padding-left: 12px; }
+.acc > summary:hover .acc__title { color: var(--accent); }
+.acc__num { font-family: var(--mono); font-size: 13px; color: var(--ink-60); }
+.acc__title { font-weight: 700; font-size: clamp(1.25rem, 3vw, 1.9rem); letter-spacing: -0.03em; line-height: 1.08; transition: color .2s ease; }
+.acc__tags { display: none; }
+.acc__mark { position: relative; width: 16px; height: 16px; align-self: center; }
+.acc__mark::before, .acc__mark::after { content: ""; position: absolute; background: var(--ink); transition: transform .25s ease, background .2s ease; }
+.acc__mark::before { top: 7px; left: 0; width: 16px; height: 2px; }
+.acc__mark::after { top: 0; left: 7px; width: 2px; height: 16px; }
+.acc[open] > summary .acc__mark::after { transform: scaleY(0); }
+.acc[open] > summary .acc__mark::before { background: var(--accent); }
+.acc[open] > summary .acc__title { color: var(--accent); }
+.acc__panel { padding: 4px 0 clamp(28px, 4vw, 44px); }
+.acc__panel.case__grid { margin-top: 0; }
+.acc__panel .case__body h3:first-child { margin-top: 0; }
+.acc__panel .meta { position: static; top: auto; }
+@media (min-width: 861px) {
+  .acc__tags { display: flex; flex-wrap: wrap; gap: 8px; justify-self: end; align-self: center; }
+  .acc > summary { grid-template-columns: auto 1fr auto auto; }
+}
+
 /* ---------- case study (work page) ---------- */
 .case { padding-block: clamp(56px, 8vw, 110px); border-bottom: 1px solid var(--ink-20); }
 .case__head { display: grid; grid-template-columns: 1fr; gap: 18px; }
