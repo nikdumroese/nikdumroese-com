@@ -2,7 +2,7 @@
 
 Edit this file, then tell me to sync it into `about.html` (the site is static, so the
 HTML doesn't read this automatically). Keep the markdown links as-is:
-`[say hello](#contact)` scrolls to the contact section, `[CV](cv.pdf)` downloads the CV. The photo is `assets/niklaas.jpg`.
+`[say hello](#contact)` scrolls to the contact section, `[CV](Nik_Dumroese_CV.pdf)` downloads the CV. The photo is `assets/niklaas.jpg`.
 
 ---
 
@@ -12,4 +12,4 @@ I started my career in performance marketing because even then I loved the measu
 
 I love solving the unglamorous problems, the ones that everyone else tries to push off until the next quarter, or the ones that have 57 stakeholders involved. If it can be automated, it should be automated. If it needs a human in the loop, there should be a human in the loop. If we can build it today, why wait until tomorrow? 
 
-Right now I'm looking for the next hard problems to solve. If any of this sounds like your kind of thing, [say hello](#contact). The full history and toolkit live in the [CV](cv.pdf).
+Right now I'm looking for the next hard problems to solve. If any of this sounds like your kind of thing, [say hello](#contact). The full history and toolkit live in the [CV](Nik_Dumroese_CV.pdf).
