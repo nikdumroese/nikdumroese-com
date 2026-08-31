@@ -1,0 +1,223 @@
+# Nik Dumroese — Agentic GTM Systems (full site)
+
+Source: https://nikdumroese.com  ·  Contact: hello@nikdumroese.com
+
+============================================================
+PAGE: Home — https://nikdumroese.com/
+============================================================
+
+Nik Dumroese — Agentic GTM Systems
+Skip to content
+I build GTM systems that run on AI .
+I design the pipelines, models, and data behind how GTM teams execute. Then I automate the work itself.
+Get in touch →
+Status
+Open to new work from September 2026
+AI-native GTM systems
+Growth engineering & data
+Selected Work
+A proactive GTM engine, built end-to-end
+Scope Signal pipeline → enrichment → scoring → branched outreach → eval loop
+Stack Python, dbt, Clay, LLM copy layer, CRM automation, GitHub/PyPI/Docker APIs
+The challenge
+Pipeline was 100% inbound: auto-scored, one manual reply each. It worked, but it was the whole motion. The brief: build the next one.
+What I built
+An outbound engine that treats public developer activity as intent. It pulls every signal (stars, forks, installs, container pulls, telemetry, hiring), enriches each contact, and scores it on ICP fit plus signal strength.
+Deduped daily against inbound, so no one gets double-touched.
+A Python scoring module (stdlib only) makes every ranking auditable.
+An LLM copy layer drafts each sequence, gated by deterministic rules before send.
+A self-improving loop: every conversion re-weights the model and grades the copy that worked.
+The outcome
+Shipped as a live app plus a runnable scoring model. Every number came from a real public API. Runs on ~0.1 FTE once live.
+6 Signal sources unified
+~14× Directional year-one ROI
+<5% Sends needing human review
+Production multi-agent marketing system
+Scope Agentic infrastructure for a 30+ person marketing team
+Stack Claude / Claude Code, MCP (Canva, Linear, Miro), RAG, vector search, evals
+The challenge
+A 30+ person marketing team with zero agentic infrastructure. Everything ran on manual triggers.
+What I built
+A 24/7 system where orchestrator agents coordinate subagents in parallel. Content, data refresh, reporting, and knowledge upkeep all run without manual triggers.
+Self-improving loops: weekly agents propose rule changes; monthly cycles auto-approve them only if benchmarks improve.
+RAG memory over a ~1,000-doc vector-indexed wiki, with semantic search and automated pruning.
+Decay-weighted scoring that keeps high-value knowledge within token limits.
+Eval frameworks: skill-trigger accuracy, output quality, and retrieval precision, with regression tracking.
+The outcome
+24/7 Autonomous operation, no triggers
+~1,000 Docs in vector-indexed memory
+30+ Person team served
+Incrementality testing framework
+Scope Causal measurement framework, built from scratch
+Stack Python, ads-platform APIs, SQL, geo-experiments
+The challenge
+Spend ran on platform-reported conversions, numbers the platforms grade themselves on. No honest read on what was incremental.
+What I built
+A from-scratch incrementality framework in Python on the ads-platform APIs. Lift experiments that separate causal impact from correlation.
+Set the experimentation culture behind today's agent-driven testing.
+Wired results into budgeting, so spend followed proven lift.
+The outcome
+~15% CAC improvement
+GTM data infrastructure & conversion tracking
+Scope CDP ownership, server-side events, lifecycle tracking
+Stack Segment CDP, CAPI, GTM, lifecycle-stage events, GDPR-compliant pipelines
+The challenge
+Marketing, product, data, and legal ran on inconsistent signals. In-platform and backend numbers disagreed, and the pipeline the agentic layer would need didn't exist.
+What I built
+The foundation the agentic layer runs on: end-to-end Segment CDP, server-side CAPI events, and lifecycle-stage conversion events, all GDPR-compliant.
+Closed the gap between in-platform and backend data with automated reporting.
+Coordinated marketing, product, data, and legal to keep pipelines clean.
+The outcome
+2M€+ ARR uplift contribution
+~7% Conversion-rate improvement
+~10% More open pipeline generated
+Open source
+Tools and agent skills I've built in the open.
+plain-language-skill
+An agent skill that writes documents to the ISO 24495 plain-language standard. Works across Claude Code, Cursor, and Codex.
+Agent skill ISO 24495 Shell
+★ 2 GitHub ↗
+audit-swarm
+A multi-agent swarm that audits code, verifies research, or stress-tests a plan, then reconciles the findings into one verdict.
+Multi-agent Evals Python
+★ 1 GitHub ↗
+crm-refine
+Streaming CRM dedupe and field standardisation with reviewable recipes. Clean-room and dependency-free.
+Data quality Dedupe Python
+CLI GitHub ↗
+knowledge-base-ops
+A persistent knowledge base that compresses large corpora at write time and loads only what a query needs, so the context window stays small.
+RAG memory Token-efficient
+Architecture GitHub ↗
+context-engineering
+Templates and patterns for token-efficient CLAUDE.md files and layered agent context that loads in proportion to the task.
+CLAUDE.md Context layers
+Patterns GitHub ↗
+agent-skills
+A harness-agnostic collection of skills, commands, and eval patterns for agent workflows.
+Skills Eval patterns Harness-agnostic
+Collection GitHub ↗
+All repositories on GitHub ↗
+
+============================================================
+PAGE: About — https://nikdumroese.com/about.html
+============================================================
+
+About — Niklaas Dumroese
+Skip to content
+About
+I'm Nik. I'm from a tiny town in Idaho (not Ohio, not Iowa — it's the state next to Washington, do you know of Seattle? Yeah, one state to the east, right next to Canada).
+I started my career in performance marketing because even then I loved the measurability. It's immensely satisfying to adjust the inputs and measure the outputs, to see the numbers change day to day and week to week. In a lot of ways I've graduated from performance marketing to, as a good friend once said, performance of marketing, to now: performance of GTM. Today with LLMs, it's easier than ever to have a finger on the pulse of the entire motion. Let's build things from scratch and put them into production the same day.
+I love solving the unglamorous problems, the ones that everyone else tries to push off until the next quarter, or the ones that have 57 stakeholders involved. If it can be automated, it should be automated. If it needs a human in the loop, there should be a human in the loop. If we can build it today, why wait until tomorrow?
+Right now I'm looking for the next hard problems to solve. If any of this sounds like your kind of thing, say hello . The full history and toolkit live in the CV .
+
+============================================================
+DOCUMENT: CV — https://nikdumroese.com/Nik_Dumroese_CV.pdf
+============================================================
+
+Niklaas Dumroese
+A I G T M O P E R AT I O N S
+
+I run GTM operations and AI enablement for marketing teams — owning the frameworks, systems, and workflows that determine how the
+function executes. At Pleo that means marketing ops governance, HubSpot ownership, reporting cadence, and data quality programmes
+running alongside a production AI layer that automates execution and scales output. My work sits at the intersection of operational rigour and AI
+adoption: clean processes, trusted data, and a team that knows how to use its tools well.
+EXPERIENCE
+
+AI & GTM Operations Enablement Manager | Pleo
+
+C O N TA C T
+
+Jul 2026 – present
+
+Revenue Operations
+
+– Own Marketing Ops process governance: campaign workflow intake, approval processes, and
+HubSpot workflow health — building auditable documentation that eliminates tribal knowledge
+dependency and reduces turnaround friction.
+– Run the marketing reporting cadence (MBR/QBR) and data governance programme: attribution
+consistency, lifecycle stage alignment, and cross-stack data quality — partnering with Data and
+BAT teams to resolve issues upstream rather than patching downstream.
+– Lead AI adoption across MOps workflows: translating AI capability into durable operational
+processes with the governance and team enablement that makes tools stick beyond the pilot.
+– Drive team capability through shared standards, QA checklists, and onboarding resources —
+raising the operational floor across the marketing function.
+
+Marketing Enablement & Efficacy Lead | Pleo
+
+Feb 2026 – Jun 2026
+– Designed and built a production agentic system for a 30+ person marketing team: multi-agent
+orchestration with specialised skills, tool-use patterns, MCP integrations (Canva, Linear, Miro),
+and autonomous 24/7 operation — including inter-agent communication patterns where
+orchestrator agents coordinate specialised subagents in parallel. Content generation, data
+refresh, reporting, and knowledge maintenance all agent-operated without manual triggers.
+
+– Built self-improving feedback loops from scratch: weekly reflection agents propose rule
+changes, monthly evolution cycles auto-approve improvements if benchmark scores increase,
+and decay-weighted memory scoring promotes high-value knowledge — the system gets
+sharper over time without someone kicking it off.
+– Designed evaluation frameworks for agent quality: skill-trigger accuracy benchmarks, output
+quality evals, and retrieval precision metrics with regression tracking stored in a structured
+benchmarks layer.
+– Built a RAG-style memory and retrieval architecture: ~1,000-document vector-indexed wiki,
+semantic search, context-budget management, and automated pruning — enabling agents to
+operate within token constraints while preserving relevant context across sessions.
+– Drove team adoption from zero infrastructure to 74% daily AI tool usage (n=23 survey, March
+2026); shipped 3 workflows into active production use; led AI enablement workshop and built
+role-specific onboarding guides across 6 marketing functions.
+
++49 176 57914986
+hello@nikdumroese.com
+linkedin.com/in/nikdumroese
+E D U C AT I O N
+
+Bachelor of Arts: Political Science
+The University of Montana
+Missoula, Montana, USA
+SKILLS
+
+Agentic Systems
+Multi-agent orchestration,
+skill/tool/memory/eval decomposition, selfimproving feedback loops, MCP, RAG
+architecture, vector search, context
+management, Claude / Claude Code
+Evals & Observability
+Benchmark design, regression tracking,
+output quality scoring, retrieval precision
+metrics, structured logging
+Data & Analytics
+Python, SQL, BigQuery, ARIMAX /
+marketing mix modelling, Amplitude, Looker
+Studio, Fivetran, Streamlit
+Marketing Infrastructure
+Segment (CDP), CAPI, Google Tag Manager,
+HubSpot, incrementality testing, Google
+Ads, Meta Ads, Search Ads 360
+Web
+HTML, CSS, JavaScript
+C E R T I F I C AT I O N S
+
+Performance Marketing Specialist → Senior | Pleo
+
+Oct 2021 – Feb 2026
+– Built the technical foundation the current agentic layer runs on: owned Segment CDP end-toend, implemented CAPI events with high-quality matching parameters, and liaised between
+marketing, product, data, and legal teams to maintain clean, GDPR-compliant data pipelines
+across the function.
+
+– Built an incrementality testing framework from scratch using Python and ads platform APIs,
+improving CAC by ~15% and establishing the experimentation culture that now underpins
+agent-driven creative testing.
+– Implemented lifecycle-stage based conversion events and automated internal reporting tools,
+closing gaps between in-platform and backend data — improving CVR by ~7%, contributing to
+2M€+ ARR uplift, and improving open pipeline generation by ~10%.
+
+Paid User Acquisition Manager | Quandoo
+
+Jun 2019 – Sept 2021
+– Managed Google, Bing, and Meta campaigns with 6-digit monthly spend; built automated
+campaign structures via Search Ads 360; designed and analysed A/B tests in SQL.
+
+Google Tag Manager
+Google Ads — Search & Display
+Google Analytics
+Search Ads 360

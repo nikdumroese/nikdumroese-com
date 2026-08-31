@@ -1,0 +1,42 @@
+# Nik Dumroese — Agentic GTM Systems
+
+> Nik (Niklaas) Dumroese builds and ships agentic go-to-market systems: multi-agent infrastructure, growth engineering, and the GTM data underneath. Based in Germany, from Idaho. Open to new work from September 2026. Contact: hello@nikdumroese.com
+
+I design the pipelines, models, agents, and data that decide how go-to-market teams execute, then automate the execution itself. The through-line across my work: I don't take a reported number on faith — I build the system that produces an honest one.
+
+## Pages
+
+- [Home](https://nikdumroese.com/): positioning, selected work (4 case studies), and open-source projects.
+- [About](https://nikdumroese.com/about.html): background — from performance marketing to performance of GTM — and how I work.
+- [CV (PDF)](https://nikdumroese.com/Nik_Dumroese_CV.pdf): full experience, skills, and certifications.
+
+## Selected work
+
+- A proactive GTM engine, built end-to-end: signal pipeline → enrichment → ICP + signal scoring → branched outreach → self-improving eval loop. Stack: Python, dbt, Clay, LLM copy layer, CRM automation, GitHub/PyPI/Docker APIs. Shipped as a live app + runnable scoring model; ~14× directional year-one ROI.
+- Production multi-agent marketing system: 24/7 agentic infrastructure for a 30+ person team — orchestrator agents coordinating subagents, self-improving loops, RAG memory over a ~1,000-doc vector-indexed wiki, and eval frameworks with regression tracking.
+- Incrementality testing framework: from-scratch causal measurement in Python on ads-platform APIs; ~15% CAC improvement.
+- GTM data infrastructure & conversion tracking: Segment CDP, server-side CAPI events, lifecycle-stage conversion tracking; ~7% CVR improvement and 2M€+ ARR uplift contribution.
+
+## Open source
+
+- [plain-language-skill](https://github.com/nikdumroese/plain-language-skill): agent skill for ISO 24495 plain-language writing.
+- [audit-swarm](https://github.com/nikdumroese/audit-swarm): multi-agent swarm to audit code, verify research, or stress-test a plan.
+- [crm-refine](https://github.com/nikdumroese/crm-refine): streaming CRM dedupe and field standardisation, dependency-free.
+- [knowledge-base-ops](https://github.com/nikdumroese/knowledge-base-ops): token-efficient persistent knowledge base for LLMs over large corpora.
+- [context-engineering](https://github.com/nikdumroese/context-engineering): patterns for token-efficient CLAUDE.md files and layered agent context.
+- [agent-skills](https://github.com/nikdumroese/agent-skills): harness-agnostic collection of skills, commands, and eval patterns.
+- [minto-pyramid](https://github.com/nikdumroese/minto-pyramid): restructure and pressure-test writing with the Pyramid Principle.
+
+## Skills
+
+Agentic systems (multi-agent orchestration, MCP, RAG, vector search, evals), growth engineering (Python, SQL, BigQuery, dbt, incrementality testing), and GTM data (Segment CDP, CAPI, HubSpot, attribution).
+
+## Contact
+
+- Email: hello@nikdumroese.com
+- LinkedIn: https://linkedin.com/in/nikdumroese
+- GitHub: https://github.com/nikdumroese
+
+## Optional
+
+- [Full site as markdown](https://nikdumroese.com/llms-full.txt): the complete content of every page in one file.
