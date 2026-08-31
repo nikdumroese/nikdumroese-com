@@ -2,7 +2,7 @@
 // Page views + the conversions that actually matter (CV, contact, projects, outbound).
 // Paste your Segment source write key below. Empty = fully no-op (safe to ship).
 (() => {
-  const WRITE_KEY = ""; // <-- Segment "Personal Website" source write key
+  const WRITE_KEY = "N0GP5IROXmPmvLNfD6Xz1LddW653LKiF"; // Segment "Personal Website" source
 
   // Respect Do Not Track / Global Privacy Control, and no-op without a key.
   const dnt =
