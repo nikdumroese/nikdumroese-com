@@ -1,197 +1,308 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CV — Niklaas Dumroese</title>
-<meta name="description" content="Full CV of Niklaas Dumroese — builder of go-to-market systems that run on AI: agentic infrastructure, growth engineering, and GTM data. Experience, skills, and contact." />
-<link rel="canonical" href="https://nikdumroese.com/cv.html" />
-<meta name="robots" content="noindex, follow" />
-<meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-<meta property="og:site_name" content="Niklaas Dumroese" />
-<meta property="og:type" content="profile" />
-<meta property="og:url" content="https://nikdumroese.com/cv.html" />
-<meta property="og:title" content="CV — Niklaas Dumroese" />
-<meta property="og:description" content="Experience, skills, and contact. Builder of go-to-market systems that run on AI." />
-<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="CV — Niklaas Dumroese" />
-<meta name="twitter:description" content="Experience, skills, and contact." />
-<meta name="twitter:image" content="https://nikdumroese.com/assets/og.png" />
-<link rel="stylesheet" href="assets/styles.css" />
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ProfilePage",
-  "url": "https://nikdumroese.com/cv.html",
-  "mainEntity": {
-    "@type": "Person",
-    "name": "Niklaas Dumroese",
-    "url": "https://nikdumroese.com/",
-    "jobTitle": "AI & GTM Systems",
-    "email": "mailto:hello@nikdumroese.com",
-    "telephone": "+4917657914986",
-    "worksFor": { "@type": "Organization", "name": "Pleo" },
-    "knowsAbout": ["AI agents", "Evals", "RAG", "Python", "SQL", "BigQuery", "Segment CDP", "Incrementality testing"],
-    "sameAs": [
-      "https://linkedin.com/in/nikdumroese",
-      "https://github.com/nikdumroese"
-    ]
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niklaas Dumroese — CV</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: A4;
+    margin: 11mm 14mm 11mm 14mm;
   }
-}
-</script>
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: #1a1a1a;
+    background: #fff;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-size: 22pt;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+    color: #0d0d0d;
+  }
+
+  .header .subtitle {
+    font-size: 7.8pt;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #444;
+    margin-top: 3px;
+    margin-bottom: 9px;
+  }
+
+  .header .summary {
+    font-size: 8pt;
+    line-height: 1.45;
+    color: #2a2a2a;
+    max-width: 100%;
+  }
+
+  /* ── Divider ── */
+  hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 8px 0;
+  }
+
+  /* ── Two-column body ── */
+  .body {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+
+  .main {
+    flex: 1 1 62%;
+  }
+
+  .sidebar {
+    flex: 0 0 30%;
+    width: 30%;
+  }
+
+  /* ── Section headings ── */
+  .section-heading {
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: #444;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 2px;
+    margin-bottom: 5px;
+  }
+
+  /* ── Experience ── */
+  .job {
+    margin-bottom: 8px;
+  }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .job-title {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #0d0d0d;
+    flex: 1;
+  }
+
+  .job-date {
+    font-size: 7.6pt;
+    color: #555;
+    white-space: nowrap;
+  }
+
+  .job-sub {
+    font-size: 7.4pt;
+    color: #666;
+    font-style: italic;
+    margin-top: 1px;
+    margin-bottom: 5px;
+  }
+
+  .job ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .job ul li {
+    padding-left: 10px;
+    position: relative;
+    margin-bottom: 3px;
+    font-size: 7.9pt;
+    line-height: 1.4;
+    color: #1a1a1a;
+  }
+
+  .job ul li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: #888;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar-section {
+    margin-bottom: 9px;
+  }
+
+  .sidebar-section p,
+  .sidebar-section a {
+    font-size: 7.8pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+    display: block;
+    text-decoration: none;
+  }
+
+  .skill-group {
+    margin-bottom: 5px;
+  }
+
+  .skill-label {
+    font-size: 7.8pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  .skill-list {
+    font-size: 7.8pt;
+    color: #333;
+    line-height: 1.45;
+  }
+
+  .cert-item {
+    font-size: 7.8pt;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+</style>
 </head>
 <body>
-<a class="skip" href="#main" style="position:absolute;left:-9999px">Skip to content</a>
 
-<header class="nav">
-  <div class="wrap nav__inner">
-    <a class="brand" href="index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
-    <nav class="nav__links" id="menu" aria-label="Primary">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="cv.pdf" download>Download CV</a>
-      <a class="is-cta" href="#contact">Get in touch</a>
-    </nav>
+<!-- Header -->
+<div class="header">
+  <h1>Niklaas Dumroese</h1>
+  <div class="subtitle">AI GTM Operations</div>
+  <p class="summary">I run GTM operations and AI enablement for marketing teams &mdash; owning the frameworks, systems, and workflows that determine how the function executes. At Pleo that means marketing ops governance, HubSpot ownership, reporting cadence, and data quality programmes running alongside a production AI layer that automates execution and scales output. My work sits at the intersection of operational rigour and AI adoption: clean processes, trusted data, and a team that knows how to use its tools well.</p>
+</div>
+
+<hr>
+
+<!-- Body -->
+<div class="body">
+
+  <!-- Main: Experience -->
+  <div class="main">
+    <div class="section-heading">Experience</div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-title">AI &amp; GTM Operations Enablement Manager | Pleo</span>
+        <span class="job-date">Jul 2026 &ndash; present</span>
+      </div>
+      <div class="job-sub">Revenue Operations</div>
+      <ul>
+        <li>Own Marketing Ops process governance: campaign workflow intake, approval processes, and HubSpot workflow health &mdash; building auditable documentation that eliminates tribal knowledge dependency and reduces turnaround friction.</li>
+        <li>Run the marketing reporting cadence (MBR/QBR) and data governance programme: attribution consistency, lifecycle stage alignment, and cross-stack data quality &mdash; partnering with Data and BAT teams to resolve issues upstream rather than patching downstream.</li>
+        <li>Lead AI adoption across MOps workflows: translating AI capability into durable operational processes with the governance and team enablement that makes tools stick beyond the pilot.</li>
+        <li>Drive team capability through shared standards, QA checklists, and onboarding resources &mdash; raising the operational floor across the marketing function.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-title">Marketing Enablement &amp; Efficacy Lead | Pleo</span>
+        <span class="job-date">Feb 2026 &ndash; Jun 2026</span>
+      </div>
+      <ul>
+        <li>Designed and built a production agentic system for a 30+ person marketing team: multi-agent orchestration with specialised skills, tool-use patterns, MCP integrations (Canva, Linear, Miro), and autonomous 24/7 operation &mdash; including inter-agent communication patterns where orchestrator agents coordinate specialised subagents in parallel. Content generation, data refresh, reporting, and knowledge maintenance all agent-operated without manual triggers.</li>
+        <li>Built self-improving feedback loops from scratch: weekly reflection agents propose rule changes, monthly evolution cycles auto-approve improvements if benchmark scores increase, and decay-weighted memory scoring promotes high-value knowledge &mdash; the system gets sharper over time without someone kicking it off.</li>
+        <li>Designed evaluation frameworks for agent quality: skill-trigger accuracy benchmarks, output quality evals, and retrieval precision metrics with regression tracking stored in a structured benchmarks layer.</li>
+        <li>Built a RAG-style memory and retrieval architecture: ~1,000-document vector-indexed wiki, semantic search, context-budget management, and automated pruning &mdash; enabling agents to operate within token constraints while preserving relevant context across sessions.</li>
+        <li>Drove team adoption from zero infrastructure to 74% daily AI tool usage (n=23 survey, March 2026); shipped 3 workflows into active production use; led AI enablement workshop and built role-specific onboarding guides across 6 marketing functions.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-title">Performance Marketing Specialist → Senior | Pleo</span>
+        <span class="job-date">Oct 2021 – Feb 2026</span>
+      </div>
+      <ul>
+        <li>Built the technical foundation the current agentic layer runs on: owned Segment CDP end-to-end, implemented CAPI events with high-quality matching parameters, and liaised between marketing, product, data, and legal teams to maintain clean, GDPR-compliant data pipelines across the function.</li>
+        <li>Built an incrementality testing framework from scratch using Python and ads platform APIs, improving CAC by ~15% and establishing the experimentation culture that now underpins agent-driven creative testing.</li>
+        <li>Implemented lifecycle-stage based conversion events and automated internal reporting tools, closing gaps between in-platform and backend data — improving CVR by ~7%, contributing to 2M€+ ARR uplift, and improving open pipeline generation by ~10%.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <span class="job-title">Paid User Acquisition Manager | Quandoo</span>
+        <span class="job-date">Jun 2019 – Sept 2021</span>
+      </div>
+      <ul>
+        <li>Managed Google, Bing, and Meta campaigns with 6-digit monthly spend; built automated campaign structures via Search Ads 360; designed and analysed A/B tests in SQL.</li>
+      </ul>
+    </div>
   </div>
-</header>
 
-<main id="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
 
-  <section class="cv-head wrap">
-    <h1 class="name reveal">Niklaas Dumroese</h1>
-    <p class="role reveal" data-delay="60">AI &amp; GTM Systems</p>
-    <p class="summary reveal" data-delay="120">I build and ship go-to-market systems that run on AI. I design the frameworks, data, and agent infrastructure behind how teams execute, then automate the execution.</p>
-  </section>
+    <div class="sidebar-section">
+      <div class="section-heading">Contact</div>
+      <a href="tel:+4917657914986">+49 176 57914986</a>
+      <a href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a>
+      <a href="https://linkedin.com/in/nikdumroese">linkedin.com/in/nikdumroese</a>
+    </div>
 
-  <section class="section wrap" style="padding-top:clamp(28px,4vw,40px)">
-    <div class="cv-grid">
+    <div class="sidebar-section">
+      <div class="section-heading">Education</div>
+      <p style="font-weight:600;">Bachelor of Arts: Political Science</p>
+      <p>The University of Montana</p>
+      <p>Missoula, Montana, USA</p>
+    </div>
 
-      <!-- MAIN: experience -->
-      <div>
-        <div class="cv-sec reveal">
-          <span class="kicker">Experience</span>
+    <div class="sidebar-section">
+      <div class="section-heading">Skills</div>
 
-          <div class="cv-job">
-            <div class="cv-job__top">
-              <span class="cv-job__title">AI &amp; GTM Operations Enablement Manager <span class="cv-job__co">· Pleo</span></span>
-              <span class="cv-job__date">Jul 2026 — Aug 2026</span>
-            </div>
-            <ul>
-              <li>Owned marketing-ops process governance: campaign workflow intake, approval processes, and HubSpot workflow health, with auditable documentation that removed tribal-knowledge dependency.</li>
-              <li>Ran the marketing reporting cadence (MBR/QBR) and the data-governance programme: attribution consistency, lifecycle-stage alignment, and cross-stack data quality, resolving issues upstream with Data and BAT teams.</li>
-              <li>Led AI adoption across MOps workflows, turning capability into durable, governed process.</li>
-              <li>Raised the operational floor across the function through shared standards, QA checklists, and onboarding resources.</li>
-            </ul>
-          </div>
-
-          <div class="cv-job">
-            <div class="cv-job__top">
-              <span class="cv-job__title">Marketing Enablement &amp; Efficacy Lead <span class="cv-job__co">· Pleo</span></span>
-              <span class="cv-job__date">Feb 2026 — Jun 2026</span>
-            </div>
-            <ul>
-              <li>Designed and built a production agentic system for a 30+ person team: multi-agent orchestration with specialised skills, tool-use patterns, MCP integrations (Canva, Linear, Miro), and autonomous 24/7 operation, with orchestrator agents coordinating subagents in parallel.</li>
-              <li>Built self-improving feedback loops: weekly reflection agents propose rule changes; monthly evolution cycles auto-approve them only when benchmark scores improve; decay-weighted memory scoring promotes high-value knowledge.</li>
-              <li>Designed evaluation frameworks for agent quality: skill-trigger accuracy benchmarks, output-quality evals, and retrieval-precision metrics with regression tracking.</li>
-              <li>Built a RAG memory and retrieval architecture over a ~1,000-document vector-indexed wiki, with semantic search, context-budget management, and automated pruning.</li>
-              <li>Drove adoption from zero infrastructure to 74% daily AI-tool usage (n=23); shipped 3 workflows into production; led an enablement workshop and built role-specific onboarding across 6 functions.</li>
-            </ul>
-          </div>
-
-          <div class="cv-job">
-            <div class="cv-job__top">
-              <span class="cv-job__title">Performance Marketing Specialist → Senior <span class="cv-job__co">· Pleo</span></span>
-              <span class="cv-job__date">Oct 2021 — Feb 2026</span>
-            </div>
-            <ul>
-              <li>Built the technical foundation the agentic layer runs on: end-to-end ownership of the Segment CDP, server-side CAPI events with high-quality matching parameters, and clean, GDPR-compliant data pipelines across marketing, product, data, and legal.</li>
-              <li>Built an incrementality testing framework from scratch in Python on the ads-platform APIs, improving CAC by ~15% and establishing the experimentation culture behind agent-driven creative testing.</li>
-              <li>Implemented lifecycle-stage-based conversion events and automated internal reporting, closing the gap between in-platform and backend data: ~7% CVR improvement, 2M€+ ARR uplift, and ~10% more open pipeline.</li>
-            </ul>
-          </div>
-
-          <div class="cv-job">
-            <div class="cv-job__top">
-              <span class="cv-job__title">Paid User Acquisition Manager <span class="cv-job__co">· Quandoo</span></span>
-              <span class="cv-job__date">Jun 2019 — Sep 2021</span>
-            </div>
-            <ul>
-              <li>Managed Google, Bing, and Meta campaigns at six-figure monthly spend; built automated campaign structures via Search Ads 360; designed and analysed A/B tests in SQL.</li>
-            </ul>
-          </div>
-        </div>
+      <div class="skill-group">
+        <span class="skill-label">Agentic Systems</span>
+        <span class="skill-list">Multi-agent orchestration, skill/tool/memory/eval decomposition, self-improving feedback loops, MCP, RAG architecture, vector search, context management, Claude / Claude Code</span>
       </div>
 
-      <!-- ASIDE: contact / skills / certs -->
-      <aside class="cv-aside">
-        <div class="cv-block reveal">
-          <span class="kicker">Contact</span>
-          <span class="contact-line"><a class="link" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></span>
-          <span class="contact-line"><a class="link" href="tel:+4917657914986">+49 176 57914986</a></span>
-          <span class="contact-line"><a class="link" href="https://linkedin.com/in/nikdumroese" target="_blank" rel="noopener">linkedin.com/in/nikdumroese</a></span>
-          <span class="contact-line"><a class="link" href="https://github.com/nikdumroese" target="_blank" rel="noopener">github.com/nikdumroese</a></span>
-        </div>
+      <div class="skill-group">
+        <span class="skill-label">Evals &amp; Observability</span>
+        <span class="skill-list">Benchmark design, regression tracking, output quality scoring, retrieval precision metrics, structured logging</span>
+      </div>
 
-        <div class="cv-block reveal" data-delay="80">
-          <span class="kicker">Skills</span>
-          <span class="skill-cat">Agentic systems</span>
-          <p class="muted" style="font-size:0.92rem;line-height:1.4">Multi-agent orchestration · skill / tool / memory / eval decomposition · self-improving loops · MCP · RAG · vector search · context management · Claude / Claude Code</p>
-          <span class="skill-cat">Evals &amp; observability</span>
-          <p class="muted" style="font-size:0.92rem;line-height:1.4">Benchmark design · regression tracking · output-quality scoring · retrieval-precision metrics · structured logging</p>
-          <span class="skill-cat">Data &amp; analytics</span>
-          <p class="muted" style="font-size:0.92rem;line-height:1.4">Python · SQL · BigQuery · ARIMAX / marketing-mix modelling · Amplitude · Looker Studio · Fivetran · Streamlit</p>
-          <span class="skill-cat">Marketing infrastructure</span>
-          <p class="muted" style="font-size:0.92rem;line-height:1.4">Segment (CDP) · CAPI · Google Tag Manager · HubSpot · incrementality testing · Google Ads · Meta Ads · Search Ads 360</p>
-          <span class="skill-cat">Web</span>
-          <p class="muted" style="font-size:0.92rem;line-height:1.4">HTML · CSS · JavaScript</p>
-        </div>
+      <div class="skill-group">
+        <span class="skill-label">Data &amp; Analytics</span>
+        <span class="skill-list">Python, SQL, BigQuery, ARIMAX / marketing mix modelling, Amplitude, Looker Studio, Fivetran, Streamlit</span>
+      </div>
 
-        <div class="cv-block reveal" data-delay="160">
-          <span class="kicker">Certifications</span>
-          <ul>
-            <li>Google Tag Manager</li>
-            <li>Google Ads — Search &amp; Display</li>
-            <li>Google Analytics</li>
-            <li>Search Ads 360</li>
-          </ul>
-        </div>
-      </aside>
+      <div class="skill-group">
+        <span class="skill-label">Marketing Infrastructure</span>
+        <span class="skill-list">Segment (CDP), CAPI, Google Tag Manager, HubSpot, incrementality testing, Google Ads, Meta Ads, Search Ads 360</span>
+      </div>
 
+      <div class="skill-group">
+        <span class="skill-label">Web</span>
+        <span class="skill-list">HTML, CSS, JavaScript</span>
+      </div>
     </div>
-  </section>
 
-  <!-- DOWNLOAD CTA -->
-  <section class="cv-download wrap">
-    <p class="kicker">Take it with you</p>
-    <h2 class="big">Download the PDF</h2>
-    <a class="btn" href="cv.pdf" download><span>Download CV</span> <span class="arrow">↓</span></a>
-  </section>
-
-</main>
-
-<footer class="foot" id="contact">
-  <div class="wrap">
-    <p class="kicker">Get in touch</p>
-    <p class="display" style="max-width:14ch;margin-top:18px">Let's build<br>something.</p>
-    <p style="margin-top:22px;font-size:1.3rem"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
-    <div class="foot__links">
-      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="noopener">LinkedIn ↗</a>
-      <a href="https://github.com/nikdumroese" target="_blank" rel="noopener">GitHub ↗</a>
-      <a href="tel:+4917657914986">+49 176 57914986</a>
-      <a href="cv.pdf" download>Download CV ↓</a>
+    <div class="sidebar-section">
+      <div class="section-heading">Certifications</div>
+      <p class="cert-item">Google Tag Manager</p>
+      <p class="cert-item">Google Ads — Search &amp; Display</p>
+      <p class="cert-item">Google Analytics</p>
+      <p class="cert-item">Search Ads 360</p>
     </div>
-    <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-    </div>
+
   </div>
-</footer>
+</div>
 
-<script src="assets/app.js"></script>
 </body>
 </html>
