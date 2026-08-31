@@ -1,6 +1,5 @@
 /* Niklaas Dumroese — personal site
    Own design system. See design-system/MASTER.md */
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
 /* ---------- tokens ---------- */
 :root {
@@ -285,9 +284,10 @@ a.row:hover .row__go { opacity: 1; color: var(--accent); }
 .cv-download h2 { margin-bottom: 24px; }
 
 /* ---------- reveal ---------- */
-.reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
-.reveal.in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+.reveal { opacity: 1; }
+.js .reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .js .reveal { opacity: 1; transform: none; transition: none; } }
 
 /* ---------- responsive ---------- */
 @media (max-width: 860px) {

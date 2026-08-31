@@ -1,0 +1,13 @@
+{
+  "name": "Nik Dumroese — Agentic GTM Systems",
+  "short_name": "Nik Dumroese",
+  "description": "Nik Dumroese builds and ships agentic GTM systems: multi-agent infrastructure, growth engineering, and GTM data.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F4F1EA",
+  "theme_color": "#F4F1EA",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
