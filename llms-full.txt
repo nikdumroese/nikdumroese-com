@@ -47,6 +47,21 @@ The outcome
 24/7 Autonomous operation, no triggers
 ~1,000 Docs in vector-indexed memory
 30+ Person team served
+Decentralized multi-agent swarm, no orchestrator
+Scope Holocracy-inspired framework, no central orchestrator, reusable across use cases
+Stack LangGraph (StateGraph, Send fan-out), Claude Code CLI (headless), JSON Schema, Python
+The challenge
+The multi-agent system above runs on a supervisor: orchestrator agents decide who acts next. That's one real pattern, but not the only one. I wanted to test whether a genuinely decentralized model, where no single agent or human ever picks the next move, could actually hold together in production.
+What I built
+Independent roles coordinate through file-based mailboxes and a Holocracy-style governance mechanism: any role can file a proposal or an objection, and a proposal integrates only once every other role has had a turn to object and none did — computed purely from timestamps in an append-only audit log, never decided by an LLM or a human. LangGraph handles only the mechanical parts (state, parallel fan-out, routing); every real judgment call happens inside a headless Claude Code subprocess, schema-validated on the way out.
+Found and fixed real permission-scoping bugs by testing directly against the CLI instead of trusting its docs — one flag was silently overridden by a default, another blocked tools it claimed to support.
+Built a local observability dashboard: cost-per-role tracking, an objection matrix, proposal-lifecycle metrics, all computed from structured logs at zero added inference cost.
+The same framework runs multiple use cases via swappable per-pack role configs — a new use case is a new config directory, not new framework code.
+The outcome
+Running against a real, live case, not a demo: sourcing and screening real job postings, drafting tailored applications, with a dedicated fact-checking role enforcing a hard no-fabrication rule.
+0 Central orchestrator — routing is a pure mechanical function
+5 Independent roles per pack, coordinating async
+3 Real permission-model bugs found via direct testing, not docs
 Incrementality testing framework
 Scope Causal measurement framework, built from scratch
 Stack Python, ads-platform APIs, SQL, geo-experiments

@@ -14,6 +14,7 @@ I design the pipelines, models, agents, and data that decide how go-to-market te
 
 - A proactive GTM engine, built end-to-end: signal pipeline → enrichment → ICP + signal scoring → branched outreach → self-improving eval loop. Stack: Python, dbt, Clay, LLM copy layer, CRM automation, GitHub/PyPI/Docker APIs. Shipped as a live app + runnable scoring model; ~14× directional year-one ROI.
 - Production multi-agent marketing system: 24/7 agentic infrastructure for a 30+ person team — orchestrator agents coordinating subagents, self-improving loops, RAG memory over a ~1,000-doc vector-indexed wiki, and eval frameworks with regression tracking.
+- Decentralized multi-agent swarm, no orchestrator: Holocracy-inspired framework — independent roles coordinate via file-based mailboxes and mechanical governance (proposals integrate only once every other role has had a turn to object, computed from an append-only audit log, never decided by an LLM or human). Built on LangGraph for state/routing/parallel fan-out only; all judgment happens in a headless Claude Code subprocess. Reusable across use cases via swappable per-pack role configs; applied to a real live job search, with a dedicated fact-checking role enforcing a hard no-fabrication rule.
 - Incrementality testing framework: from-scratch causal measurement in Python on ads-platform APIs; ~15% CAC improvement.
 - GTM data infrastructure & conversion tracking: Segment CDP, server-side CAPI events, lifecycle-stage conversion tracking; ~7% CVR improvement and 2M€+ ARR uplift contribution.
 
