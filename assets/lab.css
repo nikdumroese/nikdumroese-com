@@ -8,14 +8,12 @@
 .lab-intro { margin-top: 18px; max-width: 56ch; color: var(--ink-60); }
 .lab-list { margin-top: 28px; }
 .lab-list .row { grid-template-columns: auto 1fr auto; }
-.lab-list .row__tags { display: none; }
 .lab-more { margin-top: 24px; }
 
 /* ---------- lab page head ---------- */
 .lab-head { padding-top: clamp(40px, 7vw, 80px); padding-bottom: clamp(24px, 4vw, 40px); }
 .lab-head h1 { font-size: clamp(2.2rem, 6vw, 4.2rem); letter-spacing: -0.045em; line-height: 0.98; max-width: 18ch; margin-top: 14px; }
 .lab-head .lead { max-width: 52ch; margin-top: 18px; }
-.lab-head__meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
 .crumb { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-60); }
 .crumb a { display: inline-block; padding-block: 13px; }
 .crumb a:hover { color: var(--accent-text); }

@@ -156,7 +156,6 @@ a.row:hover .row__title { color: var(--accent); }
 .row__num { font-family: var(--mono); color: var(--ink-60); font-size: 13px; }
 .row__title { display: block; font-weight: 700; font-size: clamp(1.3rem, 3.4vw, 2.1rem); letter-spacing: -0.03em; line-height: 1.05; }
 .row__meta { font-family: var(--mono); font-size: 12px; color: var(--ink-60); text-transform: uppercase; letter-spacing: 0.05em; }
-.row__tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
 .row__desc { display: block; color: var(--ink-60); font-size: 0.96rem; line-height: 1.4; margin-top: 8px; max-width: 62ch; }
 a.row:hover .row__desc { color: var(--ink); }
 .tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-60); border: 1px solid var(--ink-20); padding: 3px 8px; }
