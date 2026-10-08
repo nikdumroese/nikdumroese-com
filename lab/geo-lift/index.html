@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.className=document.documentElement.className.replace("no-js","js");</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Geo-lift incrementality test — Lab — Nik Dumroese</title>
+<meta name="description" content="Measure what a campaign actually caused by comparing test regions against a synthetic control built from the rest. Runs in your browser." />
+<link rel="canonical" href="https://nikdumroese.com/lab/geo-lift/" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Niklaas Dumroese" />
+<meta name="theme-color" content="#F4F1EA" />
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:site_name" content="Niklaas Dumroese" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nikdumroese.com/lab/geo-lift/" />
+<meta property="og:title" content="Geo-lift incrementality test — Nik Dumroese Lab" />
+<meta property="og:description" content="Measure what a campaign actually caused by comparing test regions against a synthetic control built from the rest. Runs in your browser." />
+<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<meta name="color-scheme" content="light" />
+<link rel="llms" type="text/markdown" href="/llms.txt" />
+<link rel="stylesheet" href="../../assets/styles.css" />
+<link rel="stylesheet" href="../../assets/lab.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
+    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="../index.html">Lab</a>
+      <a href="../../about.html">About</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>CV</a>
+      <a class="is-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="lab-head wrap">
+    <p class="crumb"><a href="../index.html">Lab</a> / 02</p>
+    <h1>Geo-lift incrementality test</h1>
+    <p class="lead">Measure what a campaign actually caused, not what the ad platform claims. Run it in a few test regions, then compare them against a synthetic control built from the rest.</p>
+    <div class="lab-head__meta">
+      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">No data leaves the page</span>
+      <span class="tag">Synthetic control</span>
+      <span class="tag">Placebo inference</span>
+    </div>
+  </section>
+
+  <section class="lab wrap" id="geo-app">
+    <div class="lab-grid">
+      <aside class="lab-controls" aria-label="Controls">
+        <span class="group-label">Simulation</span>
+        <div class="field">
+          <div class="field__top"><label for="lift">True injected lift</label><output for="lift"></output></div>
+          <input type="range" id="lift" min="0" max="25" step="0.5" value="8" aria-describedby="lift-hint" />
+          <p class="hint" id="lift-hint">Simulation knob. You set the true effect, so you know the answer. See if the method finds it.</p>
+        </div>
+        <div id="seed-field"><div class="field">
+          <div class="field__top"><label for="seed">Data seed</label><output for="seed"></output></div>
+          <input type="range" id="seed" min="1" max="20" step="1" value="1" />
+          <p class="hint">Redraws the noise. Same model, different luck.</p>
+        </div></div>
+
+        <span class="group-label">Test design</span>
+        <div class="field">
+          <div class="field__top"><label for="len">Test length</label><output for="len"></output></div>
+          <input type="range" id="len" min="14" max="42" step="1" value="30" />
+          <p class="hint">Starts after a 90-day pre-period.</p>
+        </div>
+        <div id="start-field" hidden><div class="field">
+          <label for="start">Test start date</label>
+          <select class="select" id="start"></select>
+        </div></div>
+        <div class="field">
+          <span class="label" id="geo-label">Test geos</span>
+          <div class="checks" id="geo-list" role="group" aria-labelledby="geo-label"></div>
+          <p class="hint" id="geo-share" aria-live="polite"></p>
+        </div>
+
+        <span class="group-label">Economics</span>
+        <div class="field">
+          <label for="spend">Campaign spend in test geos (€)</label>
+          <input class="input" type="number" id="spend" min="0" step="1000" value="40000" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="value">Value per conversion (€)</label>
+          <input class="input" type="number" id="value" min="0" step="5" value="90" inputmode="decimal" />
+        </div>
+
+        <span class="group-label">Your data</span>
+        <div class="field">
+          <label for="csv">Upload CSV (date, geo, kpi)</label>
+          <input type="file" id="csv" accept=".csv,text/csv" aria-describedby="data-status" />
+          <p class="hint" id="data-status"></p>
+          <p class="hint" id="csv-err" role="alert"></p>
+          <div class="btns">
+            <button class="btn btn--ghost btn--sm" type="button" id="sample">Download this data</button>
+            <span id="reset-wrap" hidden><button class="btn btn--ghost btn--sm" type="button" id="reset">Back to synthetic</button></span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="lab-out">
+          <div class="tabs" role="tablist" aria-label="Mode">
+            <button class="tab" role="tab" id="t-analyze" aria-controls="p-analyze" aria-selected="true">Analyze</button>
+            <button class="tab" role="tab" id="t-plan" aria-controls="p-plan" aria-selected="false">Plan a test</button>
+          </div>
+
+          <div role="tabpanel" id="p-analyze" aria-labelledby="t-analyze" class="lab-out">
+            <section class="lab-block" aria-labelledby="verdict-h">
+              <p class="kicker"><span class="idx">01</span> Verdict</p>
+              <h2 id="verdict-h">Result</h2>
+              <div class="verdict" aria-live="polite">
+                <span class="verdict__v" id="verdict-v">–</span>
+                <span class="verdict__why" id="verdict-why">Computing…</span>
+              </div>
+              <div class="stat-strip">
+                <div class="stat"><span class="n" id="k-incr">–</span><span class="l" id="k-incr-l">Incremental conversions</span></div>
+                <div class="stat"><span class="n" id="k-p">–</span><span class="l">Placebo p-value</span></div>
+                <div class="stat"><span class="n" id="k-roas">–</span><span class="l" id="k-roas-l">iROAS</span></div>
+                <div class="stat"><span class="n" id="k-cpi">–</span><span class="l">Cost per incremental conv.</span></div>
+                <div class="stat"><span class="n" id="k-mape">–</span><span class="l">Pre-period fit error (MAPE)</span></div>
+              </div>
+              <p class="note mt-sm" id="truth"></p>
+              <p id="fit-warn-wrap" hidden><span class="tag tag--warn" id="fit-warn"></span></p>
+            </section>
+
+            <section class="lab-block" aria-labelledby="b-fit">
+              <p class="kicker"><span class="idx">02</span> Counterfactual</p>
+              <h2 id="b-fit">Test geos vs. their synthetic control</h2>
+              <p>Daily conversions summed over the test geos. The dashed line is a weighted blend of control geos, fitted on the pre-period only. After the start line, the gap between them is the effect.</p>
+              <div class="chart" id="c-fit"></div>
+              <div class="legend"><span><i></i>Actual, test geos</span><span><i class="k-muted"></i>Synthetic control</span><span><i class="k-band"></i>90% placebo range</span></div>
+            </section>
+
+            <section class="lab-block" aria-labelledby="b-gap">
+              <p class="kicker"><span class="idx">03</span> Effect</p>
+              <h2 id="b-gap">Daily gap and cumulative lift</h2>
+              <p>The shaded band shows how big the daily gap gets in control geos that saw no campaign.</p>
+              <div class="chart" id="c-gap"></div>
+              <div class="legend"><span><i></i>Actual − synthetic</span><span><i class="k-band"></i>90% placebo range</span></div>
+              <div class="chart" id="c-cum"></div>
+              <div class="legend"><span><i class="k-accent"></i>Cumulative incremental conversions</span><span><i class="k-band"></i>90% interval</span></div>
+            </section>
+
+            <section class="lab-block" aria-labelledby="b-placebo">
+              <p class="kicker"><span class="idx">04</span> Inference</p>
+              <h2 id="b-placebo">Placebo test</h2>
+              <p id="placebo-txt"></p>
+              <div class="chart" id="c-placebo"></div>
+              <div class="legend"><span><i class="k-bar-muted"></i>Placebo cells (post/pre RMSPE ratio)</span><span><i class="k-accent"></i>Your test</span></div>
+            </section>
+
+            <section class="lab-block" aria-labelledby="b-w">
+              <p class="kicker"><span class="idx">05</span> Donors</p>
+              <h2 id="b-w">Who builds the synthetic control</h2>
+              <p id="weights-txt"></p>
+              <div class="tbl-wrap">
+                <table class="tbl">
+                  <thead><tr><th scope="col">Control geo</th><th scope="col">Region</th><th scope="col" class="num">Weight</th><th scope="col" class="num">Pre avg/day</th></tr></thead>
+                  <tbody id="weights"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div role="tabpanel" id="p-plan" aria-labelledby="t-plan" class="lab-out" hidden>
+            <section class="lab-block" aria-labelledby="b-power">
+              <p class="kicker"><span class="idx">01</span> Power</p>
+              <h2 id="b-power">Smallest lift this design can detect</h2>
+              <p>Before spending, back-test the design on history. The method replays fake tests inside the pre-period, adds a known lift to the test geos, and counts how often the 90% interval excludes zero.</p>
+              <div class="stat-strip">
+                <div class="stat"><span class="n" id="k-mde">–</span><span class="l">Minimum detectable effect (80% power)</span></div>
+                <div class="stat"><span class="n" id="k-share">–</span><span class="l">Share of volume in test</span></div>
+                <div class="stat"><span class="n" id="k-pmape">–</span><span class="l">Avg. pre-fit error</span></div>
+                <div class="stat"><span class="n" id="k-reps">–</span><span class="l">Back-test windows</span></div>
+              </div>
+              <p class="hint" id="plan-err" role="alert"></p>
+              <div class="chart" id="c-power"></div>
+              <div class="legend"><span><i class="k-accent"></i>Detection rate</span><span><i class="k-muted"></i>80% power</span></div>
+              <p id="plan-txt" aria-live="polite"></p>
+            </section>
+
+            <section class="lab-block" aria-labelledby="b-suggest">
+              <p class="kicker"><span class="idx">02</span> Geo selection</p>
+              <h2 id="b-suggest">Suggest test geos</h2>
+              <p>Ranks every geo by how well the others can reproduce its pre-period, then fills a test cell of 12–20% of volume from the best-fitting ones. Very large geos (over 6% of volume) are skipped: they're hard to reproduce and costly to hold out.</p>
+              <div class="btns"><button class="btn btn--sm" type="button" id="suggest">Suggest test geos</button></div>
+              <p class="note" id="suggest-out" aria-live="polite"></p>
+            </section>
+          </div>
+      </div>
+    </div>
+
+    <details class="acc method" id="method">
+      <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
+      <div class="acc__panel case__grid">
+        <aside class="meta"><dl>
+          <div><dt>Method</dt><dd>Synthetic control with in-space placebo inference</dd></div>
+          <div><dt>Built from</dt><dd>An incrementality framework Nik built from scratch at a fintech. <a class="link" href="../../about.html">Context</a></dd></div>
+          <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Not client data.</dd></div>
+          <div><dt>Runs</dt><dd>Plain JavaScript in this page. No libraries, no server.</dd></div>
+        </dl></aside>
+        <div class="case__body">
+          <h3>The data</h3>
+          <p>40 German cities, 132 days of daily conversions, generated in your browser. Each city is its size times a shared national trend, a weekly pattern, a regional factor (North, West, South, East), two hidden factors with city-specific loadings, its own drift and count noise. After day 90 the test cities get the lift you set. Nothing else changes.</p>
+          <h3>The model</h3>
+          <p>Each geo is divided by its pre-period mean so big and small cities are comparable. The test geos are summed into one series. The synthetic control is a weighted average of control geos: weights are non-negative and sum to 1, chosen to minimise squared error over the pre-period. The fit is accelerated projected gradient descent onto the simplex.</p>
+          <p>After the test starts, the synthetic control is the counterfactual: what the test geos would have done without the campaign. Lift is the post-period gap divided by the counterfactual.</p>
+          <h3>Inference</h3>
+          <p>Placebo cells: the same number of control geos as your test cell, picked at random (with a fixed seed) and preferring cells of similar volume. Each gets its own synthetic control from the remaining controls. Their post-period "lifts" show how big a gap appears by chance.</p>
+          <ul>
+            <li>The 90% interval is your estimate minus the 5th and 95th percentile of placebo lifts. The verdict uses this interval.</li>
+            <li>The p-value ranks your test's post/pre RMSPE ratio among the placebo ratios (Abadie's test). It also catches effects that come and go.</li>
+            <li>Power: fake test windows inside the pre-period, a known lift added, the same interval rule applied. MDE is the lift detected in 80% of windows.</li>
+          </ul>
+          <h3>In production</h3>
+          <p>The KPI comes from the warehouse (BigQuery models in dbt), at geo-day grain. Spend comes from the ad-platform APIs. Holdouts are set in platform geo-targeting, and the test plan is fixed before launch: geos, dates, MDE. Results feed the <a class="link" href="../mmm/">media mix model</a> as priors on channel effects and go into the budget plan. An LLM can draft the readout for stakeholders, but the numbers and the verdict come from this deterministic layer.</p>
+          <h3>Limits</h3>
+          <ul>
+            <li>Spillover: people commute and media leaks across borders. Neighbouring control geos then understate the lift.</li>
+            <li>Small geo counts give few placebos. The smallest possible p-value is 1 over (placebos + 1).</li>
+            <li>Needs a stable pre-period. A launch, outage or tracking change before the test breaks the fit.</li>
+            <li>One test at a time per geo. Overlapping campaigns in the same geos can't be separated.</li>
+            <li>The test cell must be inside what the controls can reproduce. A city unlike any other has no good synthetic twin.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="kicker">Get in touch</p>
+    <p class="display">Want this on<br>your data?</p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <div class="foot__links">
+      <a href="../index.html">All lab projects</a>
+      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
+      <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 Niklaas Dumroese</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/analytics.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/lab.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ I design the pipelines, models, agents, and data that decide how go-to-market te
 ## Pages
 
 - [Home](https://nikdumroese.com/): positioning, selected work (4 case studies), and open-source projects.
+- [Lab](https://nikdumroese.com/lab/): five live AI and marketing-science tools that run in the browser.
 - [About](https://nikdumroese.com/about.html): background — from performance marketing to performance of GTM — and how I work.
 - [CV (PDF)](https://nikdumroese.com/Nik_Dumroese_CV.pdf): full experience, skills, and certifications.
 
@@ -17,6 +18,16 @@ I design the pipelines, models, agents, and data that decide how go-to-market te
 - Decentralized multi-agent swarm, no orchestrator: Holocracy-inspired framework — independent roles coordinate via file-based mailboxes and mechanical governance (proposals integrate only once every other role has had a turn to object, computed from an append-only audit log, never decided by an LLM or human). Built on LangGraph for state/routing/parallel fan-out only; all judgment happens in a headless Claude Code subprocess. Reusable across use cases via swappable per-pack role configs; applied to a real live job search, with a dedicated fact-checking role enforcing a hard no-fabrication rule.
 - Incrementality testing framework: from-scratch causal measurement in Python on ads-platform APIs; ~15% CAC improvement.
 - GTM data infrastructure & conversion tracking: Segment CDP, server-side CAPI events, lifecycle-stage conversion tracking; ~7% CVR improvement and 2M€+ ARR uplift contribution.
+
+## Lab (live, in-browser projects)
+
+Working tools that run client-side on synthetic sample data or an uploaded CSV. Index: https://nikdumroese.com/lab/
+
+- [Media mix model & budget optimizer](https://nikdumroese.com/lab/mmm/): Fits adstock and saturation curves to two years of weekly spend, then moves budget to where the next euro earns most.
+- [Geo-lift incrementality test](https://nikdumroese.com/lab/geo-lift/): Builds a synthetic control from untreated regions and tests whether a campaign caused the lift, with placebo-based significance and power planning.
+- [Intent-signal lead scorer](https://nikdumroese.com/lab/lead-scorer/): ICP fit plus product-usage signals, every point traceable to a rule. Learns weights from outcomes and gates outreach copy before it sends.
+- [Brand & claims gate for AI-written copy](https://nikdumroese.com/lab/claims-check/): Checks agent-drafted ad copy against voice, an approved-claims register, competitor and regulated-language rules. Pass, review, or block.
+- [CRM dedupe & standardiser](https://nikdumroese.com/lab/crm-dedupe/): Drop in a messy contact export. Get one clean record per person, every merge explained, nothing sent to a server.
 
 ## Open source
 

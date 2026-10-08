@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.className=document.documentElement.className.replace("no-js","js");</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brand &amp; claims gate for AI-written copy — Lab — Nik Dumroese</title>
+<meta name="description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Pass, review or block, with the reason." />
+<link rel="canonical" href="https://nikdumroese.com/lab/claims-check/" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Niklaas Dumroese" />
+<meta name="theme-color" content="#F4F1EA" />
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:site_name" content="Niklaas Dumroese" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nikdumroese.com/lab/claims-check/" />
+<meta property="og:title" content="Brand &amp; claims gate for AI-written copy — Nik Dumroese Lab" />
+<meta property="og:description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Pass, review or block, with the reason." />
+<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<meta name="color-scheme" content="light" />
+<link rel="llms" type="text/markdown" href="/llms.txt" />
+<link rel="stylesheet" href="../../assets/styles.css" />
+<link rel="stylesheet" href="../../assets/lab.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
+    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="../index.html">Lab</a>
+      <a href="../../about.html">About</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>CV</a>
+      <a class="is-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="lab-head wrap">
+    <p class="crumb"><a href="../index.html">Lab</a> / 04</p>
+    <h1>Brand &amp; claims gate for AI-written copy</h1>
+    <p class="lead">Before an agent ships marketing copy, every line gets checked against the brand voice, the approved-claims register, competitor rules and regulated-language rules. Pass, review or block, with the reason.</p>
+    <div class="lab-head__meta">
+      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">No data leaves the page</span>
+      <span class="tag">Deterministic rules engine</span>
+    </div>
+  </section>
+
+  <section class="lab wrap">
+    <div class="lab-grid">
+      <aside class="lab-controls" aria-label="Controls">
+        <span class="group-label">Placement</span>
+        <div class="field">
+          <label for="channel">Channel</label>
+          <select class="select" id="channel" aria-describedby="channel-hint">
+            <option value="rsa">Google Responsive Search Ad</option>
+            <option value="meta">Meta ad</option>
+            <option value="linkedin">LinkedIn post</option>
+            <option value="email">Email</option>
+          </select>
+          <p class="hint" id="channel-hint">Sets the length and format rules.</p>
+        </div>
+        <div class="field">
+          <label for="market">Market</label>
+          <select class="select" id="market" aria-describedby="market-hint">
+            <option value="UK">UK</option>
+            <option value="DE">Germany</option>
+            <option value="US">US</option>
+          </select>
+          <p class="hint" id="market-hint">Sets the regulated-language rules: FCA in the UK, UWG in Germany, FTC in the US. Illustrative rule set, not legal advice.</p>
+        </div>
+
+        <span class="group-label">Gate</span>
+        <div class="field">
+          <div class="field__top"><label for="threshold">Auto-approve below</label><output for="threshold"></output></div>
+          <input type="range" id="threshold" min="5" max="100" step="5" value="20" aria-describedby="threshold-hint" />
+          <p class="hint" id="threshold-hint">Risk score threshold. Warnings add to the score. Lower it to send more drafts to a human. A block finding blocks at any setting.</p>
+        </div>
+
+        <span class="group-label">Samples</span>
+        <div class="field">
+          <span class="label" id="samples-label">Load a draft</span>
+          <div class="btns" role="group" aria-labelledby="samples-label">
+            <button type="button" class="btn btn--ghost btn--sm" data-sample="pass">Passes</button>
+            <button type="button" class="btn btn--ghost btn--sm" data-sample="review">Needs review</button>
+            <button type="button" class="btn btn--ghost btn--sm" data-sample="block">Blocks</button>
+          </div>
+          <p class="hint">Each sample sets its own channel and market.</p>
+        </div>
+        <p class="note">The brand (Fernway, a business expense-card company), its competitors, claims and evidence IDs are all fictional.</p>
+      </aside>
+
+      <div class="lab-out">
+        <div class="tabs" role="tablist" aria-label="Views">
+          <button class="tab" role="tab" id="t-gate" aria-controls="p-gate" aria-selected="true">Check a draft</button>
+          <button class="tab" role="tab" id="t-batch" aria-controls="p-batch" aria-selected="false">Batch</button>
+          <button class="tab" role="tab" id="t-config" aria-controls="p-config" aria-selected="false">Rule config</button>
+        </div>
+
+        <div role="tabpanel" id="p-gate" aria-labelledby="t-gate" class="lab-out">
+          <section class="lab-block" aria-labelledby="b1">
+            <p class="kicker"><span class="idx">01</span> Draft</p>
+            <h2 id="b1">The copy an agent wants to ship</h2>
+            <div class="field">
+              <label for="copy">Draft copy</label>
+              <textarea class="textarea" id="copy" spellcheck="false" aria-describedby="copy-hint"></textarea>
+              <p class="hint" id="copy-hint"></p>
+            </div>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b2">
+            <p class="kicker"><span class="idx">02</span> Verdict</p>
+            <h2 id="b2">What the gate decides</h2>
+            <div class="verdict" aria-live="polite" aria-atomic="true">
+              <span class="verdict__v" id="verdict">–</span>
+              <p class="verdict__why" id="why"></p>
+            </div>
+            <div class="stat-strip">
+              <div class="stat"><span class="n" id="k-score">–</span><span class="l">Risk score</span></div>
+              <div class="stat"><span class="n" id="k-block">–</span><span class="l">Block</span></div>
+              <div class="stat"><span class="n" id="k-warn">–</span><span class="l">Warn</span></div>
+              <div class="stat"><span class="n" id="k-flesch">–</span><span class="l">Reading ease</span></div>
+              <div class="stat"><span class="n" id="k-person">–</span><span class="l">You : we</span></div>
+            </div>
+            <div class="annot" id="annot" aria-label="Annotated copy"></div>
+            <p class="note">Highlights mark each finding. Select one to jump to it.</p>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b3">
+            <p class="kicker"><span class="idx">03</span> Findings</p>
+            <h2 id="b3">Every rule that fired, and the fix</h2>
+            <ul class="findings" id="findings"></ul>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b4">
+            <p class="kicker"><span class="idx">04</span> Audit</p>
+            <h2 id="b4">What gets written to the ledger</h2>
+            <p>Every decision is appended to a log: which draft, which rule set, which rules fired. That record is what an auditor or legal reviews later.</p>
+            <pre class="code" id="ledger"></pre>
+          </section>
+        </div>
+
+        <div role="tabpanel" id="p-batch" aria-labelledby="t-batch" class="lab-out" hidden>
+          <section class="lab-block" aria-labelledby="b5">
+            <p class="kicker"><span class="idx">01</span> Batch</p>
+            <h2 id="b5">Run an agent's drafts through the gate</h2>
+            <p>An agent writes 20 variants. The gate sorts them before anyone looks. Uses the market and threshold on the left.</p>
+            <div class="field">
+              <label for="b-channel">Channel for this batch</label>
+              <select class="select" id="b-channel">
+                <option value="meta">Meta ad</option>
+                <option value="rsa">Google Responsive Search Ad</option>
+                <option value="linkedin">LinkedIn post</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="batch">Variants</label>
+              <textarea class="textarea" id="batch" spellcheck="false" aria-describedby="batch-hint"></textarea>
+              <p class="hint" id="batch-hint">One variant per line. For multi-line variants, put a line with only --- between them.</p>
+            </div>
+            <div class="stat-strip">
+              <div class="stat"><span class="n" id="b-approve">–</span><span class="l">Auto-approve</span></div>
+              <div class="stat"><span class="n" id="b-review">–</span><span class="l">Review</span></div>
+              <div class="stat"><span class="n" id="b-block">–</span><span class="l">Blocked</span></div>
+            </div>
+          </section>
+          <section class="lab-block" aria-labelledby="b6">
+            <p class="kicker"><span class="idx">02</span> Results</p>
+            <h2 id="b6">Verdict per variant</h2>
+            <p>Select a row to open that variant in the single-draft view.</p>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th class="num">#</th><th>Variant</th><th>Verdict</th><th class="num">Score</th><th class="hide-sm">Top finding</th></tr></thead>
+                <tbody id="b-rows"></tbody>
+              </table>
+            </div>
+            <div class="btns"><button type="button" class="btn btn--ghost btn--sm" id="b-csv">Download results CSV</button></div>
+          </section>
+        </div>
+
+        <div role="tabpanel" id="p-config" aria-labelledby="t-config" class="lab-out" hidden>
+          <section class="lab-block" aria-labelledby="b7">
+            <p class="kicker"><span class="idx">01</span> Config</p>
+            <h2 id="b7">Rules are config, not judgement calls</h2>
+            <p>Each rule has an ID, a category, a severity, a scope and a fix. Brand, legal and marketing ops edit this file. The engine stays the same.</p>
+            <div class="field">
+              <label for="custom">Add a banned word</label>
+              <input class="input" id="custom" type="text" maxlength="40" autocomplete="off" aria-describedby="custom-hint" />
+              <p class="hint" id="custom-hint">Takes effect at once, on the draft and the batch. Rule TOV-CUSTOM, severity warn.</p>
+              <div class="btns"><button type="button" class="btn btn--sm" id="add-custom">Add word</button></div>
+              <div class="btns" id="custom-list" aria-label="Custom banned words"></div>
+            </div>
+          </section>
+          <section class="lab-block" aria-labelledby="b8">
+            <p class="kicker"><span class="idx">02</span> Register</p>
+            <h2 id="b8">Approved claims</h2>
+            <p>Any number, percentage or superlative in the copy must match a row here: same wording, same number, right market, not retired.</p>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>ID</th><th>Approved claim</th><th>Markets</th><th>Status</th><th class="hide-sm">Evidence</th></tr></thead>
+                <tbody id="reg-rows"></tbody>
+              </table>
+            </div>
+            <p class="note" id="competitors"></p>
+          </section>
+          <section class="lab-block" aria-labelledby="b9">
+            <p class="kicker"><span class="idx">03</span> Active rules</p>
+            <h2 id="b9">The rule set, as the engine reads it</h2>
+            <p id="rules-count"></p>
+            <pre class="code" id="rules-json"></pre>
+            <p class="note">Illustrative rule set, not legal advice. Rule summaries are simplified.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <details class="acc method" id="method">
+      <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
+      <div class="acc__panel case__grid">
+        <aside class="meta"><dl>
+          <div><dt>Method</dt><dd>Config-driven rules engine: phrase and pattern matchers, length limits, readability, and fuzzy matching against a claims register.</dd></div>
+          <div><dt>Built from</dt><dd>The check logic of an agent-governance prototype I built: tone, claims, competitor and regulated-language checks over an agent action ledger.</dd></div>
+          <div><dt>Data</dt><dd>Fictional brand, competitors, claims and evidence. Nothing leaves the page.</dd></div>
+        </dl></aside>
+        <div class="case__body">
+          <h3>The rules engine</h3>
+          <p>Each rule is a row of config: an ID, a category, a severity (info, warn or block), the markets and channels it applies to, a matcher and a suggested fix. The engine parses the copy into fields (headline, description, subject and so on), runs every rule in scope, and returns findings with character positions.</p>
+          <p>Claims work differently. The engine finds every number that reads as a claim (a percentage, a currency, a "+", or a number next to words like hours, companies or faster) and matches its clause against the register by shared words and the number itself. Same topic and same number: approved, with the evidence ID. Same topic, different number: blocked as altered. No match: blocked as unsubstantiated. Retired claims and claims cleared for another market are blocked too.</p>
+          <p>The verdict is fixed logic. Any block finding blocks. Otherwise the warnings add up to a risk score, and the draft goes to a human if the score reaches the threshold. Info findings cost nothing.</p>
+          <h3>In production</h3>
+          <p>An LLM agent drafts the copy. This page does not run one; it runs only the deterministic layer that gates its output. In production the gate sits between the agent and the ad platform or email tool, and runs on every draft:</p>
+          <ul>
+            <li>Blocked drafts go back to the agent with the findings as feedback, so it rewrites against the exact rule it broke.</li>
+            <li>Review drafts land in a queue for a human, with the findings attached.</li>
+            <li>Every decision is appended to a ledger: draft hash, rule set version, findings, outcome, and who overrode what.</li>
+            <li>A weekly drift report shows which rules the agents keep tripping, so the prompt or the brief gets fixed at the source.</li>
+          </ul>
+          <h3>Limits</h3>
+          <ul>
+            <li>Rules catch known patterns. They miss novel misleading framing, implied claims and context a reader would pick up.</li>
+            <li>An LLM judge can add semantic checks on top, such as tone fit or implied promises. The deterministic layer stays the gate, because it is auditable and gives the same answer every time.</li>
+            <li>Claim matching is word overlap plus the number. A clever paraphrase can slip past, and a rare false match is possible. Both are reasons to keep a human on the review queue.</li>
+            <li>Readability uses the English Flesch formula. It means little for German copy.</li>
+            <li>Legal owns the rule set. The regulatory rules here are simplified illustrations, not legal advice.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="kicker">Get in touch</p>
+    <p class="display">Want this gate on<br>your agents?</p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <div class="foot__links">
+      <a href="../index.html">All lab projects</a>
+      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
+      <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 Niklaas Dumroese</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/analytics.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/lab.js"></script>
+<script src="rules.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

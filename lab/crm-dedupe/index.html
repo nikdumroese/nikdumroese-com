@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.className=document.documentElement.className.replace("no-js","js");</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRM dedupe &amp; standardiser — Lab — Nik Dumroese</title>
+<meta name="description" content="Drop in a messy contact export and get back one clean record per person, with every merge explained. Runs in your browser; nothing is uploaded." />
+<link rel="canonical" href="https://nikdumroese.com/lab/crm-dedupe/" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Niklaas Dumroese" />
+<meta name="theme-color" content="#F4F1EA" />
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:site_name" content="Niklaas Dumroese" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nikdumroese.com/lab/crm-dedupe/" />
+<meta property="og:title" content="CRM dedupe &amp; standardiser — Nik Dumroese Lab" />
+<meta property="og:description" content="Drop in a messy contact export and get back one clean record per person, with every merge explained. Runs in your browser; nothing is uploaded." />
+<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<meta name="color-scheme" content="light" />
+<link rel="llms" type="text/markdown" href="/llms.txt" />
+<link rel="stylesheet" href="../../assets/styles.css" />
+<link rel="stylesheet" href="../../assets/lab.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
+    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="../index.html">Lab</a>
+      <a href="../../about.html">About</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>CV</a>
+      <a class="is-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="lab-head wrap">
+    <p class="crumb"><a href="../index.html">Lab</a> / 05</p>
+    <h1>CRM dedupe &amp; standardiser</h1>
+    <p class="lead">Drop in a messy contact export, get back one clean record per person, with every merge explained and nothing sent to a server.</p>
+    <div class="lab-head__meta">
+      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">No data leaves the page</span>
+      <span class="tag">Record linkage</span>
+      <a class="tag" href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">Based on crm-refine ↗</a>
+    </div>
+  </section>
+
+  <section class="lab wrap">
+    <div class="lab-grid">
+      <aside class="lab-controls" aria-label="Controls">
+        <span class="group-label">Data</span>
+        <div class="field">
+          <span class="label">Source</span>
+          <div class="btns">
+            <button type="button" class="btn btn--sm" id="load-sample">Load sample</button>
+          </div>
+          <p class="hint" id="data-status">Sample: synthetic contacts from fictional companies.</p>
+        </div>
+        <div class="field">
+          <label for="file">Upload CSV</label>
+          <input type="file" id="file" accept=".csv,text/csv" />
+          <p class="hint">Read in this tab with FileReader. Nothing is uploaded.</p>
+        </div>
+        <div class="field">
+          <label for="paste">Or paste CSV</label>
+          <textarea class="textarea textarea--code" id="paste" spellcheck="false" aria-describedby="paste-hint"></textarea>
+          <p class="hint" id="paste-hint">First line is the header. Holds the sample until you replace it.</p>
+          <div class="btns"><button type="button" class="btn btn--sm btn--ghost" id="use-paste">Run on pasted CSV</button></div>
+        </div>
+
+        <span class="group-label">Columns</span>
+        <p class="note">Detected from your headers. Change any that are wrong; unmapped columns pass through.</p>
+        <div id="mapping"></div>
+
+        <span class="group-label">Matching</span>
+        <div class="field">
+          <label for="country">Default country</label>
+          <select class="select" id="country">
+            <option value="DE">Germany (+49)</option>
+            <option value="GB">United Kingdom (+44)</option>
+            <option value="US">United States (+1)</option>
+            <option value="AT">Austria (+43)</option>
+            <option value="CH">Switzerland (+41)</option>
+            <option value="FR">France (+33)</option>
+            <option value="NL">Netherlands (+31)</option>
+            <option value="IE">Ireland (+353)</option>
+          </select>
+          <p class="hint">Used for phones and dates when a row has no country.</p>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="auto">Auto-merge at</label><output for="auto"></output></div>
+          <input type="range" id="auto" min="0.5" max="1" step="0.01" value="0.80" />
+          <p class="hint">Pairs scoring at or above this merge without review.</p>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="review">Review from</label><output for="review"></output></div>
+          <input type="range" id="review" min="0.3" max="1" step="0.01" value="0.60" />
+          <p class="hint">Pairs between this and the auto-merge line go to a person.</p>
+        </div>
+
+        <span class="group-label">Standardisers</span>
+        <div class="field" id="std" role="group" aria-labelledby="std-l">
+          <span class="label" id="std-l">Turn one off to see what it buys you</span>
+          <label class="check"><input type="checkbox" data-std="names" checked /> Names</label>
+          <label class="check"><input type="checkbox" data-std="email" checked /> Email</label>
+          <label class="check"><input type="checkbox" data-std="phone" checked /> Phone to E.164</label>
+          <label class="check"><input type="checkbox" data-std="company" checked /> Company</label>
+          <label class="check"><input type="checkbox" data-std="country" checked /> Country to ISO-2</label>
+          <label class="check"><input type="checkbox" data-std="title" checked /> Job title</label>
+          <label class="check"><input type="checkbox" data-std="stage" checked /> Lifecycle + dates</label>
+        </div>
+
+        <span class="group-label">Check</span>
+        <div class="field">
+          <label class="check"><input type="checkbox" id="truth" /> Score against ground truth</label>
+          <p class="hint" id="truth-hint">Sample only. The generator knows which rows are the same person.</p>
+        </div>
+      </aside>
+
+      <div class="lab-out">
+        <section class="lab-block" aria-labelledby="b1">
+          <p class="kicker"><span class="idx">01</span> Result</p>
+          <h2 id="b1">–</h2>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-in">–</span><span class="l">Rows in</span></div>
+            <div class="stat"><span class="n" id="k-out">–</span><span class="l">Records out</span></div>
+            <div class="stat"><span class="n" id="k-dup">–</span><span class="l">Duplicates merged</span></div>
+            <div class="stat"><span class="n" id="k-rev">–</span><span class="l">Pairs in review</span></div>
+            <div class="stat"><span class="n" id="k-fix">–</span><span class="l">Fields standardised</span></div>
+          </div>
+          <p class="note" id="truth-out" hidden></p>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b2">
+          <p class="kicker"><span class="idx">02</span> Pipeline</p>
+          <h2 id="b2">Five stages, all deterministic</h2>
+          <ol class="findings" id="stages"></ol>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b3">
+          <p class="kicker"><span class="idx">03</span> Candidate pairs</p>
+          <h2 id="b3">Where the thresholds cut</h2>
+          <p id="hist-cap">Each bar counts candidate pairs by match score.</p>
+          <div class="chart" id="hist"></div>
+          <div class="legend">
+            <span><i class="k-bar-muted"></i>Kept apart</span>
+            <span><i class="k-bar"></i>Review</span>
+            <span><i class="k-bar-accent"></i>Auto-merge</span>
+          </div>
+          <div class="tbl-wrap">
+            <table class="tbl" aria-label="Score weights">
+              <thead><tr><th>Signal</th><th class="num">Weight</th><th>How it is measured</th></tr></thead>
+              <tbody id="weights"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b4">
+          <p class="kicker"><span class="idx">04</span> Results</p>
+          <h2 id="b4">Every merge, with its reasons</h2>
+          <div class="tabs" role="tablist" aria-label="Result views">
+            <button class="tab" role="tab" id="t-merges" aria-controls="p-merges" aria-selected="true">Merges</button>
+            <button class="tab" role="tab" id="t-review" aria-controls="p-review">Review queue</button>
+            <button class="tab" role="tab" id="t-fixes" aria-controls="p-fixes">Field fixes</button>
+            <button class="tab" role="tab" id="t-out" aria-controls="p-out">Clean output</button>
+          </div>
+
+          <div role="tabpanel" id="p-merges" aria-labelledby="t-merges">
+            <p id="merges-cap"></p>
+            <div class="tbl-wrap">
+              <table class="tbl" aria-label="Merged clusters">
+                <thead><tr><th>Golden record</th><th class="num">Rows</th><th class="num">Weakest link</th><th>Signals</th><th><span class="label">Detail</span></th></tr></thead>
+                <tbody id="merges"></tbody>
+              </table>
+            </div>
+            <div class="btns"><button type="button" class="btn btn--sm btn--ghost" id="merges-more" hidden>Show more</button></div>
+          </div>
+
+          <div role="tabpanel" id="p-review" aria-labelledby="t-review" hidden>
+            <p id="review-cap"></p>
+            <ul class="findings" id="review-list"></ul>
+            <div class="btns"><button type="button" class="btn btn--sm btn--ghost" id="review-more" hidden>Show more</button></div>
+          </div>
+
+          <div role="tabpanel" id="p-fixes" aria-labelledby="t-fixes" hidden>
+            <div class="field">
+              <label for="fix-filter">Field</label>
+              <select class="select" id="fix-filter"></select>
+            </div>
+            <p id="fixes-cap"></p>
+            <div class="tbl-wrap">
+              <table class="tbl" aria-label="Field standardisations">
+                <thead><tr><th>Row</th><th>Field</th><th>Before</th><th>After</th></tr></thead>
+                <tbody id="fixes"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div role="tabpanel" id="p-out" aria-labelledby="t-out" hidden>
+            <p id="out-cap"></p>
+            <div class="btns">
+              <button type="button" class="btn btn--sm" id="dl-clean">Download clean CSV</button>
+              <button type="button" class="btn btn--sm btn--ghost" id="dl-log">Download merge log CSV</button>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl" aria-label="Clean output preview">
+                <thead id="out-head"></thead>
+                <tbody id="out-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <details class="acc method" id="method">
+      <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
+      <div class="acc__panel case__grid">
+        <aside class="meta"><dl>
+          <div><dt>Method</dt><dd>Rule-based standardisation, blocked record linkage, weighted similarity, union-find clustering, rule-based survivorship.</dd></div>
+          <div><dt>Built from</dt><dd><a class="link" href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">crm-refine</a>, my open-source CLI (Python, no dependencies), ported to browser JavaScript.</dd></div>
+          <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Fictional people and companies. Not client data.</dd></div>
+          <div><dt>Privacy</dt><dd>Your CSV is read in this tab. No network calls.</dd></div>
+        </dl></aside>
+        <div class="case__body">
+          <h3>1. Standardise</h3>
+          <p>Each cell is cleaned before anything is compared. Names are trimmed and cased (Mc, Mac, O', hyphens, and particles like von or van). A full-name column is split, including "Last, First". Emails are lower-cased with plus-tags removed. For Gmail and Googlemail only, dots in the local part are ignored when matching, because Google ignores them too. Phones become E.164 (+4930…) using the row's country, or the default country if the row has none. Legal forms like GmbH &amp; Co. KG, AG, Inc. and Ltd are stripped from company names. Countries become ISO-2 codes. Job titles get a seniority and a function from ordered rules. Lifecycle stages map to one ladder and dates become YYYY-MM-DD. US rows read 03/04 as March 4; others as 3 April.</p>
+          <h3>2. Block</h3>
+          <p>Comparing every row with every other row does not scale. A record only meets records that share a key: the same normalised email, the same E.164 phone, the same company plus the same phonetic name, or the same phonetic name alone. Phonetic codes use Kölner Phonetik (Cologne phonetics), so Müller, Mueller and Muller share a code. First names go through a nickname table first (Bob to Robert, Kate to Katharina). The two name codes are sorted, so swapped first and last names still meet. Blocks with more than 40 records are skipped to keep the work bounded.</p>
+          <h3>3. Score</h3>
+          <p>Each candidate pair gets a score from 0 to 1. It is the weighted average of the signals both records have; missing fields are left out instead of counting against the pair. Names use Jaro-Winkler on folded, nickname-resolved names, and are also compared swapped. Company uses token Jaccard on the crm-refine fingerprint. A different email counts at half weight, because people keep work and personal addresses. Two guards push a pair down into review: when only the name matches, and when the first names clearly differ, which usually means a shared inbox like j.carter@.</p>
+          <h3>4. Cluster</h3>
+          <p>Pairs at or above the auto-merge line are joined with union-find, the same structure crm-refine uses, so A–B and B–C put A, B and C in one record. Pairs in the review band are listed for a person to accept or reject. Decisions apply at once and are kept until you load new data.</p>
+          <h3>5. Survive</h3>
+          <p>Each cluster becomes one golden record. Fields that change when people move jobs (email, phone, company, title, country) come from the most recently active row. Names come from the most complete value, so Katharina beats Kate. The highest lifecycle stage is kept and the latest activity date wins. Columns you did not map come from the most complete row, filled from a duplicate when blank, as in crm-refine. Every field records which row it came from and why.</p>
+          <h3>What came from crm-refine</h3>
+          <p>Ported as-is: the company fingerprint and legal-suffix list, the free-mail domain list, name casing, company casing, the phone rules (country dial codes, trunk zero), the country table, union-find, master selection by completeness then recency, blank-field fill from duplicates, the auto versus review split, and pairwise precision and recall. crm-refine matches companies with sorted-neighbourhood edit distance. Person-level matching is not in the CLI, so this page uses the standard equivalents: Jaro-Winkler, a nickname table, Cologne phonetics and weighted scoring.</p>
+          <h3>In production</h3>
+          <p>The same pipeline runs as the dependency-free crm-refine CLI, or as a scheduled job against a HubSpot or Salesforce export. It writes a clean file and a merge log. A person reviews the log before anything is written back, because merges are hard to undo in most CRMs. An LLM can classify messy job titles at scale. The matching stays deterministic so every merge can be audited and replayed.</p>
+          <h3>Limits</h3>
+          <ul>
+            <li>No external enrichment. It only knows what is in the file.</li>
+            <li>The nickname table is partial and tuned for English and German names.</li>
+            <li>Phonetic keys are language-specific. Cologne phonetics fits German spelling better than English or Spanish.</li>
+            <li>Weights are set by hand, not learned. With labelled pairs you would fit them (Fellegi-Sunter or a small classifier).</li>
+            <li>Same-name colleagues with no email or phone look identical to the model. They land in review at best.</li>
+            <li>The score against ground truth only covers the synthetic sample. On the default sample at default thresholds it reads about 1.00 precision and 0.97 recall.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="kicker">Get in touch</p>
+    <p class="display">Want this on<br>your data?</p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <div class="foot__links">
+      <a href="../index.html">All lab projects</a>
+      <a href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">crm-refine on GitHub ↗</a>
+      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
+      <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 Niklaas Dumroese</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/analytics.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/lab.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

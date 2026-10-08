@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.className=document.documentElement.className.replace("no-js","js");</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Intent-signal lead scorer — Lab — Nik Dumroese</title>
+<meta name="description" content="Rank accounts on ICP fit plus live product-usage signals, see the rule behind every point, route each one to an outreach branch, and let conversions re-weight the model." />
+<link rel="canonical" href="https://nikdumroese.com/lab/lead-scorer/" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Niklaas Dumroese" />
+<meta name="theme-color" content="#F4F1EA" />
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:site_name" content="Niklaas Dumroese" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nikdumroese.com/lab/lead-scorer/" />
+<meta property="og:title" content="Intent-signal lead scorer — Nik Dumroese Lab" />
+<meta property="og:description" content="Rank accounts on ICP fit plus live product-usage signals, see the rule behind every point, route each one to an outreach branch, and let conversions re-weight the model." />
+<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<meta name="color-scheme" content="light" />
+<link rel="llms" type="text/markdown" href="/llms.txt" />
+<link rel="stylesheet" href="../../assets/styles.css" />
+<link rel="stylesheet" href="../../assets/lab.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
+    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="../index.html">Lab</a>
+      <a href="../../about.html">About</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>CV</a>
+      <a class="is-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="lab-head wrap">
+    <p class="crumb"><a href="../index.html">Lab</a> / 03</p>
+    <h1>Intent-signal lead scorer</h1>
+    <p class="lead">Rank accounts on ICP fit plus live product-usage signals, see exactly why each one scored what it did, and route it to the right outreach branch.</p>
+    <div class="lab-head__meta">
+      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">No data leaves the page</span>
+      <span class="tag">Rules + logistic regression</span>
+    </div>
+  </section>
+
+  <section class="lab wrap">
+    <div class="lab-grid">
+      <aside class="lab-controls" aria-label="Scoring controls">
+        <span class="group-label">Signal weights</span>
+        <div id="weights"></div>
+
+        <span class="group-label">Signal cap</span>
+        <div class="field">
+          <div class="field__top"><label for="cap">Max signal points</label><output for="cap"></output></div>
+          <input type="range" id="cap" min="5" max="30" step="1" value="15" />
+          <p class="hint">Source model caps signals at 15 so a noisy account can't outrank a good fit on volume alone.</p>
+        </div>
+
+        <span class="group-label">Tier thresholds</span>
+        <div class="field">
+          <div class="field__top"><label for="tA">Tier A at or above</label><output for="tA"></output></div>
+          <input type="range" id="tA" min="2" max="40" step="1" value="20" />
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="tB">Tier B at or above</label><output for="tB"></output></div>
+          <input type="range" id="tB" min="1" max="39" step="1" value="12" />
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="tC">Tier C at or above</label><output for="tC"></output></div>
+          <input type="range" id="tC" min="0" max="38" step="1" value="7" />
+          <p class="hint">Below Tier C: no outreach. Thresholds stay ordered A &gt; B &gt; C.</p>
+        </div>
+
+        <span class="group-label">Recency</span>
+        <div class="field">
+          <div class="field__top"><label for="half">Signal half-life</label><output for="half"></output></div>
+          <input type="range" id="half" min="0" max="30" step="1" value="0" />
+          <p class="hint">0 = off, the source model. Otherwise a signal loses half its points every N days.</p>
+        </div>
+
+        <div class="btns">
+          <button class="btn btn--ghost btn--sm" type="button" id="reset">Reset to source model</button>
+        </div>
+        <p class="note" id="cfg-note" aria-live="polite"></p>
+      </aside>
+
+      <div class="lab-out">
+        <div class="tabs" role="tablist" aria-label="Views">
+          <button class="tab" role="tab" id="t-score" aria-controls="p-score" aria-selected="true">Score and route</button>
+          <button class="tab" role="tab" id="t-learn" aria-controls="p-learn" aria-selected="false">Learn from outcomes</button>
+        </div>
+
+        <div role="tabpanel" id="p-score" aria-labelledby="t-score" class="lab-out">
+          <section class="lab-block" aria-labelledby="b1">
+            <p class="kicker"><span class="idx">01</span> Ranked accounts</p>
+            <h2 id="b1">50 accounts, scored live</h2>
+            <p>ICP fit (0–15) plus capped signal points. Select a row to see where every point came from.</p>
+            <div class="stat-strip">
+              <div class="stat"><span class="n" id="k-a">–</span><span class="l">Tier A</span></div>
+              <div class="stat"><span class="n" id="k-b">–</span><span class="l">Tier B</span></div>
+              <div class="stat"><span class="n" id="k-c">–</span><span class="l">Tier C</span></div>
+              <div class="stat"><span class="n" id="k-n">–</span><span class="l">No outreach</span></div>
+            </div>
+            <div class="field">
+              <span class="label" id="sort-l">Sort by</span>
+              <div class="seg" id="sort" role="group" aria-labelledby="sort-l">
+                <button type="button" data-value="total" aria-pressed="true">Total</button>
+                <button type="button" data-value="icp" aria-pressed="false">ICP</button>
+                <button type="button" data-value="signal" aria-pressed="false">Signal</button>
+              </div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl" id="rank">
+                <caption class="note" id="rank-cap">Click a row or focus it and press Enter.</caption>
+                <thead><tr>
+                  <th scope="col" class="num">#</th>
+                  <th scope="col">Account</th>
+                  <th scope="col">Tier</th>
+                  <th scope="col">Branch</th>
+                  <th scope="col" class="num" id="h-icp">ICP</th>
+                  <th scope="col" class="num" id="h-signal">Signal</th>
+                  <th scope="col" class="num" id="h-total">Total</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="btns">
+              <button class="btn btn--ghost btn--sm" type="button" id="more" aria-controls="rank">Show all 50</button>
+            </div>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b2" id="explain">
+            <p class="kicker"><span class="idx">02</span> Why this score</p>
+            <h2 id="b2">–</h2>
+            <p id="x-sub"></p>
+            <div class="stat-strip">
+              <div class="stat"><span class="n" id="x-icp">–</span><span class="l">ICP fit</span></div>
+              <div class="stat"><span class="n" id="x-sig">–</span><span class="l">Signal</span></div>
+              <div class="stat"><span class="n" id="x-tot">–</span><span class="l">Total</span></div>
+              <div class="stat"><span class="n" id="x-tier">–</span><span class="l">Tier</span></div>
+            </div>
+            <div class="chart" id="x-chart"></div>
+            <div class="legend"><span><i class="k-bar"></i>ICP dimension</span><span><i class="k-bar-accent"></i>Signal</span><span><i class="k-bar-muted"></i>Removed by cap</span></div>
+            <div class="tbl-wrap">
+              <table class="tbl" id="x-rules">
+                <caption class="note">Every point and the rule that produced it.</caption>
+                <thead><tr><th scope="col">Component</th><th scope="col">Rule that fired</th><th scope="col" class="num">Points</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="verdict">
+              <span class="verdict__v" id="x-branch">–</span>
+              <span class="verdict__why" id="x-branch-why"></span>
+            </div>
+            <dl class="kv" id="x-raw"></dl>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b3" id="outreach">
+            <p class="kicker"><span class="idx">03</span> First touch</p>
+            <h2 id="b3">Draft, then gate</h2>
+            <p class="note"><b>Template draft. In production an LLM writes this; the gate below is what decides if it sends.</b> The template only uses signals that fired for this account. Edit it and the gate re-runs.</p>
+            <div class="field">
+              <label for="subj">Subject</label>
+              <input class="input" id="subj" type="text" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="body">Body</label>
+              <textarea class="textarea" id="body" rows="9"></textarea>
+            </div>
+            <div class="btns">
+              <button class="btn btn--ghost btn--sm" type="button" id="redraft">Restore template</button>
+            </div>
+            <div class="verdict">
+              <span class="verdict__v" id="g-v">–</span>
+              <span class="verdict__why" id="g-why"></span>
+            </div>
+            <ul class="findings" id="g-list"></ul>
+          </section>
+        </div>
+
+        <div role="tabpanel" id="p-learn" aria-labelledby="t-learn" class="lab-out" hidden>
+          <section class="lab-block" aria-labelledby="b4">
+            <p class="kicker"><span class="idx">04</span> Learn from outcomes</p>
+            <h2 id="b4">Let conversions re-weight the model</h2>
+            <p>400 past accounts with a known outcome: converted or not. A logistic regression on the 5 ICP dimensions and 10 signal flags learns what actually predicted a conversion. Trained on 75%, scored on the 25% it never saw.</p>
+            <div class="field">
+              <div class="field__top"><label for="lam">L2 penalty</label><output for="lam"></output></div>
+              <input type="range" id="lam" min="0" max="60" step="1" value="10" />
+              <p class="hint">Higher pulls weights toward zero. Guards against overfitting a few hundred rows.</p>
+            </div>
+            <div class="stat-strip">
+              <div class="stat"><span class="n" id="l-src">–</span><span class="l">AUC, source weights</span></div>
+              <div class="stat"><span class="n" id="l-cur">–</span><span class="l">AUC, your settings</span></div>
+              <div class="stat"><span class="n" id="l-fit">–</span><span class="l">AUC, learned model</span></div>
+              <div class="stat"><span class="n" id="l-base">–</span><span class="l">Base conversion</span></div>
+            </div>
+            <p class="note">AUC: the chance a random converter outscores a random non-converter. 0.5 is a coin flip. Held-out set, n = <span id="l-n">–</span>.</p>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b5">
+            <p class="kicker"><span class="idx">05</span> Weights</p>
+            <h2 id="b5">Learned vs hand-set</h2>
+            <p>Points per unit. Learned coefficients are rescaled so the strongest signal equals 5, the top of the hand-set scale.</p>
+            <div class="chart" id="l-w"></div>
+            <div class="legend"><span><i class="k-bar-accent"></i>Learned</span><span><i class="k-bar"></i>Your current weights</span></div>
+            <div class="btns">
+              <button class="btn btn--sm" type="button" id="apply">Apply learned weights</button>
+            </div>
+            <p class="note" id="apply-note" aria-live="polite">Maps each learned signal coefficient onto the 0–5 slider scale and re-ranks the 50 live accounts. ICP rules stay as they are.</p>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b6">
+            <p class="kicker"><span class="idx">06</span> Lift</p>
+            <h2 id="b6">Conversion rate by score decile</h2>
+            <p>All 400 accounts, each scored by a model that did not train on it (4-fold cross-validation). Decile 1 is the top 10% by score. A good score puts the converters on the left.</p>
+            <div class="chart" id="l-lift"></div>
+            <div class="legend"><span><i class="k-bar-accent"></i>Learned model</span><span><i class="k-bar"></i>Source weights</span><span><i class="k-muted"></i>Base rate</span></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <details class="acc method" id="method">
+      <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
+      <div class="acc__panel case__grid">
+        <aside class="meta"><dl>
+          <div><dt>Method</dt><dd>Rule-based ICP + weighted signal score, tier and branch routing, deterministic copy gate, L2 logistic regression for re-weighting.</dd></div>
+          <div><dt>Built from</dt><dd>A port of the scoring model in Nik's GTM engine build for an open-source, usage-based billing product with a developer-led funnel.</dd></div>
+          <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Account names are fictional. Not client data.</dd></div>
+        </dl></aside>
+        <div class="case__body">
+          <h3>The model</h3>
+          <p>Two layers. ICP fit is five firmographic dimensions scored 0–3 each: billing complexity, company scale, funding and growth, headcount, technical fit. Max 15. Signal score is a weighted sum of ten intent signals, capped at 15. The product PQL signal is itself a composite of five usage triggers (invoice volume, plan and metric count, team seats, failed payments, months self-hosted), so it scales with how hard the account is hitting the free tier.</p>
+          <p>Total out of 30 sets the tier: A at 20, B at 12, C at 7, below that no outreach. Branch is set by signal source, not score: confirmed product PQL routes to the upgrade sequence, any fork or Python client install routes to the integrator sequence, everything else gets the evaluator sequence.</p>
+          <p>The build's README describes a sixth ICP dimension, "intent", for a total of 33. The code that ran dropped it, because intent was already counted in the signal layer. This page ports the code.</p>
+          <p>The copy gate ports the build's rule-gate checks: body at most 75 words, subject at most 8, a banned-vocabulary regex, company named in the body, a real signal cited, no weak opener, ends on a single question. One check is added here: the draft may not claim a signal that did not fire.</p>
+          <p>The history set's outcomes come from a hidden logistic model. It is related to the hand-set weights but not the same: some signals matter more than their weight says, a star barely matters, and fresh signals count more than old ones. That is why the learned model and a non-zero half-life can both beat the source weights.</p>
+          <h3>In production</h3>
+          <p>Signals come from the GitHub, PyPI, Docker Hub and job-board APIs, a website visitor-identification tool and product telemetry, landed in the warehouse and deduplicated daily against inbound. Scoring runs in a stdlib-only Python module so it can sit in any scheduler. An LLM drafts the first touch from the account's fired signals; the deterministic gate decides whether it sends, and a failed draft gets one retry before going to a human. Closed-won and closed-lost outcomes feed back into the weights on a schedule. More on <a class="link" href="https://github.com/nikdumroese" target="_blank" rel="noopener">GitHub</a>.</p>
+          <h3>Limits</h3>
+          <ul>
+            <li>Signal coverage is partial. Private forks, internal mirrors and pulls behind a proxy don't show up, so some active users score as cold.</li>
+            <li>Cold start. Learned weights need a few hundred closed outcomes before they beat hand-set ones; until then the rules carry the model.</li>
+            <li>A signal is not intent for every persona. An engineer forking the repo is not a buyer, and a finance lead may never touch GitHub.</li>
+            <li>The gate checks form, not truth beyond the signal table. It can't tell if a claim about the prospect's stack is accurate.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="kicker">Get in touch</p>
+    <p class="display">Want this on<br>your data?</p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <div class="foot__links">
+      <a href="../index.html">All lab projects</a>
+      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
+      <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 Niklaas Dumroese</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/analytics.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/lab.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

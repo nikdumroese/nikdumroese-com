@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.className=document.documentElement.className.replace("no-js","js");</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Media mix model & budget optimizer — Lab — Nik Dumroese</title>
+<meta name="description" content="Fit a marketing mix model on two years of weekly spend and revenue, then reallocate budget to where the next euro earns most. Runs in your browser." />
+<link rel="canonical" href="https://nikdumroese.com/lab/mmm/" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Niklaas Dumroese" />
+<meta name="theme-color" content="#F4F1EA" />
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:site_name" content="Niklaas Dumroese" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nikdumroese.com/lab/mmm/" />
+<meta property="og:title" content="Media mix model & budget optimizer — Nik Dumroese Lab" />
+<meta property="og:description" content="Fit a marketing mix model on two years of weekly spend and revenue, then reallocate budget to where the next euro earns most. Runs in your browser." />
+<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<meta name="color-scheme" content="light" />
+<link rel="llms" type="text/markdown" href="/llms.txt" />
+<link rel="stylesheet" href="../../assets/styles.css" />
+<link rel="stylesheet" href="../../assets/lab.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
+    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="../index.html">Lab</a>
+      <a href="../../about.html">About</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>CV</a>
+      <a class="is-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="lab-head wrap">
+    <p class="crumb"><a href="../index.html">Lab</a> / 01</p>
+    <h1>Media mix model &amp; budget optimizer</h1>
+    <p class="lead">Fit a marketing mix model on two years of weekly spend and revenue, then move budget to where the next euro earns most. Change the budget and the limits; the plan recomputes from the fitted response curves.</p>
+    <div class="lab-head__meta">
+      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">No data leaves the page</span>
+      <span class="tag">Adstock + Hill MMM</span>
+    </div>
+  </section>
+
+  <section class="lab wrap">
+    <div class="lab-grid">
+      <aside class="lab-controls" aria-label="Controls">
+        <span class="group-label">Data</span>
+        <div class="field">
+          <span class="label" id="scen-label">Synthetic scenario</span>
+          <div class="seg" id="scen-seg" role="group" aria-labelledby="scen-label">
+            <button type="button" data-value="balanced" aria-pressed="true">Balanced</button>
+            <button type="button" data-value="collinear" aria-pressed="false">Collinear</button>
+            <button type="button" data-value="saturated" aria-pressed="false">Saturated</button>
+          </div>
+          <p class="hint">Balanced: clean spend variation. Collinear: affiliates spend tracks search. Saturated: search past its curve, YouTube in three flights.</p>
+        </div>
+        <div class="field">
+          <label for="csv">Or upload a CSV</label>
+          <input type="file" id="csv" accept=".csv,text/csv" aria-describedby="csv-hint csv-msg" />
+          <p class="hint" id="csv-hint">Columns: week, revenue, then one spend column per channel. At least 52 weekly rows. Stays in your browser.</p>
+          <p class="note" id="csv-msg" role="status" aria-live="polite"></p>
+          <div class="btns"><button type="button" class="btn btn--ghost btn--sm" id="dl-sample">Download sample CSV</button></div>
+        </div>
+        <p class="note" id="data-note"></p>
+
+        <span class="group-label">Optimizer</span>
+        <div class="field">
+          <div class="field__top"><label for="budget">Weekly budget</label><output for="budget" id="budget-out"></output></div>
+          <input type="range" id="budget" min="-50" max="50" step="1" value="0" />
+          <p class="hint">Change against today's average weekly spend.</p>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="maxchg">Max change per channel</label><output for="maxchg"></output></div>
+          <input type="range" id="maxchg" min="5" max="100" step="5" value="30" />
+          <p class="hint">How far any one channel may move from today. Keeps the plan inside the range the model has seen.</p>
+        </div>
+        <div class="field">
+          <span class="label">Lock channels</span>
+          <div id="locks"></div>
+          <p class="hint">Locked channels keep today's spend.</p>
+        </div>
+      </aside>
+
+      <div class="lab-out">
+        <section class="lab-block" aria-labelledby="b1">
+          <p class="kicker"><span class="idx">01</span> Fit</p>
+          <h2 id="b1">Does the model track revenue?</h2>
+          <p>Curves are chosen on the first 91 weeks. The last 13 weeks are held out and predicted blind.</p>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-r2">–</span><span class="l">R² (train)</span></div>
+            <div class="stat"><span class="n" id="k-mape">–</span><span class="l">MAPE (train)</span></div>
+            <div class="stat"><span class="n" id="k-hold">–</span><span class="l">MAPE (holdout)</span></div>
+            <div class="stat"><span class="n" id="k-media">–</span><span class="l">Revenue from media</span></div>
+          </div>
+          <div class="chart" id="c-fit"></div>
+          <div class="legend"><span><i></i>Actual</span><span><i class="k-accent"></i>Model</span><span><i class="k-band"></i>Holdout</span></div>
+          <p class="note" id="fit-note"></p>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b2">
+          <p class="kicker"><span class="idx">02</span> Decomposition</p>
+          <h2 id="b2">What each channel added</h2>
+          <p>Incremental revenue per channel over the full period. Marginal ROI is what the next euro returns at today's spend. That number drives the plan, not average ROI.</p>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-base">–</span><span class="l">Baseline revenue</span></div>
+            <div class="stat"><span class="n" id="k-mtot">–</span><span class="l">Media-driven revenue</span></div>
+            <div class="stat"><span class="n" id="k-roi">–</span><span class="l">Blended media ROI</span></div>
+          </div>
+          <div class="chart" id="c-decomp"></div>
+          <div class="tbl-wrap">
+            <table class="tbl" id="t-decomp">
+              <caption class="sample">ROI = incremental revenue per euro of spend. Half-sat = weekly spend where the curve reaches half its ceiling.</caption>
+              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">Avg / wk</th><th scope="col" class="num">Revenue</th><th scope="col" class="num">ROI</th><th scope="col" class="num">Marginal ROI</th><th scope="col" class="num hide-sm">Decay</th><th scope="col" class="num hide-sm">Half-sat</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b3">
+          <p class="kicker"><span class="idx">03</span> Response curves</p>
+          <h2 id="b3">Where each channel flattens</h2>
+          <div class="seg" id="chan-seg" role="group" aria-label="Channel"></div>
+          <div class="chart" id="c-curve"></div>
+          <div class="legend" id="lg-curve"></div>
+          <p class="note" id="curve-note"></p>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b4">
+          <p class="kicker"><span class="idx">04</span> Optimizer</p>
+          <h2 id="b4">Where the next euro should go</h2>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-drev">–</span><span class="l">Revenue / week</span></div>
+            <div class="stat"><span class="n" id="k-drevp">–</span><span class="l">Of weekly revenue</span></div>
+            <div class="stat"><span class="n" id="k-roas">–</span><span class="l">Media ROAS</span></div>
+          </div>
+          <p id="plan-text" aria-live="polite"></p>
+          <p class="note" id="plan-warn" hidden></p>
+          <div class="chart" id="c-plan"></div>
+          <div class="legend"><span><i class="k-bar-muted"></i>Now</span><span><i class="k-bar-accent"></i>Plan</span></div>
+          <div class="tbl-wrap">
+            <table class="tbl" id="t-plan">
+              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">Now / wk</th><th scope="col" class="num">Plan / wk</th><th scope="col" class="num">Change</th><th scope="col" class="num">Next € returns</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lab-block" id="b-rec" aria-labelledby="b5">
+          <p class="kicker"><span class="idx">05</span> Parameter recovery</p>
+          <h2 id="b5">Does the model find the truth?</h2>
+          <p>The synthetic data comes from known curves, so we can check the fit against the answer. A real model never gets this check. This is why you calibrate with experiments.</p>
+          <div class="tbl-wrap">
+            <table class="tbl" id="t-rec">
+              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">True ROI</th><th scope="col" class="num">Fitted ROI</th><th scope="col" class="num">Error</th><th scope="col" class="num hide-sm">Decay true / fit</th><th scope="col">Within 20%</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p id="rec-sum"></p>
+          <ul class="findings" id="rec-why"></ul>
+        </section>
+      </div>
+    </div>
+
+    <details class="acc method" id="method">
+      <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
+      <div class="acc__panel case__grid">
+        <aside class="meta"><dl>
+          <div><dt>Method</dt><dd>Regression MMM with geometric adstock, Hill saturation, trend and Fourier seasonality. Budget plan by marginal-return water-filling.</dd></div>
+          <div><dt>Built from</dt><dd>Nik's incrementality and measurement work: mix models, geo tests and budget planning for paid channels.</dd></div>
+          <div><dt>Data</dt><dd>Synthetic, generated from a seeded model with known curves. Not client data. Or your own CSV, which never leaves the page.</dd></div>
+          <div><dt>Runtime</dt><dd>Plain JavaScript in your browser. No libraries, no server.</dd></div>
+        </dl></aside>
+        <div class="case__body">
+          <h3>The model</h3>
+          <p>Each channel's weekly spend goes through two transforms. Adstock carries part of this week's effect into later weeks (a decay of 0.6 means 60% carries over). The Hill curve then makes returns shrink as spend grows. Revenue is modelled as baseline (intercept, linear trend, three yearly Fourier terms) plus the transformed channels.</p>
+          <p>For each channel the fit searches 216 curve shapes (9 decays × 8 half-saturation points × 3 steepness values), one channel at a time, until nothing improves. Every candidate gets a ridge regression with media coefficients held non-negative. Weak priors on the curve shape stop the search chasing noise. Curves are chosen on 91 weeks; the last 13 are the holdout. Coefficients are then refit on all weeks for the decomposition and the plan.</p>
+          <p>The optimizer uses each channel's steady-state curve. It adds budget in small steps to whichever channel returns most for the next euro, then swaps budget between channels while that still pays. An exact grid search runs alongside, because S-shaped curves can trap a greedy step. Same budget never scores worse than today's split.</p>
+          <h3>In production</h3>
+          <p>Weekly spend, revenue and controls (price, promos, holidays) come from the warehouse, modelled in dbt on BigQuery or Snowflake. The model runs as a Bayesian MMM such as PyMC-Marketing or Meridian, which returns uncertainty, not just a point estimate. Geo-lift results become priors for the channels they cover (see the <a class="link" href="../geo-lift/">geo-lift demo</a>). The plan lands in the planning sheet with ranges, and gets re-tested with the next experiment.</p>
+          <p>An LLM can draft the weekly summary, but only from the numbers in the model output, checked against them before anything is sent. The sentence above the plan is plain templating from those numbers.</p>
+          <h3>Limits</h3>
+          <ul>
+            <li>It's correlational. If spend follows demand (search in Q4), the model can mistake demand for media effect.</li>
+            <li>It needs spend variation. A channel that never moves, or moves with another, can't be separated. The Collinear scenario shows this.</li>
+            <li>Steady-state curves ignore flighting effects: a burst can beat the same budget spread evenly.</li>
+            <li>Plans far outside the observed spend range are extrapolation. Keep the per-channel limit tight, and calibrate with experiments.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="kicker">Get in touch</p>
+    <p class="display">Want this on<br>your data?</p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <div class="foot__links">
+      <a href="../index.html">All lab projects</a>
+      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
+      <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 Niklaas Dumroese</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/analytics.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/lab.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

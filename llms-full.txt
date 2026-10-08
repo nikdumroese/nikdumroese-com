@@ -113,6 +113,20 @@ A harness-agnostic collection of skills, commands, and eval patterns for agent w
 Skills Eval patterns Harness-agnostic
 Collection GitHub ↗
 All repositories on GitHub ↗
+Lab Live projects
+Run the work yourself.
+Five tools from the AI and marketing-science side of my work. Each runs in your browser on sample data or your own CSV. Change the inputs; the numbers recompute.
+01 Media mix model & budget optimizer — https://nikdumroese.com/lab/mmm/
+Fits adstock and saturation curves to two years of weekly spend, then moves budget to where the next euro earns most.
+02 Geo-lift incrementality test — https://nikdumroese.com/lab/geo-lift/
+Builds a synthetic control from untreated regions and tests whether a campaign caused the lift, with placebo-based significance and power planning.
+03 Intent-signal lead scorer — https://nikdumroese.com/lab/lead-scorer/
+ICP fit plus product-usage signals, every point traceable to a rule. Learns weights from outcomes and gates outreach copy before it sends.
+04 Brand & claims gate for AI-written copy — https://nikdumroese.com/lab/claims-check/
+Checks agent-drafted ad copy against voice, an approved-claims register, competitor and regulated-language rules. Pass, review, or block.
+05 CRM dedupe & standardiser — https://nikdumroese.com/lab/crm-dedupe/
+Drop in a messy contact export. Get one clean record per person, every merge explained, nothing sent to a server.
+All lab projects →
 
 ============================================================
 PAGE: About — https://nikdumroese.com/about.html

@@ -31,6 +31,7 @@
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="assets/styles.css" />
+<link rel="stylesheet" href="assets/lab.css" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -89,6 +90,7 @@
     <a class="brand" href="index.html">Niklaas Dumroese<span class="dot">.</span></a>
     <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="#lab">Lab</a>
       <a href="about.html">About</a>
       <a href="Nik_Dumroese_CV.pdf" download>CV</a>
       <a class="is-cta" href="#contact">Get in touch</a>
@@ -348,6 +350,61 @@
       </details>
 
     </div>
+  </section>
+
+  <!-- LAB — live, in-browser projects -->
+  <section class="section wrap" id="lab">
+    <p class="kicker reveal"><span class="idx">Lab</span> Live projects</p>
+    <h2 class="big reveal">Run the work yourself.</h2>
+    <p class="lab-intro reveal">Five tools from the AI and marketing-science side of my work. Each runs in your browser on sample data or your own CSV. Change the inputs; the numbers recompute.</p>
+    <div class="index lab-list">
+    <a class="row reveal" href="lab/mmm/">
+      <span class="row__num">01</span>
+      <span>
+        <span class="row__title">Media mix model &amp; budget optimizer</span>
+        <span class="row__desc">Fits adstock and saturation curves to two years of weekly spend, then moves budget to where the next euro earns most.</span>
+        <span class="row__tags"><span class="tag">MMM</span><span class="tag">Optimisation</span><span class="tag">Measurement</span></span>
+      </span>
+      <span class="row__side"><span class="row__year">Live</span><span class="row__go">Open →</span></span>
+      </a>
+    <a class="row reveal" href="lab/geo-lift/">
+      <span class="row__num">02</span>
+      <span>
+        <span class="row__title">Geo-lift incrementality test</span>
+        <span class="row__desc">Builds a synthetic control from untreated regions and tests whether a campaign caused the lift, with placebo-based significance and power planning.</span>
+        <span class="row__tags"><span class="tag">Causal inference</span><span class="tag">Experiments</span></span>
+      </span>
+      <span class="row__side"><span class="row__year">Live</span><span class="row__go">Open →</span></span>
+      </a>
+    <a class="row reveal" href="lab/lead-scorer/">
+      <span class="row__num">03</span>
+      <span>
+        <span class="row__title">Intent-signal lead scorer</span>
+        <span class="row__desc">ICP fit plus product-usage signals, every point traceable to a rule. Learns weights from outcomes and gates outreach copy before it sends.</span>
+        <span class="row__tags"><span class="tag">GTM engine</span><span class="tag">Scoring</span><span class="tag">Logistic regression</span></span>
+      </span>
+      <span class="row__side"><span class="row__year">Live</span><span class="row__go">Open →</span></span>
+      </a>
+    <a class="row reveal" href="lab/claims-check/">
+      <span class="row__num">04</span>
+      <span>
+        <span class="row__title">Brand &amp; claims gate for AI-written copy</span>
+        <span class="row__desc">Checks agent-drafted ad copy against voice, an approved-claims register, competitor and regulated-language rules. Pass, review, or block.</span>
+        <span class="row__tags"><span class="tag">Agent governance</span><span class="tag">Rules engine</span></span>
+      </span>
+      <span class="row__side"><span class="row__year">Live</span><span class="row__go">Open →</span></span>
+      </a>
+    <a class="row reveal" href="lab/crm-dedupe/">
+      <span class="row__num">05</span>
+      <span>
+        <span class="row__title">CRM dedupe &amp; standardiser</span>
+        <span class="row__desc">Drop in a messy contact export. Get one clean record per person, every merge explained, nothing sent to a server.</span>
+        <span class="row__tags"><span class="tag">Data quality</span><span class="tag">Entity resolution</span></span>
+      </span>
+      <span class="row__side"><span class="row__year">Live</span><span class="row__go">Open →</span></span>
+      </a>
+    </div>
+    <p class="lab-more"><a class="link" href="lab/">All lab projects →</a></p>
   </section>
 
 </main>
