@@ -1,4 +1,4 @@
-# Nik Dumroese — Agentic GTM Systems (full site)
+# Nik Dumroese — Marketing AI Engineer (full site)
 
 Source: https://nikdumroese.com  ·  Contact: hello@nikdumroese.com
 
@@ -6,31 +6,31 @@ Source: https://nikdumroese.com  ·  Contact: hello@nikdumroese.com
 PAGE: Home — https://nikdumroese.com/
 ============================================================
 
-Nik Dumroese — Agentic GTM Systems
+Nik Dumroese — Marketing AI Engineer
 Skip to content
 I build GTM systems that run on AI .
-I design the pipelines, models, and data behind how GTM teams execute. Then I automate the work itself.
+I'm a marketing AI engineer. I build the measurement models, data pipelines and agents that marketing teams run on. Seven of them run live in the Lab.
 Get in touch →
 Status
-Open to new work from September 2026
-AI-native GTM systems
+Available immediately
+Marketing AI engineering
 Growth engineering & data
-Selected Work
+Selected work
 A proactive GTM engine, built end-to-end
 Scope Signal pipeline → enrichment → scoring → branched outreach → eval loop
 Stack Python, dbt, Clay, LLM copy layer, CRM automation, GitHub/PyPI/Docker APIs
 The challenge
-Pipeline was 100% inbound: auto-scored, one manual reply each. It worked, but it was the whole motion. The brief: build the next one.
+Pipeline was 100% inbound: auto-scored, one manual reply each. It worked, but it was the whole motion. The brief was to build the next one.
 What I built
 An outbound engine that treats public developer activity as intent. It pulls every signal (stars, forks, installs, container pulls, telemetry, hiring), enriches each contact, and scores it on ICP fit plus signal strength.
 Deduped daily against inbound, so no one gets double-touched.
 A Python scoring module (stdlib only) makes every ranking auditable.
 An LLM copy layer drafts each sequence, gated by deterministic rules before send.
-A self-improving loop: every conversion re-weights the model and grades the copy that worked.
+Every conversion re-weights the model and grades the copy that worked.
 The outcome
-Shipped as a live app plus a runnable scoring model. Every number came from a real public API. Runs on ~0.1 FTE once live.
+Shipped as a live app plus a runnable scoring model. Every number came from a real public API. Built to run on ~0.1 FTE.
 6 Signal sources unified
-~14× Directional year-one ROI
+~14× Modelled year-one ROI
 <5% Sends needing human review
 Production multi-agent marketing system
 Scope Agentic infrastructure for a 30+ person marketing team
@@ -39,7 +39,7 @@ The challenge
 A 30+ person marketing team with zero agentic infrastructure. Everything ran on manual triggers.
 What I built
 A 24/7 system where orchestrator agents coordinate subagents in parallel. Content, data refresh, reporting, and knowledge upkeep all run without manual triggers.
-Self-improving loops: weekly agents propose rule changes; monthly cycles auto-approve them only if benchmarks improve.
+Weekly agents propose rule changes; monthly cycles auto-approve them only if benchmarks improve.
 RAG memory over a ~1,000-doc vector-indexed wiki, with semantic search and automated pruning.
 Decay-weighted scoring that keeps high-value knowledge within token limits.
 Eval frameworks: skill-trigger accuracy, output quality, and retrieval precision, with regression tracking.
@@ -48,28 +48,27 @@ The outcome
 ~1,000 Docs in vector-indexed memory
 30+ Person team served
 Decentralized multi-agent swarm, no orchestrator
-Scope Holocracy-inspired framework, no central orchestrator, reusable across use cases
+Scope Holacracy-inspired framework, no central orchestrator, reusable across use cases
 Stack LangGraph (StateGraph, Send fan-out), Claude Code CLI (headless), JSON Schema, Python
 The challenge
-The multi-agent system above runs on a supervisor: orchestrator agents decide who acts next. That's one real pattern, but not the only one. I wanted to test whether a genuinely decentralized model, where no single agent or human ever picks the next move, could actually hold together in production.
+The multi-agent system above runs on a supervisor: orchestrator agents decide who acts next. I wanted to test the other pattern: a decentralized model where no agent or human picks the next move. Would it hold together in production?
 What I built
-Independent roles coordinate through file-based mailboxes and a Holocracy-style governance mechanism: any role can file a proposal or an objection, and a proposal integrates only once every other role has had a turn to object and none did — computed purely from timestamps in an append-only audit log, never decided by an LLM or a human. LangGraph handles only the mechanical parts (state, parallel fan-out, routing); every real judgment call happens inside a headless Claude Code subprocess, schema-validated on the way out.
-Found and fixed real permission-scoping bugs by testing directly against the CLI instead of trusting its docs — one flag was silently overridden by a default, another blocked tools it claimed to support.
+Independent roles coordinate through file-based mailboxes and a Holacracy-style governance mechanism: any role can file a proposal or an objection, and a proposal is accepted once every other role has had a turn to object and none did. Timestamps in an append-only audit log decide that, not an LLM or a person. LangGraph handles only the mechanical parts (state, parallel fan-out, routing). Every judgment call happens inside a headless Claude Code subprocess, and its output is schema-validated.
+Found and fixed real permission-scoping bugs by testing directly against the CLI. One flag was silently overridden by a default; another blocked tools it claimed to support.
 Built a local observability dashboard: cost-per-role tracking, an objection matrix, proposal-lifecycle metrics, all computed from structured logs at zero added inference cost.
-The same framework runs multiple use cases via swappable per-pack role configs — a new use case is a new config directory, not new framework code.
+The same framework runs multiple use cases via swappable per-pack role configs. A new use case needs a new config directory and no framework code.
 The outcome
-Running against a real, live case, not a demo: sourcing and screening real job postings, drafting tailored applications, with a dedicated fact-checking role enforcing a hard no-fabrication rule.
-0 Central orchestrator — routing is a pure mechanical function
+It runs on a live case: sourcing and screening real job postings and drafting tailored applications. A dedicated fact-checking role enforces a hard no-fabrication rule.
+21 Proposals in the replayed run, each decided by one mechanical rule
 5 Independent roles per pack, coordinating async
-3 Real permission-model bugs found via direct testing, not docs
+3 CLI permission bugs found by testing, then fixed
 Incrementality testing framework
 Scope Causal measurement framework, built from scratch
 Stack Python, ads-platform APIs, SQL, geo-experiments
 The challenge
 Spend ran on platform-reported conversions, numbers the platforms grade themselves on. No honest read on what was incremental.
 What I built
-A from-scratch incrementality framework in Python on the ads-platform APIs. Lift experiments that separate causal impact from correlation.
-Set the experimentation culture behind today's agent-driven testing.
+A from-scratch incrementality framework in Python on the ads-platform APIs. It runs lift experiments that measure what spend caused.
 Wired results into budgeting, so spend followed proven lift.
 The outcome
 ~15% CAC improvement
@@ -77,9 +76,9 @@ GTM data infrastructure & conversion tracking
 Scope CDP ownership, server-side events, lifecycle tracking
 Stack Segment CDP, CAPI, GTM, lifecycle-stage events, GDPR-compliant pipelines
 The challenge
-Marketing, product, data, and legal ran on inconsistent signals. In-platform and backend numbers disagreed, and the pipeline the agentic layer would need didn't exist.
+Marketing, product, data, and legal ran on inconsistent signals. In-platform and backend numbers disagreed.
 What I built
-The foundation the agentic layer runs on: end-to-end Segment CDP, server-side CAPI events, and lifecycle-stage conversion events, all GDPR-compliant.
+End-to-end Segment CDP, server-side CAPI events, and lifecycle-stage conversion events, all GDPR-compliant.
 Closed the gap between in-platform and backend data with automated reporting.
 Coordinated marketing, product, data, and legal to keep pipelines clean.
 The outcome
@@ -91,11 +90,11 @@ Tools and agent skills I've built in the open.
 plain-language-skill
 An agent skill that writes documents to the ISO 24495 plain-language standard. Works across Claude Code, Cursor, and Codex.
 Agent skill ISO 24495 Shell
-★ 2 GitHub ↗
+Skill GitHub ↗
 audit-swarm
 A multi-agent swarm that audits code, verifies research, or stress-tests a plan, then reconciles the findings into one verdict.
 Multi-agent Evals Python
-★ 1 GitHub ↗
+Python GitHub ↗
 crm-refine
 Streaming CRM dedupe and field standardisation with reviewable recipes. Clean-room and dependency-free.
 Data quality Dedupe Python
@@ -129,7 +128,7 @@ Turns a messy contact export into one clean record per person and explains every
 06 Multi-agent swarm with no one in charge — https://nikdumroese.com/lab/agent-swarm/
 Replays a real run in which agents agree on work without a coordinator. See why each proposal passed, then add an objection and watch the outcome change.
 07 Governance layer for marketing agents — https://nikdumroese.com/lab/agent-governance/
-Logs and checks every action a marketing agent takes, then runs it, holds it for approval or blocks it. Decide the held ones and the weekly report updates.
+Logs and checks every action a marketing agent takes, then records whether it would auto-approve, need review or be blocked. Decide the held ones and the weekly report updates.
 All lab projects →
 
 ============================================================
@@ -142,7 +141,7 @@ About
 I'm Nik. I'm from a tiny town in Idaho (not Ohio, not Iowa — it's the state next to Washington, do you know of Seattle? Yeah, one state to the east, right next to Canada).
 I started my career in performance marketing because even then I loved the measurability. It's immensely satisfying to adjust the inputs and measure the outputs, to see the numbers change day to day and week to week. In a lot of ways I've graduated from performance marketing to, as a good friend once said, performance of marketing, to now: performance of GTM. Today with LLMs, it's easier than ever to have a finger on the pulse of the entire motion. Let's build things from scratch and put them into production the same day.
 I love solving the unglamorous problems, the ones that everyone else tries to push off until the next quarter, or the ones that have 57 stakeholders involved. If it can be automated, it should be automated. If it needs a human in the loop, there should be a human in the loop. If we can build it today, why wait until tomorrow?
-Right now I'm looking for the next hard problems to solve. If any of this sounds like your kind of thing, say hello . The full history and toolkit live in the CV .
+I'm available immediately for my next marketing AI engineering role. If any of this sounds like your kind of thing, say hello . The full history and toolkit live in the CV .
 
 ============================================================
 DOCUMENT: CV — https://nikdumroese.com/Nik_Dumroese_CV.pdf

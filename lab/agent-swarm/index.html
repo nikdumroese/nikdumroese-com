@@ -47,7 +47,7 @@
     <p class="crumb"><a href="../index.html">Lab</a> / 06</p>
     <h1>Multi-agent swarm with no one in charge</h1>
     <p class="lead">Independent agent roles coordinate through mailboxes and a single governance rule. No agent or person decides who acts next. This page replays a real run and recomputes every decision from its audit log.</p>
-    <a class="btn btn--ghost btn--sm lab-jump" href="#sim-controls">Jump to controls</a>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Jump to controls</a>
   </section>
 
   <section class="lab wrap" id="swarm-app">
@@ -56,19 +56,19 @@
       <section class="lab-block" aria-labelledby="b-arch">
         <p class="kicker"><span class="idx">01</span> Architecture</p>
         <h2 id="b-arch">What runs where</h2>
-        <p>Each role is a fresh <code>claude -p</code> call that sees only the run objective, its own charter, the board and its own unread mail. Its answer must match a JSON schema. A small Python layer files the answer into folders and appends one line to the log. LangGraph then asks the router who can act, and starts all of them in parallel.</p>
+        <p>In the run replayed here, the roles built a six-milestone plan into another of my repos, with no supervisor assigning work. Each role is a fresh <code>claude -p</code> call that sees only the run objective, its own charter, the board and its own unread mail. Its answer must match a JSON schema. A small Python layer files the answer into folders and appends one line to the log. LangGraph then asks the router who can act, and starts all of them in parallel.</p>
         <div class="diagram mt-md" id="diagram" role="img" aria-labelledby="diagram-cap"></div>
-        <p class="note diagram-caption" id="diagram-cap"><b>Routing is a pure function of the files.</b> <code>route()</code> reads the proposal folders and the append-only log, promotes what has cleared its objection window, and returns one <code>Send</code> per role that has a reason to act. No model call, no human choice. Run it twice on the same files and you get the same answer.</p>
+        <p class="note diagram-caption" id="diagram-cap"><b>Routing is a pure function of the files.</b> <code>route()</code> reads the proposal folders and the append-only log, promotes what has cleared its objection window, and returns one <code>Send</code> per role that has a reason to act. It makes no model call and takes no human input, so the same files always give the same answer.</p>
       </section>
 
       <section class="lab-block" aria-labelledby="b-sim">
         <p class="kicker"><span class="idx">02</span> Governance simulator</p>
         <h2 id="b-sim">Step through the log</h2>
-        <p>The rule: a proposal integrates once every other role (except the one write role, <code>engineer</code>) has finished an <code>ok</code> turn after the proposal was filed, and no objection is on file. An objection against an integrated proposal moves it back to open. The page recomputes all of it at every step, from the log alone.</p>
+        <p>A proposal integrates (is accepted and handed to <code>engineer</code> to build) once every other role has finished an <code>ok</code> turn since it was filed and no objection is on file. <code>engineer</code>, the one role with write access, is left out of that count. An objection against an integrated proposal moves it back to open. The page recomputes all of it at every step, from the log alone.</p>
         <p class="note mt-sm">Excerpts from a real run, trimmed and lightly edited for length. The model turns are recorded. The governance is computed here.</p>
 
         <div class="lab-grid mt-md">
-          <aside class="lab-controls" id="controls" id="sim-controls" aria-label="Simulator controls">
+          <aside class="lab-controls" id="controls" aria-label="Simulator controls">
             <span class="group-label">Replay</span>
             <div class="field">
               <div class="field__top"><label for="pos">Position in log</label><output for="pos" id="pos-out"></output></div>
@@ -162,7 +162,7 @@
           <dl class="kv mt-md" id="out-env"></dl>
         </div>
         <div role="tabpanel" id="p-val" aria-labelledby="t-val" hidden>
-          <p>Two gates. The schema (<code>schemas/contract.schema.json</code>) is checked here in your browser. Then <code>file_result.py</code> checks references against the folders as they stood at that point in the log.</p>
+          <p>The output has to pass two checks. Your browser checks it against the schema (<code>schemas/contract.schema.json</code>). Then <code>file_result.py</code> checks references against the folders as they stood at that point in the log.</p>
           <div class="field">
             <span class="label" id="mut-label">Edit the output</span>
             <div class="seg" id="mut" role="group" aria-labelledby="mut-label">
@@ -197,7 +197,7 @@
 
       <section class="lab-block" aria-labelledby="b-obs">
         <p class="kicker"><span class="idx">04</span> Observability</p>
-        <h2 id="b-obs">The whole run, from the same log</h2>
+        <h2 id="b-obs">Where the money and the waiting went</h2>
         <p id="obs-intro"></p>
         <div class="stat-strip" id="obs-stats"></div>
 
@@ -232,19 +232,19 @@
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
         <div class="meta"><dl>
-          <div><dt>Pattern</dt><dd>Holocracy-style roles, proposals and objections. No supervisor agent.</dd></div>
+          <div><dt>Pattern</dt><dd>Holacracy-style roles, proposals and objections. No supervisor agent.</dd></div>
           <div><dt>Stack</dt><dd>LangGraph StateGraph with Send fan-out, headless Claude Code CLI, JSON Schema, stdlib Python</dd></div>
           <div><dt>Data</dt><dd>One real run, <code>governance-pivot-build</code>. The swarm built a six-milestone plan into another of my repos.</dd></div>
-          <div><dt>Runs</dt><dd>Plain JavaScript in this page. The governance rule is ported from the repo, not simulated.</dd></div>
+          <div><dt>Runs</dt><dd>Plain JavaScript in this page. The governance rule is a port of the repo's Python.</dd></div>
         </dl></div>
         <div class="case__body">
           <h3>Method</h3>
-          <p>A run is a folder: mailboxes, tensions, proposals (<code>open/</code>, <code>integrated/</code>, <code>done/</code>, <code>objections/</code>) and an append-only <code>log/events.ndjson</code>. Roles come from a pack: a roster, one charter per role, and a config with tools, model and budget per role. A new use case is a new pack, not new framework code.</p>
+          <p>A run is a folder: mailboxes, tensions, proposals (<code>open/</code>, <code>integrated/</code>, <code>done/</code>, <code>objections/</code>) and an append-only <code>log/events.ndjson</code>. Roles come from a pack: a roster, one charter per role, and a config with tools, model and budget per role. A new use case needs a new pack and no framework code.</p>
           <p>The router imports its rules unchanged from <code>scripts/next.py</code>. <code>sweep_proposals</code> promotes an open proposal when it has no objection and every role other than its filer and the write role has an <code>ok</code> log entry with a later timestamp. <code>activatable</code> lists who has a reason to act: unread mail, an open proposal they haven't had a turn on yet, or (write role only) an integrated proposal to build. LangGraph sends every one of them a turn at once and loops until nobody is left.</p>
           <p>The comparison is strict string order on ISO timestamps, and only <code>status: "ok"</code> counts. A turn that finishes with warnings, or fails, does not clear anyone's window.</p>
           <h3>Production setup</h3>
           <ul>
-            <li>Each turn is <code>claude -p</code> with a per-role tool list, <code>--max-budget-usd</code> and <code>--json-schema</code>. Every role except research also runs under <code>--restricted</code>. The output arrives already parsed. No regex over free text.</li>
+            <li>Each turn is <code>claude -p</code> with a per-role tool list, <code>--max-budget-usd</code> and <code>--json-schema</code>. Every role except research also runs under <code>--restricted</code>. The CLI returns the output already parsed, so nothing has to regex free text.</li>
             <li>Permission scoping was tested against the CLI directly. Under <code>--restricted</code>, writes in headless mode were silently denied until <code>--permission-mode acceptEdits</code> was added. <code>--restricted</code> also blocks web tools even when named, so the research role runs with <code>--allowedTools</code> instead. <code>--allowedTools</code> alone did not restrict anything on that machine.</li>
             <li>Every failed turn is logged, so the activation cap counts it. An earlier version only logged successes, and one run retried a rate-limited call thousands of times. A 429 now stops the run.</li>
             <li>A human is just another objector. The dashboard's Reject button writes the same objection file a role would.</li>
@@ -257,7 +257,7 @@
             <li>Schema rigidity. The contract is fixed. A role can't express anything the schema has no field for, and an unknown id is dropped, not interpreted.</li>
           </ul>
           <h3>About this page</h3>
-          <p>This page replays a run. The model turns are recorded: log lines, costs and one full turn copied from the run folder. The governance is computed live in your browser by a JavaScript port of <code>sweep_proposals</code> and <code>activatable</code>. Run over the full log, the port ends with every proposal in the same folder the real run left it in. Injected objections are your edits. They change what the rule computes, not what the agents said.</p>
+          <p>The log lines, costs and full turn are copied from the run folder. Run over the full log, the JavaScript port of <code>sweep_proposals</code> and <code>activatable</code> ends with every proposal in the same folder the real run left it in. Injected objections change what the rule computes, not what the agents said.</p>
         </div>
       </div>
     </details>
@@ -271,7 +271,7 @@
 <footer class="foot" id="contact">
   <div class="wrap">
     <p class="kicker">Get in touch</p>
-    <p class="display">Want this on<br>your data?</p>
+    <p class="display">Want a swarm<br>on your repo?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Agent%20swarm">hello@nikdumroese.com</a></p>
     <div class="foot__links">
       <a href="../index.html">All lab projects</a>

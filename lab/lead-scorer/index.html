@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Lead scorer with product-usage signals — Lab — Nik Dumroese</title>
-<meta name="description" content="Rank accounts on ICP fit plus live product-usage signals, see the rule behind every point, route each one to an outreach branch, and let conversions re-weight the model." />
+<meta name="description" content="Score accounts on ICP fit and live product-usage signals, see the rule behind every point, route each to an upgrade, integrator or evaluator sequence, and let conversions re-weight the model." />
 <link rel="canonical" href="https://nikdumroese.com/lab/lead-scorer/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nikdumroese.com/lab/lead-scorer/" />
 <meta property="og:title" content="Lead scorer with product-usage signals — Nik Dumroese Lab" />
-<meta property="og:description" content="Rank accounts on ICP fit plus live product-usage signals, see the rule behind every point, route each one to an outreach branch, and let conversions re-weight the model." />
+<meta property="og:description" content="Score accounts on ICP fit and live product-usage signals, see the rule behind every point, route each to an upgrade, integrator or evaluator sequence, and let conversions re-weight the model." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
   <section class="lab-head wrap">
     <p class="crumb"><a href="../index.html">Lab</a> / 03</p>
     <h1>Lead scorer with product-usage signals</h1>
-    <p class="lead">Rank accounts on ICP fit plus live product-usage signals, see exactly why each one scored what it did, and route it to the right outreach branch.</p>
+    <p class="lead">Every account gets a score from ICP fit and live product-usage signals, and every point traces to a rule. Accounts above the threshold go to one of three sequences: upgrade for heavy self-hosted users, integrator for teams building with the code, evaluator for the rest.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
@@ -102,7 +102,7 @@
           <section class="lab-block" aria-labelledby="b1">
             <p class="kicker"><span class="idx">01</span> Ranked accounts</p>
             <h2 id="b1">50 accounts, scored live</h2>
-            <p>ICP fit (0–15) plus capped signal points. Select a row to see where every point came from.</p>
+            <p>ICP fit (0–15) plus capped signal points.</p>
             <div class="stat-strip">
               <div class="stat"><span class="n" id="k-a">–</span><span class="l">Tier A</span></div>
               <div class="stat"><span class="n" id="k-b">–</span><span class="l">Tier B</span></div>
@@ -119,7 +119,7 @@
             </div>
             <div class="tbl-wrap">
               <table class="tbl" id="rank">
-                <caption class="note" id="rank-cap">Select an account name to see why it scored what it did.</caption>
+                <caption class="note" id="rank-cap">Select an account to see its breakdown.</caption>
                 <thead><tr>
                   <th scope="col" class="num">#</th>
                   <th scope="col">Account</th>
@@ -139,7 +139,7 @@
 
           <section class="lab-block" aria-labelledby="b2" id="explain">
             <p class="kicker"><span class="idx">02</span> Why this score</p>
-            <h2 id="b2">–</h2>
+            <h2 id="b2">Select an account</h2>
             <p id="x-sub"></p>
             <div class="stat-strip">
               <div class="stat"><span class="n" id="x-icp">–</span><span class="l">ICP fit</span></div>
@@ -165,8 +165,8 @@
 
           <section class="lab-block" aria-labelledby="b3" id="outreach">
             <p class="kicker"><span class="idx">03</span> First touch</p>
-            <h2 id="b3">Draft, then gate</h2>
-            <p class="note"><b>Template draft. In production an LLM writes this; the gate below is what decides if it sends.</b> The template only uses signals that fired for this account. Edit it and the gate re-runs.</p>
+            <h2 id="b3">Checked before it sends</h2>
+            <p class="note"><b>Template draft. In production an LLM writes it and the gate below decides whether it sends.</b> The template only uses signals that fired for this account. Edit it and the gate re-runs.</p>
             <div class="field">
               <label for="subj">Subject</label>
               <input class="input" id="subj" type="text" autocomplete="off" />
@@ -190,7 +190,7 @@
           <section class="lab-block" aria-labelledby="b4">
             <p class="kicker"><span class="idx">04</span> Learn from outcomes</p>
             <h2 id="b4">Let conversions re-weight the model</h2>
-            <p>400 past accounts with a known outcome: converted or not. A logistic regression on the 5 ICP dimensions and 10 signal flags learns what actually predicted a conversion. Trained on 75%, scored on the 25% it never saw.</p>
+            <p>400 past accounts with a known outcome: converted or not. A logistic regression on the 5 ICP dimensions and 10 signal flags learns which inputs predicted a conversion. Trained on 75%, scored on the 25% it never saw.</p>
             <div class="field">
               <div class="field__top"><label for="lam">L2 penalty</label><output for="lam"></output></div>
               <input type="range" id="lam" min="0" max="60" step="1" value="10" />
@@ -207,7 +207,7 @@
 
           <section class="lab-block" aria-labelledby="b5">
             <p class="kicker"><span class="idx">05</span> Weights</p>
-            <h2 id="b5">Learned vs hand-set</h2>
+            <h2 id="b5">What conversions say each signal is worth</h2>
             <p>Points per unit. Learned coefficients are rescaled so the strongest signal equals 5, the top of the hand-set scale.</p>
             <div class="chart" id="l-w"></div>
             <div class="legend"><span><i class="k-bar-accent"></i>Learned</span><span><i class="k-bar"></i>Your current weights</span></div>
@@ -219,8 +219,8 @@
 
           <section class="lab-block" aria-labelledby="b6">
             <p class="kicker"><span class="idx">06</span> Lift</p>
-            <h2 id="b6">Conversion rate by score decile</h2>
-            <p>All 400 accounts, each scored by a model that did not train on it (4-fold cross-validation). Decile 1 is the top 10% by score. A good score puts the converters on the left.</p>
+            <h2 id="b6">Do top-scored accounts convert more?</h2>
+            <p>All 400 accounts, each scored by a model that did not train on it (4-fold cross-validation). Decile 1 is the top 10% by score. A good score concentrates converters in the top deciles.</p>
             <div class="chart" id="l-lift"></div>
             <div class="legend"><span><i class="k-bar-accent"></i>Learned model</span><span><i class="k-bar"></i>Source weights</span><span><i class="k-muted"></i>Base rate</span></div>
           </section>
@@ -233,24 +233,24 @@
       <div class="acc__panel case__grid">
         <div class="meta"><dl>
           <div><dt>Method</dt><dd>Rule-based ICP + weighted signal score, tier and branch routing, deterministic copy gate, L2 logistic regression for re-weighting.</dd></div>
-          <div><dt>Built from</dt><dd>A port of the scoring model in Nik's GTM engine build for an open-source, usage-based billing product with a developer-led funnel.</dd></div>
+          <div><dt>Built from</dt><dd>A port of the scoring model from a GTM engine I built for an open-source, usage-based billing product with a developer-led funnel.</dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Account names are fictional. Not client data.</dd></div>
         </dl></div>
         <div class="case__body">
           <h3>The model</h3>
           <p>Two layers. ICP fit is five firmographic dimensions scored 0–3 each: billing complexity, company scale, funding and growth, headcount, technical fit. Max 15. Signal score is a weighted sum of ten intent signals, capped at 15. The product PQL signal is itself a composite of five usage triggers (invoice volume, plan and metric count, team seats, failed payments, months self-hosted), so it scales with how hard the account is hitting the free tier.</p>
-          <p>Total out of 30 sets the tier: A at 20, B at 12, C at 7, below that no outreach. Branch is set by signal source, not score: confirmed product PQL routes to the upgrade sequence, any fork or Python client install routes to the integrator sequence, everything else gets the evaluator sequence.</p>
+          <p>Total out of 30 sets the tier: A at 20, B at 12, C at 7, below that no outreach. Signal source sets the branch, whatever the score: confirmed product PQL routes to the upgrade sequence, any fork or Python client install routes to the integrator sequence, everything else gets the evaluator sequence.</p>
           <p>The build's README describes a sixth ICP dimension, "intent", for a total of 33. The code that ran dropped it, because intent was already counted in the signal layer. This page ports the code.</p>
           <p>The copy gate ports the build's rule-gate checks: body at most 75 words, subject at most 8, a banned-vocabulary regex, company named in the body, a real signal cited, no weak opener, ends on a single question. One check is added here: the draft may not claim a signal that did not fire.</p>
-          <p>The history set's outcomes come from a hidden logistic model. It is related to the hand-set weights but not the same: some signals matter more than their weight says, a star barely matters, and fresh signals count more than old ones. That is why the learned model and a non-zero half-life can both beat the source weights.</p>
+          <p>The history set's outcomes come from a hidden logistic model. It differs from the hand-set weights in three ways: some signals matter more than their weight says, a star barely matters, and fresh signals count more than old ones. That is why the learned model and a non-zero half-life can both beat the source weights.</p>
           <h3>In production</h3>
           <p>Signals come from the GitHub, PyPI, Docker Hub and job-board APIs, a website visitor-identification tool and product telemetry, landed in the warehouse and deduplicated daily against inbound. Scoring runs in a stdlib-only Python module so it can sit in any scheduler. An LLM drafts the first touch from the account's fired signals; the deterministic gate decides whether it sends, and a failed draft gets one retry before going to a human. Closed-won and closed-lost outcomes feed back into the weights on a schedule. More on <a class="link" href="https://github.com/nikdumroese" target="_blank" rel="noopener">GitHub</a>.</p>
           <h3>Limits</h3>
           <ul>
             <li>Signal coverage is partial. Private forks, internal mirrors and pulls behind a proxy don't show up, so some active users score as cold.</li>
             <li>Cold start. Learned weights need a few hundred closed outcomes before they beat hand-set ones; until then the rules carry the model.</li>
-            <li>A signal is not intent for every persona. An engineer forking the repo is not a buyer, and a finance lead may never touch GitHub.</li>
-            <li>The gate checks form, not truth beyond the signal table. It can't tell if a claim about the prospect's stack is accurate.</li>
+            <li>A signal means different things for different personas. An engineer forking the repo may not be the buyer, and a finance lead may never touch GitHub.</li>
+            <li>The gate checks form, and checks claims only against the signal table. It can't tell if a claim about the prospect's stack is accurate.</li>
           </ul>
         </div>
       </div>

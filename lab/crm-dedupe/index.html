@@ -143,7 +143,7 @@
 
         <section class="lab-block" aria-labelledby="b2">
           <p class="kicker"><span class="idx">02</span> Pipeline</p>
-          <h2 id="b2">Five stages, all deterministic</h2>
+          <h2 id="b2">Same file in, same records out</h2>
           <ol class="findings" id="stages"></ol>
         </section>
 
@@ -167,7 +167,7 @@
 
         <section class="lab-block" aria-labelledby="b4">
           <p class="kicker"><span class="idx">04</span> Results</p>
-          <h2 id="b4">Every merge, with its reasons</h2>
+          <h2 id="b4">Check each merge before you export</h2>
           <div class="tabs" role="tablist" aria-label="Result views">
             <button class="tab" role="tab" id="t-merges" aria-controls="p-merges" aria-selected="true">Merges</button>
             <button class="tab" role="tab" id="t-review" aria-controls="p-review">Review queue</button>
@@ -227,7 +227,7 @@
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
         <div class="meta"><dl>
-          <div><dt>Method</dt><dd>Rule-based standardisation, blocked record linkage, weighted similarity, union-find clustering, rule-based survivorship.</dd></div>
+          <div><dt>Method</dt><dd>Rule-based standardisation, blocked record linkage (only records that share a key are compared), weighted similarity, union-find clustering, rule-based survivorship (rules pick which row supplies each field of the merged record).</dd></div>
           <div><dt>Built from</dt><dd><a class="link" href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">crm-refine</a>, my open-source CLI (Python, no dependencies), ported to browser JavaScript.</dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Fictional people and companies. Not client data.</dd></div>
           <div><dt>Privacy</dt><dd>Your CSV is read in this tab. No network calls.</dd></div>

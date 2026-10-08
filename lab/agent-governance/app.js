@@ -24,15 +24,15 @@
   const S = { policy: clone(DEFAULT_POLICY), k: N, overrides: [], sel: null, stream: STREAMS[0], role: 'legal', timer: null, st: null };
 
   const DEC = {
-    auto: { label: 'Auto-run', cls: 'tag tag--ok' },
-    review: { label: 'Awaiting approval', cls: 'tag tag--warn' },
+    auto: { label: 'Auto-approve', cls: 'tag tag--ok' },
+    review: { label: 'Needs review', cls: 'tag tag--warn' },
     block: { label: 'Blocked', cls: 'tag tag--stop' },
   };
   const VERDICT_CLS = { pass: 'tag', warn: 'tag tag--warn', fail: 'tag tag--stop' };
   const chip = (d, text) => el('span', { class: DEC[d].cls, text: text || DEC[d].label });
   const when = (iso) => `${iso.slice(5, 10)} ${iso.slice(11, 16)}`;
   const short = (s, n = 46) => (s && s.length > n ? s.slice(0, n - 1) + '…' : s || '—');
-  const decisionWord = (d) => ({ auto: 'auto-run', review: 'review', block: 'block' }[d]);
+  const decisionWord = (d) => ({ auto: 'auto-approve', review: 'needs review', block: 'blocked' }[d]);
 
   /* ---------- controls ---------- */
   const fmt2 = (v) => v.toFixed(2);
@@ -294,7 +294,7 @@
       const ev = S.st.rows.find((r) => r.eventId === p.eventId);
       const title = `${p.agentLabel} · ${E.actionTypeLabel(p.actionType)}`;
       host.append(el('li', {}, [
-        el('span', { class: 'f-rule' }, [chip(p.decision, p.decision === 'block' ? 'Block' : 'Review')]),
+        el('span', { class: 'f-rule' }, [chip(p.decision)]),
         el('div', { class: 'f-msg' }, [
           el('b', { text: title }), el('br'),
           el('span', { class: 'note', text: `${short(p.subjectRef, 34)} · ${when(p.ts)}`, title: p.subjectRef || '' }),
@@ -316,7 +316,7 @@
     hist.forEach((h) => hb.append(el('tr', {}, [
       el('td', {}, [document.createTextNode(`${h.agentLabel} · ${E.actionTypeLabel(h.actionType)}`), el('br'), el('span', { class: 'note', text: short(h.subjectRef, 40) })]),
       el('td', {}, [chip(h.systemDecision)]),
-      el('td', {}, [chip(h.overrideDecision, h.overrideDecision === 'auto' ? 'Approved' : h.overrideDecision === 'block' ? 'Rejected' : 'Review')]),
+      el('td', {}, [chip(h.overrideDecision, h.overrideDecision === 'auto' ? 'Approved' : h.overrideDecision === 'block' ? 'Rejected' : 'Needs review')]),
       el('td', { class: 'hide-sm note', text: h.actorRole }),
     ])));
   };
@@ -378,7 +378,7 @@
     );
     const head = el('ul', { class: 'findings mt-sm' });
     const text = E.renderDigestText(m).split('\n');
-    text.slice(3, text.indexOf('TOP 3') - 1).forEach((l) => head.append(el('li', {}, [el('span', { class: 'f-rule', text: '—' }), el('span', { class: 'f-msg', text: l.replace(' — see HANDOFF.md', '') })])));
+    text.slice(3, text.indexOf('TOP 3') - 1).forEach((l) => head.append(el('li', {}, [el('span', { class: 'f-rule', text: '—' }), el('span', { class: 'f-msg', text: l })])));
     host.append(head);
 
     host.append(sub('Top 3'));
@@ -409,10 +409,10 @@
     }
 
     if (m.gate.pending.length) {
-      host.append(sub('Blocked / flagged for review'));
+      host.append(sub('Blocked or needs review'));
       const ul = el('ul', { class: 'findings' });
       m.gate.pending.forEach((p) => ul.append(el('li', {}, [
-        el('span', { class: 'f-rule' }, [el('span', { class: p.decision === 'block' ? 'tag tag--ink' : 'tag', text: p.decision })]),
+        el('span', { class: 'f-rule' }, [el('span', { class: p.decision === 'block' ? 'tag tag--ink' : 'tag', text: DEC[p.decision].label })]),
         el('span', { class: 'f-msg', text: `${p.agentLabel} · ${E.actionTypeLabel(p.actionType)} · ${short(p.subjectRef, 34)}${p.overridden ? ` (override by ${p.overrideActorRole})` : ''}` }),
         el('span', { class: 'f-fix', text: p.reasons.join(' · ') }),
       ])));

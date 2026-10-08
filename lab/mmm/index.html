@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Media mix model & budget optimizer — Lab — Nik Dumroese</title>
-<meta name="description" content="Fit a marketing mix model on two years of weekly spend and revenue, then reallocate budget to where the next euro earns most. Runs in your browser." />
+<meta name="description" content="A media mix model fitted to two years of weekly spend and revenue shows where the next euro of media budget earns most. Runs in your browser." />
 <link rel="canonical" href="https://nikdumroese.com/lab/mmm/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nikdumroese.com/lab/mmm/" />
 <meta property="og:title" content="Media mix model & budget optimizer — Nik Dumroese Lab" />
-<meta property="og:description" content="Fit a marketing mix model on two years of weekly spend and revenue, then reallocate budget to where the next euro earns most. Runs in your browser." />
+<meta property="og:description" content="A media mix model fitted to two years of weekly spend and revenue shows where the next euro of media budget earns most. Runs in your browser." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
   <section class="lab-head wrap">
     <p class="crumb"><a href="../index.html">Lab</a> / 01</p>
     <h1>Media mix model &amp; budget optimizer</h1>
-    <p class="lead">Fit a marketing mix model on two years of weekly spend and revenue, then move budget to where the next euro earns most. Change the budget and the limits; the plan recomputes from the fitted response curves.</p>
+    <p class="lead">A media mix model fitted to two years of weekly spend and revenue reads each channel's response curve and shows where the next euro of media budget earns most. Change the budget or the limits and the plan recomputes.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
@@ -98,9 +98,9 @@
           <p class="kicker"><span class="idx">01</span> Optimizer</p>
           <h2 id="b1">Where the next euro should go</h2>
           <div class="stat-strip">
-            <div class="stat"><span class="n" id="k-drev">–</span><span class="l">Revenue / week</span></div>
-            <div class="stat"><span class="n" id="k-drevp">–</span><span class="l">Of weekly revenue</span></div>
-            <div class="stat"><span class="n" id="k-roas">–</span><span class="l">Media ROAS</span></div>
+            <div class="stat"><span class="n" id="k-drev">–</span><span class="l">Revenue change / week</span></div>
+            <div class="stat"><span class="n" id="k-drevp">–</span><span class="l">As % of weekly revenue</span></div>
+            <div class="stat"><span class="n" id="k-roas">–</span><span class="l">Media ROI, now → plan</span></div>
           </div>
           <p id="plan-text" aria-live="polite"></p>
           <p class="note" id="plan-warn" hidden></p>
@@ -132,11 +132,11 @@
         <section class="lab-block" aria-labelledby="b3">
           <p class="kicker"><span class="idx">03</span> Decomposition</p>
           <h2 id="b3">What each channel added</h2>
-          <p>Incremental revenue per channel over the full period. Marginal ROI is what the next euro returns at today's spend. That number drives the plan, not average ROI.</p>
+          <p>Incremental revenue per channel over the full period. The plan is built on marginal ROI, what the next euro returns at today's spend.</p>
           <div class="stat-strip">
             <div class="stat"><span class="n" id="k-base">–</span><span class="l">Baseline revenue</span></div>
             <div class="stat"><span class="n" id="k-mtot">–</span><span class="l">Media-driven revenue</span></div>
-            <div class="stat"><span class="n" id="k-roi">–</span><span class="l">Blended media ROI</span></div>
+            <div class="stat"><span class="n" id="k-roi">–</span><span class="l">Media ROI</span></div>
           </div>
           <div class="chart" id="c-decomp"></div>
           <div class="tbl-wrap">
@@ -159,8 +159,8 @@
 
         <section class="lab-block" id="b-rec" aria-labelledby="b5">
           <p class="kicker"><span class="idx">05</span> Parameter recovery</p>
-          <h2 id="b5">Does the model find the truth?</h2>
-          <p>The synthetic data comes from known curves, so we can check the fit against the answer. A real model never gets this check. This is why you calibrate with experiments.</p>
+          <h2 id="b5">Does the model recover the known curves?</h2>
+          <p>The synthetic data comes from known curves, so this table checks the fit against the answer. Real data has no answer key, so calibrate the model with geo tests.</p>
           <div class="tbl-wrap">
             <table class="tbl" id="t-rec">
               <thead><tr><th scope="col">Channel</th><th scope="col" class="num">True ROI</th><th scope="col" class="num">Fitted ROI</th><th scope="col" class="num">Error</th><th scope="col" class="num hide-sm">Decay true / fit</th><th scope="col">Within 20%</th></tr></thead>
@@ -178,7 +178,7 @@
       <div class="acc__panel case__grid">
         <div class="meta"><dl>
           <div><dt>Method</dt><dd>Regression MMM with geometric adstock, Hill saturation, trend and Fourier seasonality. Budget plan by marginal-return water-filling.</dd></div>
-          <div><dt>Built from</dt><dd>Nik's incrementality and measurement work: mix models, geo tests and budget planning for paid channels.</dd></div>
+          <div><dt>Built from</dt><dd>My incrementality and measurement work: mix models, geo tests and budget planning for paid channels.</dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model with known curves. Not client data. Or your own CSV, which never leaves the page.</dd></div>
           <div><dt>Runtime</dt><dd>Plain JavaScript in your browser. No libraries, no server.</dd></div>
         </dl></div>
@@ -186,10 +186,9 @@
           <h3>The model</h3>
           <p>Each channel's weekly spend goes through two transforms. Adstock carries part of this week's effect into later weeks (a decay of 0.6 means 60% carries over). The Hill curve then makes returns shrink as spend grows. Revenue is modelled as baseline (intercept, linear trend, three yearly Fourier terms) plus the transformed channels.</p>
           <p>For each channel the fit searches 216 curve shapes (9 decays × 8 half-saturation points × 3 steepness values), one channel at a time, until nothing improves. Every candidate gets a ridge regression with media coefficients held non-negative. Weak priors on the curve shape stop the search chasing noise. Curves are chosen on 91 weeks; the last 13 are the holdout. Coefficients are then refit on all weeks for the decomposition and the plan.</p>
-          <p>The optimizer uses each channel's steady-state curve. It adds budget in small steps to whichever channel returns most for the next euro, then swaps budget between channels while that still pays. An exact grid search runs alongside, because S-shaped curves can trap a greedy step. Same budget never scores worse than today's split.</p>
+          <p>The optimizer uses each channel's steady-state curve. It adds budget in small steps to whichever channel returns most for the next euro, then swaps budget between channels while that still pays. An exact grid search runs alongside, because S-shaped curves can trap a greedy step. On the same budget, the plan never scores worse than today's split.</p>
           <h3>In production</h3>
-          <p>Weekly spend, revenue and controls (price, promos, holidays) come from the warehouse, modelled in dbt on BigQuery or Snowflake. The model runs as a Bayesian MMM such as PyMC-Marketing or Meridian, which returns uncertainty, not just a point estimate. Geo-lift results become priors for the channels they cover (see the <a class="link" href="../geo-lift/">geo-lift demo</a>). The plan lands in the planning sheet with ranges, and gets re-tested with the next experiment.</p>
-          <p>An LLM can draft the weekly summary, but only from the numbers in the model output, checked against them before anything is sent. The sentence above the plan is plain templating from those numbers.</p>
+          <p>Weekly spend, revenue and controls (price, promos, holidays) come from the warehouse, modelled in dbt on BigQuery or Snowflake. The model runs as a Bayesian MMM such as PyMC-Marketing or Meridian, which puts a credible interval on every estimate. Geo-lift results become priors for the channels they cover (see the <a class="link" href="../geo-lift/">geo-lift demo</a>). The plan lands in the planning sheet with ranges, and gets re-tested with the next experiment. The sentence above the plan is a template filled from the model output.</p>
           <h3>Limits</h3>
           <ul>
             <li>It's correlational. If spend follows demand (search in Q4), the model can mistake demand for media effect.</li>

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Brand &amp; claims gate for AI-written copy — Lab — Nik Dumroese</title>
-<meta name="description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Pass, review or block, with the reason." />
+<meta name="description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Each draft is auto-approved, sent for review or blocked, with the reason." />
 <link rel="canonical" href="https://nikdumroese.com/lab/claims-check/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nikdumroese.com/lab/claims-check/" />
 <meta property="og:title" content="Brand &amp; claims gate for AI-written copy — Nik Dumroese Lab" />
-<meta property="og:description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Pass, review or block, with the reason." />
+<meta property="og:description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Each draft is auto-approved, sent for review or blocked, with the reason." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
   <section class="lab-head wrap">
     <p class="crumb"><a href="../index.html">Lab</a> / 04</p>
     <h1>Brand &amp; claims gate for AI-written copy</h1>
-    <p class="lead">Before an agent ships marketing copy, every line is checked against brand voice, approved claims, competitor rules and regulated wording. Each draft passes, goes to review or is blocked, and the page shows why.</p>
+    <p class="lead">Before an agent ships marketing copy, the gate checks every line against brand voice, approved claims, competitor rules and regulated wording. Each draft is auto-approved, sent for review or blocked, and the page shows why.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
@@ -116,9 +116,9 @@
             <div class="field">
               <span class="label" id="samples-label">Load a sample draft</span>
               <div class="btns" role="group" aria-labelledby="samples-label">
-                <button type="button" class="btn btn--ghost btn--sm" data-sample="pass">Passes</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-sample="pass">Auto-approve</button>
                 <button type="button" class="btn btn--ghost btn--sm" data-sample="review">Needs review</button>
-                <button type="button" class="btn btn--ghost btn--sm" data-sample="block">Blocks</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-sample="block">Blocked</button>
               </div>
               <p class="hint">Each sample sets its own channel and market.</p>
             </div>
@@ -131,14 +131,14 @@
 
           <section class="lab-block" aria-labelledby="b3">
             <p class="kicker"><span class="idx">03</span> Findings</p>
-            <h2 id="b3">Every rule that fired, and the fix</h2>
+            <h2 id="b3">Each finding comes with a fix</h2>
             <ul class="findings" id="findings"></ul>
           </section>
 
           <section class="lab-block" aria-labelledby="b4">
             <p class="kicker"><span class="idx">04</span> Audit</p>
             <h2 id="b4">What gets written to the ledger</h2>
-            <p>Every decision is appended to a log: which draft, which rule set, which rules fired. That record is what an auditor or legal reviews later.</p>
+            <p>The gate appends every decision to the ledger: which draft, which rule set, which rules fired. An auditor or legal reviews that record later.</p>
             <pre class="code" id="ledger"></pre>
           </section>
         </div>
@@ -147,7 +147,7 @@
           <section class="lab-block" aria-labelledby="b5">
             <p class="kicker"><span class="idx">01</span> Batch</p>
             <h2 id="b5">Run an agent's drafts through the gate</h2>
-            <p>An agent writes 20 variants. The gate sorts them before anyone looks. Uses the market and threshold on the left.</p>
+            <p>An agent writes 20 variants. The gate sorts them before anyone looks. It uses the market and threshold set in the controls.</p>
             <div class="field">
               <label for="b-channel">Channel for this batch</label>
               <select class="select" id="b-channel">
@@ -164,7 +164,7 @@
             </div>
             <div class="stat-strip">
               <div class="stat"><span class="n" id="b-approve">–</span><span class="l">Auto-approve</span></div>
-              <div class="stat"><span class="n" id="b-review">–</span><span class="l">Review</span></div>
+              <div class="stat"><span class="n" id="b-review">–</span><span class="l">Needs review</span></div>
               <div class="stat"><span class="n" id="b-block">–</span><span class="l">Blocked</span></div>
             </div>
           </section>
@@ -185,8 +185,8 @@
         <div role="tabpanel" id="p-config" aria-labelledby="t-config" class="lab-out" hidden>
           <section class="lab-block" aria-labelledby="b7">
             <p class="kicker"><span class="idx">01</span> Config</p>
-            <h2 id="b7">Rules are config, not judgement calls</h2>
-            <p>Each rule has an ID, a category, a severity, a scope and a fix. Brand, legal and marketing ops edit this file. The engine stays the same.</p>
+            <h2 id="b7">Rules live in a file brand and legal can edit</h2>
+            <p>Each rule has an ID, a category, a severity, a scope and a fix. Brand, legal and marketing ops change the file; the engine code stays the same.</p>
             <div class="field">
               <label for="custom">Add a banned word</label>
               <input class="input" id="custom" type="text" maxlength="40" autocomplete="off" aria-describedby="custom-hint" />
@@ -209,10 +209,10 @@
           </section>
           <section class="lab-block" aria-labelledby="b9">
             <p class="kicker"><span class="idx">03</span> Active rules</p>
-            <h2 id="b9">The rule set, as the engine reads it</h2>
+            <h2 id="b9">Rules that apply to this channel and market</h2>
             <p id="rules-count"></p>
             <pre class="code" id="rules-json"></pre>
-            <p class="note">Illustrative rule set, not legal advice. Rule summaries are simplified.</p>
+            <p class="note">Rule summaries are simplified.</p>
           </section>
         </div>
       </div>
@@ -232,7 +232,7 @@
           <p>Claims work differently. The engine finds every number that reads as a claim (a percentage, a currency, a "+", or a number next to words like hours, companies or faster) and matches its clause against the register by shared words and the number itself. Same topic and same number: approved, with the evidence ID. Same topic, different number: blocked as altered. No match: blocked as unsubstantiated. Retired claims and claims cleared for another market are blocked too.</p>
           <p>The verdict is fixed logic. Any block finding blocks. Otherwise the warnings add up to a risk score, and the draft goes to a human if the score reaches the threshold. Info findings cost nothing.</p>
           <h3>In production</h3>
-          <p>An LLM agent drafts the copy. This page does not run one; it runs only the deterministic layer that gates its output. In production the gate sits between the agent and the ad platform or email tool, and runs on every draft:</p>
+          <p>An LLM agent drafts the copy. This page does not run one; it runs only the deterministic layer that gates its output (same input, same answer, no model call). In production the gate sits between the agent and the ad platform or email tool, and runs on every draft:</p>
           <ul>
             <li>Blocked drafts go back to the agent with the findings as feedback, so it rewrites against the exact rule it broke.</li>
             <li>Review drafts land in a queue for a human, with the findings attached.</li>

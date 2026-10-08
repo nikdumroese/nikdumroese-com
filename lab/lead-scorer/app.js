@@ -262,13 +262,13 @@
     const hi = `Hi ${a.contact},\n\n`;
     if (branch.b === 'A') {
       const cx = s.plans + s.metrics;
-      const pain = s.payment_failed ? 'failed payments need dunning, not manual retries'
+      const pain = s.payment_failed ? 'failed payments need automated dunning'
         : s.seats >= 3 ? 'more of the team needs access, and per-role permissions start to matter'
           : cx >= 8 ? 'plan and metric sprawl outgrows ad hoc revenue reports'
             : 'invoice email delivery becomes a job of its own';
       return {
         subject: `${s.invoices_30d} invoices a month, self-hosted`,
-        body: `${hi}${org} has run the self-hosted edition for ${s.hosting_months} months and issued about ${s.invoices_30d} invoices in the last 30 days.\n\nAt that volume ${pain}. That is the part the managed cloud removes.\n\nWorth 20 minutes?`,
+        body: `${hi}${org} has run the self-hosted edition for ${s.hosting_months} months and issued about ${s.invoices_30d} invoices in the last 30 days.\n\nAt that volume ${pain}. The managed cloud takes that off your team.\n\nWorth 20 minutes?`,
       };
     }
     if (branch.b === 'B') {
@@ -288,7 +288,7 @@
     const what = opts.length ? opts[0][2] : `runs ${bill} pricing`;
     return {
       subject: `Billing at ${org}`,
-      body: `${hi}${org} ${what}. For a ${STAGE_NOUN[f.funding_stage]} on ${bill} pricing, that usually means invoicing is about to outgrow the spreadsheet.\n\nWe work with teams at that stage to ship pricing changes in days, not quarters. Worth 20 minutes?`,
+      body: `${hi}${org} ${what}. For a ${STAGE_NOUN[f.funding_stage]} on ${bill} pricing, that usually means invoicing is about to outgrow the spreadsheet.\n\nWe work with teams at that stage to ship pricing changes in days. Worth 20 minutes?`,
     };
   };
 
@@ -325,7 +325,7 @@
     const hits = CLAIMS.filter((c) => c.re.test(body));
     const real = hits.filter((c) => c.ok.some((k) => fired[k]));
     const fake = hits.filter((c) => !c.ok.some((k) => fired[k]));
-    add('Cites a real signal', real.length > 0, real.length ? `Cites ${real.map((c) => c.what).join(', ')}` : 'No fired signal referenced', 'Reference what the account actually did. No signal, no send.');
+    add('Cites a real signal', real.length > 0, real.length ? `Cites ${real.map((c) => c.what).join(', ')}` : 'No fired signal referenced', 'Reference what the account did. No signal, no send.');
     add('No unbacked claim (added here)', !fake.length, fake.length ? `Claims ${fake.map((c) => c.what).join(', ')}, which did not fire` : 'Every claim maps to a fired signal', 'Remove claims the signal table cannot back.');
     const opener = sentences(body.replace(/^\s*(hi|hello|hey)\b[^\n]*\n+/i, ''))[0] || '';
     add('Opening sentence', !WEAK_OPEN.test(opener), WEAK_OPEN.test(opener) ? `Opens with "${opener.match(WEAK_OPEN)[0]}"` : 'Starts with the point', 'Delete the first clause and start with the signal.');

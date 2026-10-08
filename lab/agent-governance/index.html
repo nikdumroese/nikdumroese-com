@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Governance layer for marketing agents — Lab — Nik Dumroese</title>
-<meta name="description" content="Every action a marketing agent takes lands in an append-only ledger, gets checked, and either runs, waits for a human, or is stopped. Replay a week of fixture data in your browser." />
+<meta name="description" content="Every action a marketing agent takes lands in an append-only ledger and gets checked, and the gate records whether it would run, wait for a human or be stopped. Replay ten days of fixture data in your browser." />
 <link rel="canonical" href="https://nikdumroese.com/lab/agent-governance/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nikdumroese.com/lab/agent-governance/" />
 <meta property="og:title" content="Governance layer for marketing agents — Nik Dumroese Lab" />
-<meta property="og:description" content="Every action a marketing agent takes lands in an append-only ledger, gets checked, and either runs, waits for a human, or is stopped. Replay a week of fixture data in your browser." />
+<meta property="og:description" content="Every action a marketing agent takes lands in an append-only ledger and gets checked, and the gate records whether it would run, wait for a human or be stopped. Replay ten days of fixture data in your browser." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
   <section class="lab-head wrap">
     <p class="crumb"><a href="../index.html">Lab</a> / 07</p>
     <h1>Governance layer for marketing agents</h1>
-    <p class="lead">Every action a marketing agent takes (send an email, publish a post, raise a budget) lands in a ledger and gets checked. Then it runs, waits for a human, or is stopped. Each week the system reports which agents drifted from their usual tone.</p>
+    <p class="lead">Every action a marketing agent takes (send an email, publish a post, raise a budget) lands in a ledger and gets checked. The gate then records whether the action would run, wait for a human or be stopped. Each week the system reports which agents drifted from their usual tone.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Jump to policy controls</a>
   </section>
 
@@ -219,12 +219,12 @@
 
         <section class="lab-block" aria-labelledby="b-ledger">
           <p class="kicker"><span class="idx">02</span> Ledger replay</p>
-          <h2 id="b-ledger">Every action, checked and decided</h2>
-          <p>27 fixture actions from four agents over ten days. Change the policy on the left and every decision is recomputed. Select a row to see its full check trace. The tone, claims, competitor and regulated-language checks are summarised here. The <a class="link" href="../claims-check/">brand &amp; claims gate</a> (Lab / 04) covers copy checks in more depth on text you paste in.</p>
+          <h2 id="b-ledger">Change the policy and every decision is recomputed</h2>
+          <p>27 fixture actions from four agents over ten days, rechecked under the policy in the controls. Select a row to see its full check trace. The tone, claims, competitor and regulated-language checks are summarised here. The <a class="link" href="../claims-check/">brand &amp; claims gate</a> (Lab / 04) covers copy checks in more depth on text you paste in.</p>
           <div class="stat-strip">
             <div class="stat"><span class="n" id="k-events">–</span><span class="l">Events in ledger</span></div>
-            <div class="stat"><span class="n" id="k-auto">–</span><span class="l">Auto-run</span></div>
-            <div class="stat"><span class="n" id="k-review">–</span><span class="l">Awaiting approval</span></div>
+            <div class="stat"><span class="n" id="k-auto">–</span><span class="l">Auto-approve</span></div>
+            <div class="stat"><span class="n" id="k-review">–</span><span class="l">Needs review</span></div>
             <div class="stat"><span class="n" id="k-block">–</span><span class="l">Blocked</span></div>
             <div class="stat"><span class="n" id="k-find">–</span><span class="l">Findings</span></div>
           </div>
@@ -250,7 +250,7 @@
         <section class="lab-block" aria-labelledby="b-gate">
           <p class="kicker"><span class="idx">03</span> Approval gate</p>
           <h2 id="b-gate">Waiting for a human</h2>
-          <p>Actions the policy sent to review or block. Approve or reject one and a new override row is appended to the ledger. The system decision stays as it was. The counts, the report and the revenue figure below all update.</p>
+          <p>Actions the policy marked Needs review or Blocked. When you approve or reject one, you append an override row to the ledger, and the system decision stays beside it. The counts, the report and the revenue figure below all update.</p>
           <div class="field">
             <span class="label" id="role-label">Acting as</span>
             <div class="seg" id="role" role="group" aria-labelledby="role-label">
@@ -264,7 +264,7 @@
             <div class="stat"><span class="n" id="k-ov">–</span><span class="l">Override rows</span></div>
             <div class="stat"><span class="n" id="k-exp">–</span><span class="l">Revenue on held actions</span></div>
           </div>
-          <p class="note mt-sm">Revenue on held actions: fixture outcome revenue joined to events whose current decision is review or block.</p>
+          <p class="note mt-sm">Held actions are those whose current decision is Needs review or Blocked. The revenue figure is their fixture outcome revenue.</p>
           <ul class="findings mt-sm" id="queue" aria-label="Approval queue"></ul>
           <p id="queue-empty" hidden>Nothing is waiting. Every held action has a human decision.</p>
           <p class="note mt-sm" id="gate-status" aria-live="polite"></p>
@@ -303,15 +303,15 @@
 
         <section class="lab-block" aria-labelledby="b-report">
           <p class="kicker"><span class="idx">05</span> Weekly report</p>
-          <h2 id="b-report">The digest, built from the ledger</h2>
-          <p>Generated from the current ledger state with the same structure as the source's report and digest. Same ledger, same text.</p>
+          <h2 id="b-report">A weekly digest with no model in the loop</h2>
+          <p>Built from the current ledger state, in the same structure as the source build's report and digest.</p>
           <div class="btns">
             <button class="btn btn--sm" type="button" id="dl-md">Download markdown</button>
             <button class="btn btn--ghost btn--sm" type="button" id="dl-txt">Download text</button>
             <button class="btn btn--ghost btn--sm" type="button" id="dl-json">Download JSON</button>
           </div>
           <div id="report" class="mt-md"></div>
-          <p class="note mt-md">No language model writes this digest, here or in the source build. It is assembled from counts and rule rationales. The only model call in the pipeline is the tone-of-voice judge: Claude in production when switched on, otherwise the deterministic mock judge this page uses.</p>
+          <p class="note mt-md">No language model writes this digest, here or in the source build. It is assembled from counts and rule rationales. The only model call in the pipeline is the tone-of-voice judge: Claude in production when switched on, otherwise the rule-based mock judge this page uses.</p>
         </section>
       </div>
     </div>
@@ -321,7 +321,7 @@
       <div class="acc__panel case__grid">
         <div class="meta"><dl>
           <div><dt>Method</dt><dd>Rule-based checks, a policy-driven approval gate, per-stream tone drift</dd></div>
-          <div><dt>Built from</dt><dd>agent-governance, a fixture-only build Nik ran through spec-driven autonomous build loops. <a class="link" href="../../about.html">Context</a></dd></div>
+          <div><dt>Built from</dt><dd>agent-governance, a fixture-only build I ran through spec-driven autonomous build loops. <a class="link" href="../../about.html">About me</a></dd></div>
           <div><dt>Data</dt><dd>Fixture data for a fictional company, Northwind. Not client data.</dd></div>
           <div><dt>Runs</dt><dd>Plain JavaScript in this page. No libraries, no server.</dd></div>
         </dl></div>
@@ -330,7 +330,7 @@
           <p>27 agent actions from 1 to 10 August 2026: 16 emails from a Zapier "Lifecycle Bot", 9 blog posts, social posts and ad budget changes from a Lindy "Blog Agent", and one budget change each from a "Growth Agent" and a "Budget Bot" on the same campaign. Six problems are planted: a shouting email, an unbacked revenue claim, a post naming competitors, a "risk-free" promise, a budget over its ceiling, and the two-agent budget collision. Outcome data (sessions, conversions, revenue) covers 22 of the 27 actions. Competitor names and URLs are swapped for fictional ones; everything else matches the source fixtures.</p>
           <h3>The checks</h3>
           <ul>
-            <li>Tone of voice: a deterministic judge starts at 1.0 and subtracts for banned phrases (0.25 each), upper-case shouting, exclamation marks, long sentences and emoji. Below the fail line fails, below the warn line warns.</li>
+            <li>Tone of voice: a rule-based judge starts at 1.0 and subtracts for banned phrases (0.25 each), upper-case shouting, exclamation marks, long sentences and emoji. Below the fail line fails, below the warn line warns.</li>
             <li>Claims: words like "guaranteed" or "double your" fail when they touch revenue, savings, performance or health and no customer or study is named.</li>
             <li>Competitor: naming any competitor on the never-mention list fails.</li>
             <li>Regulated: phrases like "risk-free" or "bank-level" warn and need Legal.</li>
@@ -345,7 +345,7 @@
           <h3>The replay</h3>
           <p>Each step re-runs every check over the events ingested so far, the way the source's batch run scores a seeded ledger. That is why the first half of the budget collision only gets its warning once the second agent acts. With all 27 events and the default policy, every check verdict, score, gate decision, drift alarm and digest line matches the source repo's own run.</p>
           <h3>In production</h3>
-          <p>The source is TypeScript on Next.js 15 (App Router), with Drizzle ORM over PGlite, an embedded Postgres. The dashboard has routes for the timeline, findings, per-agent scorecards, approvals, objections, digest, trends and outcomes. Four demo roles control access, and only admin and legal can override a decision. The digest goes to a file by default, or to Slack. The build ran in phases from fixed specs (LOOP.md to LOOP4.md): one commit per milestone, none committed until the repo's verify script passed (typecheck, unit tests and production build, with smoke and end-to-end tests added along the way).</p>
+          <p>The source is TypeScript on Next.js 15 (App Router), with Drizzle ORM over PGlite, an embedded Postgres. The dashboard has routes for the timeline, findings, per-agent scorecards, approvals, objections, digest, trends and outcomes. Four demo roles control access, and only admin and legal can override a decision. The digest goes to a file by default, or to Slack. I built it in phases from four fixed specs, one commit per milestone. Nothing was committed until the repo's verify script passed: typecheck, unit tests and production build, with smoke and end-to-end tests added along the way.</p>
           <h3>Limits</h3>
           <ul>
             <li>Fixture-only. The live Zapier connector and the Claude judge are wired but switched off, and no real account was connected.</li>

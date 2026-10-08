@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Geo-lift incrementality test — Lab — Nik Dumroese</title>
-<meta name="description" content="Measure what a campaign actually caused by comparing test regions against a synthetic control built from the rest. Runs in your browser." />
+<meta name="description" content="Estimate how many sales a campaign caused by comparing test cities against a synthetic control built from the other cities. Runs in your browser." />
 <link rel="canonical" href="https://nikdumroese.com/lab/geo-lift/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nikdumroese.com/lab/geo-lift/" />
 <meta property="og:title" content="Geo-lift incrementality test — Nik Dumroese Lab" />
-<meta property="og:description" content="Measure what a campaign actually caused by comparing test regions against a synthetic control built from the rest. Runs in your browser." />
+<meta property="og:description" content="Estimate how many sales a campaign caused by comparing test cities against a synthetic control built from the other cities. Runs in your browser." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
   <section class="lab-head wrap">
     <p class="crumb"><a href="../index.html">Lab</a> / 02</p>
     <h1>Geo-lift incrementality test</h1>
-    <p class="lead">Measure the sales a campaign actually caused. Run it in a few test regions, then compare them against a synthetic control built from the rest.</p>
+    <p class="lead">A geo-lift test tells you how many sales a campaign caused. The campaign runs in a few test cities, and a synthetic control built from the other cities shows what those cities would have sold without it.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
@@ -69,7 +69,7 @@
         <div class="field">
           <div class="field__top"><label for="lift">True injected lift</label><output for="lift"></output></div>
           <input type="range" id="lift" min="0" max="25" step="0.5" value="8" aria-describedby="lift-hint" />
-          <p class="hint" id="lift-hint">Simulation knob. You set the true effect, so you know the answer. See if the method finds it.</p>
+          <p class="hint" id="lift-hint">Simulation only. You set the true effect, then see whether the method recovers it.</p>
         </div>
         <div id="seed-field"><div class="field">
           <div class="field__top"><label for="seed">Data seed</label><output for="seed"></output></div>
@@ -88,7 +88,7 @@
           <select class="select" id="start"></select>
         </div></div>
         <div class="field">
-          <span class="label" id="geo-label">Test geos</span>
+          <span class="label" id="geo-label">Test cities</span>
           <div class="checks" id="geo-list" role="group" aria-labelledby="geo-label"></div>
           <p class="hint" id="geo-share" aria-live="polite"></p>
         </div>
@@ -96,7 +96,7 @@
         <details class="ctl-more">
           <summary>Economics</summary>
           <div class="field">
-            <label for="spend">Campaign spend in test geos (€)</label>
+            <label for="spend">Campaign spend in test cities (€)</label>
             <input class="input" type="number" id="spend" min="0" step="1000" value="40000" inputmode="numeric" />
           </div>
           <div class="field">
@@ -115,7 +115,7 @@
           <div role="tabpanel" id="p-analyze" aria-labelledby="t-analyze" class="lab-out">
             <section class="lab-block" aria-labelledby="verdict-h">
               <p class="kicker"><span class="idx">01</span> Verdict</p>
-              <h2 id="verdict-h">Result</h2>
+              <h2 id="verdict-h">Did the campaign cause a lift?</h2>
               <div class="verdict" aria-live="polite">
                 <span class="verdict__v" id="verdict-v">–</span>
                 <span class="verdict__why" id="verdict-why">Computing…</span>
@@ -133,16 +133,16 @@
 
             <section class="lab-block" aria-labelledby="b-fit">
               <p class="kicker"><span class="idx">02</span> Counterfactual</p>
-              <h2 id="b-fit">Test geos vs. their synthetic control</h2>
-              <p>Daily conversions summed over the test geos. The dashed line is a weighted blend of control geos, fitted on the pre-period only. After the start line, the gap between them is the effect.</p>
+              <h2 id="b-fit">Test cities vs. their synthetic control</h2>
+              <p>Daily conversions summed over the test cities. The dashed line is a weighted blend of control cities, fitted on the pre-period only. After the start line, the gap between them is the effect.</p>
               <div class="chart" id="c-fit"></div>
-              <div class="legend"><span><i></i>Actual, test geos</span><span><i class="k-muted"></i>Synthetic control</span><span><i class="k-band"></i>90% placebo range</span></div>
+              <div class="legend"><span><i></i>Actual, test cities</span><span><i class="k-muted"></i>Synthetic control</span><span><i class="k-band"></i>90% placebo range</span></div>
             </section>
 
             <section class="lab-block" aria-labelledby="b-gap">
               <p class="kicker"><span class="idx">03</span> Effect</p>
-              <h2 id="b-gap">Daily gap and cumulative lift</h2>
-              <p>The shaded band shows how big the daily gap gets in control geos that saw no campaign.</p>
+              <h2 id="b-gap">How the lift builds day by day</h2>
+              <p>The shaded band shows how big the daily gap gets in control cities that saw no campaign.</p>
               <div class="chart" id="c-gap"></div>
               <div class="legend"><span><i></i>Actual − synthetic</span><span><i class="k-band"></i>90% placebo range</span></div>
               <div class="chart" id="c-cum"></div>
@@ -151,10 +151,10 @@
 
             <section class="lab-block" aria-labelledby="b-placebo">
               <p class="kicker"><span class="idx">04</span> Inference</p>
-              <h2 id="b-placebo">Placebo test</h2>
+              <h2 id="b-placebo">How big a gap chance alone produces</h2>
               <p id="placebo-txt"></p>
               <div class="chart" id="c-placebo"></div>
-              <div class="legend"><span><i class="k-bar-muted"></i>Placebo cells (post/pre RMSPE ratio)</span><span><i class="k-accent"></i>Your test</span></div>
+              <div class="legend"><span><i class="k-bar-muted"></i>Placebo groups (post/pre RMSPE ratio)</span><span><i class="k-accent"></i>Your test</span></div>
             </section>
 
             <section class="lab-block" aria-labelledby="b-w">
@@ -163,7 +163,7 @@
               <p id="weights-txt"></p>
               <div class="tbl-wrap">
                 <table class="tbl">
-                  <thead><tr><th scope="col">Control geo</th><th scope="col">Region</th><th scope="col" class="num">Weight</th><th scope="col" class="num">Pre avg/day</th></tr></thead>
+                  <thead><tr><th scope="col">Control city</th><th scope="col">Region</th><th scope="col" class="num">Weight</th><th scope="col" class="num">Pre avg/day</th></tr></thead>
                   <tbody id="weights"></tbody>
                 </table>
               </div>
@@ -174,7 +174,7 @@
             <section class="lab-block" aria-labelledby="b-power">
               <p class="kicker"><span class="idx">01</span> Power</p>
               <h2 id="b-power">Smallest lift this design can detect</h2>
-              <p>Before spending, back-test the design on history. The method replays fake tests inside the pre-period, adds a known lift to the test geos, and counts how often the 90% interval excludes zero.</p>
+              <p>Before spending, back-test the design on history. The method replays fake tests inside the pre-period, adds a known lift to the test cities, and counts how often the 90% interval excludes zero.</p>
               <div class="stat-strip">
                 <div class="stat"><span class="n" id="k-mde">–</span><span class="l">Minimum detectable effect (80% power)</span></div>
                 <div class="stat"><span class="n" id="k-share">–</span><span class="l">Share of volume in test</span></div>
@@ -189,9 +189,9 @@
 
             <section class="lab-block" aria-labelledby="b-suggest">
               <p class="kicker"><span class="idx">02</span> Geo selection</p>
-              <h2 id="b-suggest">Suggest test geos</h2>
-              <p>Ranks every geo by how well the others can reproduce its pre-period, then fills a test cell of 12–20% of volume from the best-fitting ones. Very large geos (over 6% of volume) are skipped: they're hard to reproduce and costly to hold out.</p>
-              <div class="btns"><button class="btn btn--sm" type="button" id="suggest">Suggest test geos</button></div>
+              <h2 id="b-suggest">Suggest test cities</h2>
+              <p>Ranks every city by how well the others can reproduce its pre-period, then picks the best-fitting ones until the test group holds 12–20% of volume. Very large cities (over 6% of volume) are skipped: they're hard to reproduce and costly to hold out.</p>
+              <div class="btns"><button class="btn btn--sm" type="button" id="suggest">Suggest test cities</button></div>
               <p class="note" id="suggest-out" aria-live="polite"></p>
             </section>
           </div>
@@ -203,32 +203,32 @@
       <div class="acc__panel case__grid">
         <div class="meta"><dl>
           <div><dt>Method</dt><dd>Synthetic control with in-space placebo inference</dd></div>
-          <div><dt>Built from</dt><dd>An incrementality framework Nik built from scratch at a fintech. <a class="link" href="../../about.html">Context</a></dd></div>
+          <div><dt>Built from</dt><dd>An incrementality framework I built from scratch at a fintech. <a class="link" href="../../about.html">More on About</a></dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Not client data.</dd></div>
-          <div><dt>Runs</dt><dd>Plain JavaScript in this page. No libraries, no server.</dd></div>
+          <div><dt>Runtime</dt><dd>Plain JavaScript in your browser. No libraries, no server.</dd></div>
         </dl></div>
         <div class="case__body">
           <h3>The data</h3>
           <p>40 German cities, 132 days of daily conversions, generated in your browser. Each city is its size times a shared national trend, a weekly pattern, a regional factor (North, West, South, East), two hidden factors with city-specific loadings, its own drift and count noise. After day 90 the test cities get the lift you set. Nothing else changes.</p>
           <h3>The model</h3>
-          <p>Each geo is divided by its pre-period mean so big and small cities are comparable. The test geos are summed into one series. The synthetic control is a weighted average of control geos: weights are non-negative and sum to 1, chosen to minimise squared error over the pre-period. The fit is accelerated projected gradient descent onto the simplex.</p>
-          <p>After the test starts, the synthetic control is the counterfactual: what the test geos would have done without the campaign. Lift is the post-period gap divided by the counterfactual.</p>
+          <p>Each city is divided by its pre-period mean so big and small cities are comparable. The test cities are summed into one series. The synthetic control is a weighted average of control cities: weights are non-negative and sum to 1, chosen to minimise squared error over the pre-period. The fit is accelerated projected gradient descent onto the simplex.</p>
+          <p>After the test starts, the synthetic control is the counterfactual: what the test cities would have done without the campaign. Lift is the post-period gap divided by the counterfactual.</p>
           <h3>Inference</h3>
-          <p>Placebo cells: the same number of control geos as your test cell, picked at random (with a fixed seed) and preferring cells of similar volume. Each gets its own synthetic control from the remaining controls. Their post-period "lifts" show how big a gap appears by chance.</p>
+          <p>Placebo groups: the same number of control cities as your test group, picked at random (with a fixed seed) and preferring groups of similar volume. Each gets its own synthetic control from the remaining controls. Their post-period "lifts" show how big a gap appears by chance.</p>
           <ul>
             <li>The 90% interval is your estimate minus the 5th and 95th percentile of placebo lifts. The verdict uses this interval.</li>
             <li>The p-value ranks your test's post/pre RMSPE ratio among the placebo ratios (Abadie's test). It also catches effects that come and go.</li>
             <li>Power: fake test windows inside the pre-period, a known lift added, the same interval rule applied. MDE is the lift detected in 80% of windows.</li>
           </ul>
           <h3>In production</h3>
-          <p>The KPI comes from the warehouse (BigQuery models in dbt), at geo-day grain. Spend comes from the ad-platform APIs. Holdouts are set in platform geo-targeting, and the test plan is fixed before launch: geos, dates, MDE. Results feed the <a class="link" href="../mmm/">media mix model</a> as priors on channel effects and go into the budget plan. An LLM can draft the readout for stakeholders, but the numbers and the verdict come from this deterministic layer.</p>
+          <p>The KPI comes from the warehouse (BigQuery models in dbt), at geo-day grain. Spend comes from the ad-platform APIs. Holdouts are set in platform geo-targeting, and the test plan is fixed before launch: regions, dates, MDE. Results feed the <a class="link" href="../mmm/">media mix model</a> as priors on channel effects and go into the budget plan.</p>
           <h3>Limits</h3>
           <ul>
-            <li>Spillover: people commute and media leaks across borders. Neighbouring control geos then understate the lift.</li>
-            <li>Small geo counts give few placebos. The smallest possible p-value is 1 over (placebos + 1).</li>
+            <li>Spillover: people commute and media leaks across borders. Neighbouring control regions then understate the lift.</li>
+            <li>Few regions give few placebos. The smallest possible p-value is 1 over (placebos + 1).</li>
             <li>Needs a stable pre-period. A launch, outage or tracking change before the test breaks the fit.</li>
-            <li>One test at a time per geo. Overlapping campaigns in the same geos can't be separated.</li>
-            <li>The test cell must be inside what the controls can reproduce. A city unlike any other has no good synthetic twin.</li>
+            <li>One test at a time per region. Overlapping campaigns in the same regions can't be separated.</li>
+            <li>The test group must be inside what the controls can reproduce. A city unlike any other has no good synthetic twin.</li>
           </ul>
         </div>
       </div>

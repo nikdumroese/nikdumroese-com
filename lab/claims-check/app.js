@@ -14,7 +14,7 @@
 
   const VERDICT = {
     approve: { label: 'Auto-approve', cls: '', tag: 'tag--ok' },
-    review: { label: 'Needs human review', cls: 'is-warn', tag: 'tag--warn' },
+    review: { label: 'Needs review', cls: 'is-warn', tag: 'tag--warn' },
     block: { label: 'Blocked', cls: 'is-stop', tag: 'tag--stop' },
     empty: { label: 'Waiting for copy', cls: '', tag: '' },
   };
@@ -83,7 +83,7 @@
     const v = VERDICT[r.verdict];
     ui.verdict.textContent = v.label;
     ui.verdict.className = 'verdict__v' + (v.cls ? ' ' + v.cls : '');
-    ui.why.textContent = r.reason;
+    ui.why.textContent = r.verdict === 'review' ? r.reason.replace(/Biggest contributors: .*$/, `Biggest contributors: ${r.findings.filter((f) => f.severity === 'warn').sort((a, b) => b.weight - a.weight).slice(0, 2).map((f) => `${f.message.replace(/\.$/, '')} (${f.rule})`).join('; ')}.`) : r.reason;
     const count = (s) => r.findings.filter((f) => f.severity === s).length;
     $('k-score').textContent = text.trim() ? `${r.score}/${r.threshold}` : '–';
     $('k-block').textContent = text.trim() ? count('block') : '–';
@@ -162,7 +162,7 @@
     const channel = ui.channel.value, market = ui.market.value;
     const active = G.activeRules(channel, market).map((r) => (r.id === 'TOV-CUSTOM'
       ? Object.assign({}, r, { params: { terms: custom.slice() } }) : r));
-    $('rules-count').textContent = `${active.length} of ${G.RULES.length} rules apply to ${G.CHANNELS[channel].name} copy in ${G.MARKETS[market].name}. Change the channel or market on the left and this list changes with it.`;
+    $('rules-count').textContent = `${active.length} of ${G.RULES.length} rules apply to ${G.CHANNELS[channel].name} copy in ${G.MARKETS[market].name}. Change the channel or market in the controls and this list changes with it.`;
     $('rules-json').textContent = JSON.stringify(active, null, 2);
   };
   const renderRegister = () => {

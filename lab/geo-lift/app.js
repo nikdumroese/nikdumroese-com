@@ -219,7 +219,7 @@
       errs.push(r.lift); mapes.push(r.mape);
       cells.forEach((c) => nulls.push(cellFit(win, c, without(controls, c)).lift));
     });
-    if (!nulls.length) return { error: 'Not enough control geos to build placebo cells.' };
+    if (!nulls.length) return { error: 'Not enough control cities to build placebo groups.' };
     const crit = quantile(nulls, 0.95);
     const grid = Array.from({ length: 41 }, (_, i) => i * 0.005);
     const power = grid.map((lft) => errs.filter((e) => (1 + lft) * (1 + e) - 1 > crit).length / errs.length);
@@ -265,7 +265,7 @@
     const kd = find(/^date|day/i, 0), kg = find(/geo|region|city|market|dma/i, 1), kv = find(/kpi|conv|sign|value|orders|count/i, 2);
     const dates = [...new Set(rows.map((r) => r[kd]))].filter(Boolean).sort();
     const geos = [...new Set(rows.map((r) => r[kg]))].filter(Boolean).sort();
-    if (geos.length < 4) throw new Error('Need at least 4 geos (1 test + 3 controls).');
+    if (geos.length < 4) throw new Error('Need at least 4 regions in the geo column (1 test + 3 controls).');
     if (dates.length < 42) throw new Error('Need at least 42 days of data.');
     const di = new Map(dates.map((d, i) => [d, i])), gi = new Map(geos.map((g, i) => [g, i]));
     const Y = geos.map(() => new Float64Array(dates.length));
@@ -317,13 +317,13 @@
     const syn = state.data.synthetic;
     $('lift').disabled = !syn;
     $('lift-hint').textContent = syn
-      ? 'Simulation knob. You set the true effect, so you know the answer. See if the method finds it.'
-      : 'Your own data: the true effect is unknown. This is what the method is for.';
+      ? 'Simulation only. You set the true effect, then see whether the method recovers it.'
+      : 'Your own data: the true effect is unknown.';
     $('seed-field').hidden = !syn;
     $('start-field').hidden = syn;
     $('data-status').textContent = syn
       ? `Synthetic: ${state.data.geos.length} German cities × ${state.data.dates.length} days, seeded model.`
-      : `${state.csvName}: ${state.data.geos.length} geos × ${state.data.dates.length} days` + (state.data.missing ? `, ${state.data.missing} geo-days missing (treated as 0)` : '') + (state.data.bad ? `, ${state.data.bad} rows skipped` : '') + '.';
+      : `${state.csvName}: ${state.data.geos.length} regions × ${state.data.dates.length} days` + (state.data.missing ? `, ${state.data.missing} region-days missing (treated as 0)` : '') + (state.data.bad ? `, ${state.data.bad} rows skipped` : '') + '.';
     $('reset-wrap').hidden = syn;
     if (!syn) {
       const sel = $('start');
@@ -376,12 +376,12 @@
   const run = () => {
     const d = state.data, test = state.test;
     $('geo-share').textContent = test.length
-      ? `${test.length} test geo${test.length > 1 ? 's' : ''}, ${fmt.pct(volumeShare(d, test, testStart()))} of pre-period volume.`
-      : 'Pick at least one test geo.';
+      ? `${test.length} test ${test.length > 1 ? 'cities' : 'city'}, ${fmt.pct(volumeShare(d, test, testStart()))} of pre-period volume.`
+      : 'Pick at least one test city.';
     state.planStale = true;
     if (!test.length || test.length > d.geos.length - 3) {
       $('verdict-v').textContent = '–';
-      $('verdict-why').textContent = 'Pick between 1 and ' + (d.geos.length - 3) + ' test geos. The rest form the donor pool.';
+      $('verdict-why').textContent = 'Pick between 1 and ' + (d.geos.length - 3) + ' test cities. The rest form the donor pool.';
       return;
     }
     renderAnalyze();
@@ -402,13 +402,13 @@
     $('verdict-v').className = 'verdict__v' + (sig === 'none' ? ' is-warn' : '');
     const range = `${signed(ci[0])} to ${signed(ci[1])}`;
     const why = {
-      pos: `Significant at 90%. Over ${a.P} days the test geos ran ${signed(real.lift)} against their synthetic control, and the 90% interval (${range}) excludes zero.`,
+      pos: `Significant at 90%. Over ${a.P} days the test cities ran ${signed(real.lift)} against their synthetic control, and the 90% interval (${range}) excludes zero.`,
       neg: `Significant negative effect at 90%. The interval (${range}) sits below zero. Check for spillover or a tracking break before trusting it.`,
-      none: `Can't distinguish from noise. The 90% interval (${range}) includes zero: geos with no campaign show gaps this size.`,
+      none: `Can't distinguish from noise. The 90% interval (${range}) includes zero: cities with no campaign show gaps this size.`,
     }[sig];
     const agree = (p <= 0.1) === (sig !== 'none') ? '' : ` The RMSPE rank test disagrees (p = ${p.toFixed(2)}), so call it borderline.`;
     $('verdict-why').textContent = why + agree;
-    $('verdict-h').textContent = sig === 'pos' ? 'The campaign caused a lift' : sig === 'neg' ? 'The test geos fell behind' : 'No effect you can claim';
+    $('verdict-h').textContent = sig === 'pos' ? 'The campaign caused a lift' : sig === 'neg' ? 'The test cities fell behind' : 'No effect you can claim';
 
     $('k-incr').textContent = tick(real.incr);
     $('k-incr-l').textContent = `Incremental conv. (90%: ${tick(lo)} to ${tick(hi)})`;
@@ -425,7 +425,7 @@
         (inside ? '' : ' A 90% interval misses about 1 time in 10. Try another data seed.');
     } else truth.textContent = `Test window: ${d.dates[s]} to ${d.dates[a.E - 1]} (${a.P} days).`;
     $('fit-warn-wrap').hidden = real.mape <= 0.1;
-    $('fit-warn').textContent = `Pre-period fit is poor (MAPE ${fmt.pct(real.mape)}). Treat the estimate with caution.`;
+    $('fit-warn').textContent = `Pre-period fit is poor (MAPE ${fmt.pct(real.mape)}). Add donor cities or pick test cities the controls can track.`;
 
     const xs = d.dates.slice(0, a.E);
     const actual = Array.from(real.agg), cf = Array.from(real.cf);
@@ -433,7 +433,7 @@
     L.line($('c-fit'), {
       x: xs, xEvery: every($('c-fit'), xs.length), series: [{ values: cf, cls: 's-muted' }, { values: actual, cls: 's-ink' }],
       bands: [{ lo: bLo, hi: bHi }], markers: [s],
-      ariaLabel: 'Daily conversions in the test geos versus their synthetic control, with a 90% placebo band after the test start.',
+      ariaLabel: 'Daily conversions in the test cities versus their synthetic control, with a 90% placebo band after the test start.',
       tipFmt: (i) => `${xs[i]}<br>Actual ${tick(actual[i])}<br>Synthetic ${tick(cf[i])}`,
     });
     const gap = actual.map((v, t) => v - cf[t]);
@@ -450,9 +450,9 @@
     });
 
     if (a.pl.length) {
-      L.histogram($('c-placebo'), { values: a.ratios, mark: real.ratio, markLabel: 'Your test', bins: 18, xfmt: (v) => v.toFixed(1), ariaLabel: 'Distribution of post/pre RMSPE ratios across placebo cells, with the real test marked.' });
+      L.histogram($('c-placebo'), { values: a.ratios, mark: real.ratio, markLabel: 'Your test', bins: 18, xfmt: (v) => v.toFixed(1), ariaLabel: 'Distribution of post/pre RMSPE ratios across placebo groups, with the real test marked.' });
       const beaten = a.ratios.filter((r) => r < real.ratio).length;
-      $('placebo-txt').textContent = `${a.pl.length} placebo cells of ${state.test.length} control geo${state.test.length > 1 ? 's' : ''}, each given its own synthetic control. Your test's post/pre error ratio is ${real.ratio.toFixed(2)}, above ${beaten} of them. p = ${p.toFixed(2)}.`;
+      $('placebo-txt').textContent = `${a.pl.length} placebo groups of ${state.test.length} control ${state.test.length > 1 ? 'cities' : 'city'}, each given its own synthetic control. Your test's post/pre error ratio is ${real.ratio.toFixed(2)}, above ${beaten} of them. p = ${p.toFixed(2)}.`;
     }
 
     const rows = Array.from(real.w).map((w, k) => ({ w, g: real.donors[k] })).filter((r) => r.w > 0.001).sort((x, y) => y.w - x.w).slice(0, 10);
@@ -462,7 +462,7 @@
       L.el('td', { text: d.geos[r.g] }), L.el('td', { text: d.regions[r.g] }),
       L.el('td', { class: 'num', text: fmt.pct(r.w) }), L.el('td', { class: 'num', text: tick(mean(Array.from(d.Y[r.g].slice(0, s)))) }),
     ])));
-    $('weights-txt').textContent = `${Array.from(real.w).filter((w) => w > 0.001).length} of ${real.donors.length} control geos get weight. Test cell: ${state.test.map((g) => d.geos[g]).join(', ')}.`;
+    $('weights-txt').textContent = `${Array.from(real.w).filter((w) => w > 0.001).length} of ${real.donors.length} control cities get weight. Test cities: ${state.test.map((g) => d.geos[g]).join(', ')}.`;
   };
 
   const renderPlan = () => {
@@ -483,8 +483,8 @@
       ariaLabel: 'Detection rate by true lift, with the 80% power line.',
       tipFmt: (i) => `True lift ${x[i]}<br>Detected in ${Math.round(r.power[i] * 100)}% of back-tests`,
     });
-    $('plan-txt').textContent = `For this cell and a ${post}-day test, the method detects a true lift of ${Number.isFinite(r.mde) ? '+' + (r.mde * 100).toFixed(1) + '%' : 'more than 20%'} in 80% of back-tests. ` +
-      'Smaller effects will often read as noise.' + (!(r.mde <= 0.1) ? ' Add geos or run longer.' : '');
+    $('plan-txt').textContent = `For these test cities and a ${post}-day test, the method detects a true lift of ${Number.isFinite(r.mde) ? '+' + (r.mde * 100).toFixed(1) + '%' : 'more than 20%'} in 80% of back-tests. ` +
+      'Smaller effects will often read as noise.' + (!(r.mde <= 0.1) ? ' Add cities or run longer.' : '');
   };
 
   loadSynthetic();

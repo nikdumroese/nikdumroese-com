@@ -442,7 +442,7 @@
     const agg = m.outcomes.comparisons.find((c) => c.scope === 'aggregate');
     if (agg && agg.material) {
       const worse = (agg.deltaPct ?? 0) > 0;
-      lines.push(`Flagged content converts ${Math.abs((agg.deltaPct ?? 0) * 100).toFixed(0)}% ${worse ? 'worse' : 'better'} than clean (fixture data, illustrative — see HANDOFF.md). Gate exposure: $${m.outcomes.totalGateExposureRevenue.toLocaleString('en-US')} touched by block/review.`);
+      lines.push(`Flagged content converts ${Math.abs((agg.deltaPct ?? 0) * 100).toFixed(0)}% ${worse ? 'worse' : 'better'} than clean (planted correlation in fixture data; not a real effect). Gate exposure: $${m.outcomes.totalGateExposureRevenue.toLocaleString('en-US')} touched by block/review.`);
     }
     return lines;
   }
