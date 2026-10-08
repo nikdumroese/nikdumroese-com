@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/crm-dedupe/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="Drop in a messy contact export and get back one clean record per person, with every merge explained. Runs in your browser; nothing is uploaded." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 05</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>CRM dedupe &amp; standardiser</h1>
     <p class="lead">Drop in a messy contact export, get back one clean record per person, with every merge explained and nothing sent to a server.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
@@ -97,12 +94,12 @@
           </select>
           <p class="hint">Used for phones and dates when a row has no country.</p>
         </div>
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="auto">Auto-merge at</label><output for="auto"></output></div>
           <input type="range" id="auto" min="0.5" max="1" step="0.01" value="0.80" />
           <p class="hint">Pairs scoring at or above this merge without review.</p>
         </div>
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="review">Review from</label><output for="review"></output></div>
           <input type="range" id="review" min="0.3" max="1" step="0.01" value="0.60" />
           <p class="hint">Pairs between this and the auto-merge line go to a person.</p>
@@ -128,31 +125,29 @@
       </aside>
 
       <div class="lab-out">
+        <div class="lab-quick" role="group" aria-label="Key controls"></div>
         <section class="lab-block" aria-labelledby="b1">
-          <p class="kicker"><span class="idx">01</span> Result</p>
           <h2 id="b1">–</h2>
           <div class="stat-strip">
-            <div class="stat"><span class="n" id="k-in">–</span><span class="l">Rows in</span></div>
-            <div class="stat"><span class="n" id="k-out">–</span><span class="l">Records out</span></div>
-            <div class="stat"><span class="n" id="k-dup">–</span><span class="l">Duplicates merged</span></div>
+            <div class="stat"><span class="n" id="k-multi">–</span><span class="l">Records built from 2+ rows</span></div>
             <div class="stat"><span class="n" id="k-rev">–</span><span class="l">Pairs in review</span></div>
+            <div class="stat"><span class="n" id="k-fix">–</span><span class="l">Cells standardised</span></div>
           </div>
-          <p class="note" id="sum-live" role="status" aria-live="polite"></p>
+          <p class="sr-only" id="sum-live" role="status" aria-live="polite"></p>
           <p class="note" id="truth-out" hidden></p>
         </section>
 
         <section class="lab-block" aria-labelledby="b2">
-          <p class="kicker"><span class="idx">02</span> Pipeline</p>
+          <p class="kicker">Pipeline · 5 steps</p>
           <h2 id="b2">Same file in, same records out</h2>
           <ol class="findings" id="stages"></ol>
         </section>
 
         <section class="lab-block" aria-labelledby="b3">
-          <p class="kicker"><span class="idx">03</span> Candidate pairs</p>
+          <p class="kicker">Candidate pairs</p>
           <h2 id="b3">Where the thresholds cut</h2>
-          <p id="hist-cap">Each bar counts candidate pairs by match score.</p>
           <div class="chart" id="hist"></div>
-          <div class="legend">
+          <div class="legend" id="hist-lg">
             <span><i class="k-bar-muted"></i>Kept apart</span>
             <span><i class="k-bar"></i>Review</span>
             <span><i class="k-bar-accent"></i>Auto-merge</span>
@@ -166,7 +161,6 @@
         </section>
 
         <section class="lab-block" aria-labelledby="b4">
-          <p class="kicker"><span class="idx">04</span> Results</p>
           <h2 id="b4">Check each merge before you export</h2>
           <div class="tabs" role="tablist" aria-label="Result views">
             <button class="tab" role="tab" id="t-merges" aria-controls="p-merges" aria-selected="true">Merges</button>
@@ -179,7 +173,7 @@
             <p id="merges-cap"></p>
             <div class="tbl-wrap">
               <table class="tbl" aria-label="Merged clusters">
-                <thead><tr><th>Golden record</th><th class="num">Rows</th><th class="num">Weakest link</th><th>Signals</th><th><span class="label">Detail</span></th></tr></thead>
+                <thead><tr><th>Golden record</th><th class="num">Rows</th><th class="num">Weakest link</th><th class="hide-sm">Signals</th><th><span class="label">Detail</span></th></tr></thead>
                 <tbody id="merges"></tbody>
               </table>
             </div>
@@ -260,26 +254,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../claims-check/"><span class="kicker">← 04</span><b>Brand &amp; claims gate</b></a>
-      <a href="../agent-swarm/"><span class="kicker">06 →</span><b>Agent swarm</b></a>
+      <a href="../claims-check/"><span class="kicker">← Previous</span><b>Brand &amp; claims gate</b></a>
+      <a href="../agent-swarm/"><span class="kicker">Next →</span><b>Agent swarm</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20CRM%20dedupe">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
-      <a href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">crm-refine on GitHub ↗</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>

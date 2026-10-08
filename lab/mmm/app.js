@@ -1,4 +1,4 @@
-// 01 — Media mix model & budget optimizer. Runs entirely in the browser on window.Lab.
+// Media mix model & budget optimizer. Runs entirely in the browser on window.Lab.
 (() => {
   const L = window.Lab;
   const HOLD = 13, PERIOD = 52.18, HARMONICS = 3, LAMBDA = 0.05;
@@ -377,12 +377,23 @@
   const S = { data: null, model: null, chan: 0, locked: [], fileName: '' };
   const eurk = fmt.eurCompact;
   const roiFmt = (v) => (Number.isFinite(v) ? '€' + v.toFixed(2) : '–');
+  const sampleTag = () => (S.data.source === 'csv' ? null : `Synthetic · seed ${SCENARIOS[S.data.scenario].seed}`);
+  const listNames = (a) => (a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0]);
+
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = $('.lab-quick'); if (!strip) return;
+    const items = L.$$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
 
   const renderFit = () => {
     const m = S.model, d = S.data;
     $('#k-r2').textContent = m.r2.toFixed(2);
     $('#k-mape').textContent = fmt.pct(m.mape);
-    $('#k-hold').textContent = fmt.pct(m.holdMape);
+    $('#b2').textContent = `The model predicts the ${HOLD} held-out weeks within ${fmt.pct(m.holdMape)} on average`;
     $('#k-media').textContent = fmt.pct(m.mediaTotal / m.revenueTotal, 0);
     const vals = [...d.revenue, ...m.fitted];
     const lo = Math.min(...vals), hi = Math.max(...vals), t = L.niceTicks(lo, hi);
@@ -391,10 +402,19 @@
       x: d.ticks, xEvery: Math.max(13, Math.ceil(d.ticks.length / 4 / 13) * 13), yMin, yMax, height: 300,
       ariaLabel: `Weekly revenue, actual versus model, ${m.n} weeks; last ${HOLD} weeks held out`,
       bands: [{ lo: d.revenue.map((_, i) => (i >= m.nTr - 1 ? yMin : NaN)), hi: d.revenue.map((_, i) => (i >= m.nTr - 1 ? yMax : NaN)) }],
-      series: [{ values: d.revenue, cls: 's-ink' }, { values: m.fitted, cls: 's-accent' }],
-      markers: [m.nTr - 1],
+      series: [{ values: d.revenue, cls: 's-ink', label: 'Actual' }, { values: m.fitted, cls: 's-accent', label: 'Model' }],
+      markers: [m.nTr - 1], sample: sampleTag(),
       tipFmt: (i) => `${L.esc(d.weeks[i])}${i >= m.nTr ? ' · holdout' : ''}<br>Actual ${fmt.eur(d.revenue[i])}<br>Model ${fmt.eur(m.fitted[i])}<br>Error ${fmt.signedPct((m.fitted[i] - d.revenue[i]) / d.revenue[i])}`,
     });
+    L.figure($('#c-fit'), {
+      legend: $('#lg-fit'),
+      caption: `Training weeks average ${fmt.pct(m.mape)} error and the blind holdout ${fmt.pct(m.holdMape)}, so the fit isn't memorising the past.`,
+    });
+    L.dataTable($('#tbl-fit'), [
+      'Week', { label: 'Actual', num: true, fmt: (v) => fmt.eur(v) }, { label: 'Model', num: true, fmt: (v) => fmt.eur(v) },
+      { label: 'Error', num: true, fmt: (v) => fmt.signedPct(v) },
+    ], d.weeks.map((w, i) => [w + (i >= m.nTr ? ' (holdout)' : ''), d.revenue[i], m.fitted[i], (m.fitted[i] - d.revenue[i]) / d.revenue[i]]),
+    { summary: 'Data table: actual vs model, by week' });
     $('#fit-note').textContent = `Searched ${fmt.num(m.evals)} curve combinations in ${m.ms} ms. Shaded weeks were not used to choose the curves.`;
   };
 
@@ -406,9 +426,11 @@
       labels: order.map((i) => chs[i].name),
       groups: [{ values: order.map((i) => chs[i].contribTotal), cls: 'b-ink' }],
       valueFmt: (v) => eurk(v), yfmt: eurk,
-      ariaLabel: 'Incremental revenue by channel over the full period',
+      ariaLabel: 'Incremental revenue by channel over the full period', sample: sampleTag(),
       tipFmt: (k) => { const c = chs[order[k]]; return `${L.esc(c.name)}<br>Revenue ${eurk(c.contribTotal)} on ${eurk(c.spendTotal)} spend<br>ROI ${roiFmt(c.roi)}`; },
     });
+    const top = chs[order[0]];
+    $('#b3').textContent = `${top.name} added the most revenue: ${eurk(top.contribTotal)}`;
     $('#k-base').textContent = eurk(m.revenueTotal - m.mediaTotal);
     $('#k-mtot').textContent = eurk(m.mediaTotal);
     $('#k-roi').textContent = roiFmt(m.mediaTotal / L.sum(chs.map((c) => c.spendTotal)));
@@ -418,7 +440,7 @@
       const c = chs[i];
       tb.append(el('tr', {}, [
         el('td', { text: c.name }),
-        el('td', { class: 'num', text: eurk(c.avg) }),
+        el('td', { class: 'num hide-sm', text: eurk(c.avg) }),
         el('td', { class: 'num', text: eurk(c.contribTotal) }),
         el('td', { class: 'num', text: roiFmt(c.roi) }),
         el('td', { class: 'num' + (c.mroi < 1 ? ' neg' : ''), text: roiFmt(c.mroi) }),
@@ -439,11 +461,15 @@
     if (trueF) series.unshift({ values: xs.map(trueF), cls: 's-muted' });
     const at = (x) => ({ i: (x / xmax) * (N - 1), v: c.f(x) });
     L.line($('#c-curve'), {
-      x: xs.map(eurk), xEvery: 10, height: 280, yMin: 0, series,
-      points: [{ ...at(c.avg), cls: 'dot-ink', r: 5 }, { ...at(plan.alloc[S.chan]), cls: 'dot-accent', r: 5 }],
+      x: xs.map(eurk), xValues: xs, xfmt: eurk, height: 280, yMin: 0, series,
+      points: [{ ...at(c.avg), cls: 'dot-ink', r: 5 }, { ...at(plan.alloc[S.chan]), cls: 'dot-accent', r: 5 }], sample: sampleTag(),
       ariaLabel: `${c.name}: weekly spend against incremental weekly revenue`,
       tipFmt: (i) => `${eurk(xs[i])}/week<br>Fitted revenue ${eurk(c.f(xs[i]))}${trueF ? `<br>True ${eurk(trueF(xs[i]))}` : ''}<br>Next € returns ${roiFmt(marginal(c.f, xs[i]))}`,
     });
+    const past = m.channels.filter((ch) => ch.mroi < 1).map((ch) => ch.name);
+    $('#b4').textContent = past.length
+      ? `${listNames(past)} ${past.length > 1 ? 'return' : 'returns'} under €1 per extra euro today`
+      : 'Every channel still returns over €1 per extra euro';
     $('#curve-note').textContent = `${c.name}: now ${eurk(c.avg)}/week, where the next euro returns ${roiFmt(c.mroi)}. Half-saturation at ${eurk(c.K)}/week of adstocked spend; carry-over decay ${c.decay.toFixed(1)}.`;
     // .legend span sets display, which beats [hidden], so rebuild the legend instead of hiding an item.
     const key = (cls, text) => el('span', {}, [el('i', { class: cls || null }), text]);
@@ -490,6 +516,23 @@
     return `Cuts land first on ${chs[down[0]].name}, where the next euro returns only ${mr(down[0], p.cur[down[0]])} today. ${tail}`;
   };
 
+  // Block heading states the plan's result (≤12 words); the paragraph below carries the detail.
+  const headline = (chs, p) => {
+    const d = p.alloc.map((a, i) => a - p.cur[i]), tol = p.spendCur * 0.005;
+    const up = d.map((_, i) => i).filter((i) => d[i] > tol).sort((a, b) => d[b] - d[a]);
+    const down = d.map((_, i) => i).filter((i) => d[i] < -tol).sort((a, b) => d[a] - d[b]);
+    const dRev = p.revRec - p.revCur, gain = `${dRev >= 0 ? '+' : '−'}${eurk(Math.abs(dRev))} revenue/wk`;
+    if (!up.length && !down.length) return "Today's split is already close to the best plan";
+    if (up.length && down.length) {
+      const moved = eurk(-L.sum(down.map((i) => d[i])));
+      return up.length === 1 && down.length === 1
+        ? `Shift ${moved}/wk from ${chs[down[0]].name} to ${chs[up[0]].name}: ${gain}`
+        : `Shift ${moved}/wk toward ${chs[up[0]].name}: ${gain}`;
+    }
+    if (up.length) return `Extra budget goes mostly to ${chs[up[0]].name}: ${gain}`;
+    return `Cuts land first on ${chs[down[0]].name}: ${gain}`;
+  };
+
   const renderPlan = () => {
     const m = S.model, chs = m.channels;
     const cur = L.sum(chs.map((c) => c.avg));
@@ -502,11 +545,15 @@
       labels: chs.map((c) => c.name),
       groups: [{ values: p.cur, cls: 'b-muted', name: 'Now' }, { values: p.alloc, cls: 'b-accent', name: 'Plan' }],
       valueFmt: (v) => eurk(v), yfmt: eurk,
-      ariaLabel: 'Average weekly spend by channel, current versus recommended',
+      ariaLabel: 'Average weekly spend by channel, current versus recommended', sample: sampleTag(),
       tipFmt: (i) => `${L.esc(chs[i].name)}<br>Now ${eurk(p.cur[i])}/wk<br>Plan ${eurk(p.alloc[i])}/wk (${fmt.signedPct(p.alloc[i] / p.cur[i] - 1, 0)})`,
     });
     const dRev = p.revRec - p.revCur;
-    $('#k-drev').textContent = (dRev >= 0 ? '+' : '−') + eurk(Math.abs(dRev));
+    $('#b1').textContent = headline(chs, p);
+    L.figure($('#c-plan'), {
+      legend: $('#lg-plan'),
+      caption: `Grey is today's average weekly spend; blue is the plan, each channel within ±${S.getMax()}% of today.`,
+    });
     $('#k-drevp').textContent = fmt.signedPct(dRev / m.avgRevenue);
     $('#k-roas').textContent = `${roiFmt(p.revCur / p.spendCur)} → ${roiFmt(p.revRec / p.spendRec)}`;
     $('#plan-text').textContent = sentence(chs, p);
@@ -521,8 +568,8 @@
       const ch = p.alloc[i] / p.cur[i] - 1;
       tb.append(el('tr', {}, [
         el('td', { text: c.name + (S.locked[i] ? ' (locked)' : '') }),
-        el('td', { class: 'num', text: eurk(p.cur[i]) }),
-        el('td', { class: 'num', text: eurk(p.alloc[i]) }),
+        el('td', { class: 'num hide-sm', text: eurk(p.cur[i]) }),
+        el('td', { class: 'num hide-sm', text: eurk(p.alloc[i]) }),
         el('td', { class: 'num' + (ch < -0.005 ? ' neg' : ch > 0.005 ? ' pos' : ''), text: fmt.signedPct(ch, 0) }),
         el('td', { class: 'num', text: roiFmt(marginal(c.f, p.alloc[i])) }),
       ]));
@@ -551,8 +598,8 @@
       ]));
     });
     const k = m.channels.length - off.length;
-    $('#rec-sum').textContent = `${k} of ${m.channels.length} channels land within 20% of the true ROI in this scenario.` +
-      (off.length ? ' Where it misses, the data explains why:' : ' Try the Collinear or Saturated scenario to see where it breaks.');
+    $('#b5').textContent = `${k} of ${m.channels.length} channels land within 20% of the true ROI`;
+    $('#rec-sum').textContent = off.length ? 'Where it misses, the data explains why:' : 'Try the Collinear or Saturated scenario to see where it breaks.';
     const ul = $('#rec-why');
     ul.innerHTML = '';
     off.forEach((i) => ul.append(el('li', {}, [
@@ -603,5 +650,6 @@
     run(res.data);
   });
 
+  quick();
   run(generate('balanced'));
 })();

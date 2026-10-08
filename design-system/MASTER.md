@@ -19,56 +19,61 @@ not ops-manager framing. Confident, concrete, low on adjectives.
   Authentic Helvetica, zero webfont load. This is the voice of the site.
   - Display: heavy weight (700), tight tracking (-0.03em to -0.045em), large scale.
   - Body: 400, line-height 1.5, max line-length 68ch.
-- **Mono (eyebrows, metadata, nav labels, tags, indices):** `"Space Mono", ui-monospace, monospace`
-  (Google font, self-loadable). Gives "builder" texture + the fun-typography contrast.
-  Uppercase, letter-spacing 0.08em, small (12–13px).
+- **Mono (metadata, nav labels, numbers, IDs):** `"Space Mono"`, self-hosted latin subset in `assets/fonts/`
+  with a size-adjusted Menlo fallback. Uppercase only for labels of five words or fewer, 12.5px minimum.
+  Labels must carry information (counts, dates, status) or be dropped; no decorative eyebrows.
 - No third family. Contrast comes from grotesque↔mono, weight, scale, and colour — not novelty fonts.
 
-## Colour (max 2 accents, sparse)
+## Colour: "Grid-pad" (Oct 2026)
+Derived from the subject, not a trend: engineering graph paper (measurement models are drafted on it)
+plus Okabe-Ito blue, a colour-blind-safe charting palette. Replaced cream #F4F1EA + vermilion, which
+2025-26 writeups document as the "second-wave" AI-default palette.
+
 | Token            | Hex        | Use |
 |------------------|------------|-----|
-| `--paper`        | `#F4F1EA`  | warm off-white background |
-| `--paper-2`      | `#ECE8DE`  | subtle raised panels / hover |
-| `--ink`          | `#111110`  | primary text, display |
-| `--ink-60`       | `#5B5952`  | secondary text, metadata |
-| `--ink-20`       | `#C9C4B8`  | hairlines, rules |
-| `--accent`       | `#F5451E`  | vermilion — primary accent, links, CTA, active marks |
-| `--accent-2`     | `#2438FF`  | electric blue — secondary chip only, used rarely |
-| `--accent-text`  | `#C2300B`  | vermilion for small text (5.0:1 on paper; raw `--accent` is 3.2:1, large/bold or non-text only) |
-| `--on-accent`    | `#111110`  | text on accent fills (ink, 5.2:1; white failed at 3.65:1) |
+| `--paper`        | `#F3F5F1`  | green-grey paper background |
+| `--paper-2`      | `#E6EBE4`  | raised panels / hover |
+| `--ink`          | `#14171A`  | primary text (16.4:1) |
+| `--ink-60`       | `#535A5E`  | secondary text (6.4:1) |
+| `--ink-40`       | `#788580`  | borders and baseline series that carry meaning (3.5:1) |
+| `--ink-20`       | `#B9C7BC`  | grid-green hairlines, decorative only (1.6:1) |
+| `--accent`       | `#0072B2`  | Okabe-Ito blue: focus, CTA hover, plan/model series, status (4.73:1, passes as text) |
+| `--accent-text`  | `#005A8C`  | accent text on `--paper-2` (accent drops to 4.29 there) |
+| `--on-accent`    | `#FFFFFF`  | text on accent fills (5.19:1) |
+| `--accent-on-ink`| `#56B4E9`  | links/hover on the ink footer (7.8:1) |
+| `--accent-2`     | `#A35F00`  | ochre, rare |
 
-Swiss logic: near-black Helvetica on warm paper + one hot vermilion. Blue is a rare second voice
-(one project chip, one hover), never both accents loud in the same viewport. No gradients, no
-drop shadows as decoration, no glassmorphism.
+One accent, used sparingly; never accent a single word in a headline. Charts: plan/model series solid
+accent, baseline dashed `--ink-40`, so meaning never rests on colour alone.
 
 ## Layout
 - **Single column, editorial.** Generous margins. Container max-width ~1200px, text blocks ~68ch.
 - Work is an **index/list**, not a grid of cards and never a bento box.
 - Baseline rhythm on an 8px grid. Section spacing large (96–160px desktop).
-- Fixed, minimal top bar: wordmark left, 2–3 links + a persistent **Get in touch** on the right.
+- Sticky top bar: wordmark left, 3 links + a persistent **Get in touch**. Links stay visible on phones (no hamburger).
 - Hero is above-the-fold on a laptop (≤ 800px tall content): name, one-line thesis, 2–3 proof lines,
   primary CTA + CV. No hero image required — type is the hero.
 
 ## Motion (restrained)
-- Entrance: fade+8px rise on scroll via IntersectionObserver, 400ms, staggered ≤80ms.
-- Hover: 200ms colour/underline transitions. No layout-shifting scale transforms.
-- Respect `prefers-reduced-motion: reduce` — disable all of the above.
+- No entrance animations (uniform fade-and-rise is a documented AI-template tell).
+- Hover: 200ms colour/underline transitions only. No layout shifts on hover.
+- Respect `prefers-reduced-motion: reduce`: all transitions off.
 
 ## Lab (live tools under /lab/)
 - Shared layer: `assets/lab.css` + `assets/lab.js` (SVG charts, tabs, CSV, seeded data). Controls column left, outputs right; on mobile outputs come first.
-- Form controls use ink (`accent-color: var(--ink)`); vermilion is kept for the model/plan series and status, one loud use per viewport.
+- Form controls use ink (`accent-color: var(--ink)`); the accent is kept for the model/plan series and status, one loud use per viewport.
 - Architecture diagrams are inline SVG using `.diagram` classes.
 
 ## Components
-- **Link:** ink text, vermilion on hover, animated underline (background-size trick), no colour-only cue.
-- **Button (primary):** solid ink or vermilion fill, `--on-accent` text, 44px min height, mono label.
-- **Eyebrow / kicker:** mono, uppercase, `--ink-60`, small, with a leading index like `01 —`.
-- **Project row:** number · title · role/scope · year, full-width, hairline divider, hover reveals accent.
+- **Link:** ink text, accent on hover, animated underline (background-size trick), no colour-only cue.
+- **Button (primary):** solid ink fill (accent on hover), `--on-accent` text, 44px min height, mono label.
+- **Kicker:** mono, uppercase, `--ink-60`, 12.5px, and only when it carries information (e.g. "Lab · 7 tools"). No `01 —` numbering unless the items are a real sequence.
+- **Project row:** title · description · result line · visible "Open →", full-width, hairline divider. Case-study accordions show an outcome line while collapsed.
 - **Tag/chip:** mono, small, hairline border; accent border only on the flagship.
 
 ## Accessibility (from ui-ux-pro-max, non-negotiable)
-- Contrast ≥ 4.5:1 (ink/paper passes; vermilion on paper only for large/bold or with underline).
-- Visible focus rings (2px vermilion outline, offset 2px).
+- Contrast ≥ 4.5:1 text, ≥ 3:1 for UI boundaries and chart marks; body ≥ 16px, labels ≥ 12.5px.
+- Visible focus rings (2px accent outline, offset 2px); `scroll-padding-top` keeps anchors clear of the sticky nav.
 - Touch targets ≥ 44px. `cursor: pointer` on all interactive elements.
 - Semantic landmarks, labelled links, alt text, `for`-linked labels.
 - Body ≥ 16px on mobile; no horizontal scroll at 375/768/1024/1440.
@@ -78,3 +83,5 @@ drop shadows as decoration, no glassmorphism.
 - Emoji as icons (use inline SVG). Corporate stock template layouts.
 - More than two accent colours loud at once. Decorative gradients/shadows.
 - Employer/client brand tokens (Pleo pink, Lago blue) — this is a personal system.
+- AI-template tells: cream + terracotta/vermilion, accented headline word, decorative mono eyebrows,
+  01/02 numbering on non-sequences, fade-and-rise on every section, round-number stat strips.

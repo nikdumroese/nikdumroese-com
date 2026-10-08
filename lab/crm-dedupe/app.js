@@ -93,11 +93,10 @@
     const { recs, fixes, pairs } = S.res, cl = S.cl, n = recs.length;
     const out = cl.clusters.length, merged = n - out;
     const pending = cl.review.filter((q) => !q.decision && !q.linked).length;
-    $('#b1').textContent = n ? `${n0(n)} rows → ${n0(out)} records` : 'No rows loaded';
-    $('#k-in').textContent = n0(n);
-    $('#k-out').textContent = n0(out);
-    $('#k-dup').textContent = n0(merged);
+    $('#b1').textContent = n ? `${n0(n)} rows → ${n0(out)} records, ${n0(pending)} ${pending === 1 ? 'pair' : 'pairs'} left for review` : 'No rows loaded';
+    $('#k-multi').textContent = n0(S.order.length);
     $('#k-rev').textContent = n0(pending);
+    $('#k-fix').textContent = n0(fixes.length);
     $('#sum-live').textContent = n ? `${n0(n)} rows in, ${n0(out)} records out. ${n0(pending)} ${pending === 1 ? 'pair awaits' : 'pairs await'} review.` : 'No rows loaded.';
 
     const to = $('#truth-out');
@@ -129,17 +128,18 @@
   }
 
   // Histogram with fixed 0–1 domain and two threshold lines. Width follows the host, redrawn on resize.
+  // Threshold labels sit in two rows above the plot so they never collide at phone width.
   function drawHist() {
-    const host = $('#hist'), vals = S.res.pairs.map((p) => p.s);
+    const host = $('#hist'), vals = S.res.pairs.map((p) => L.clamp(p.s, 0, 1));
     const { auto, review } = thr();
     const B = 25, counts = new Array(B).fill(0);
     vals.forEach((v) => counts[Math.min(B - 1, Math.floor(v * B))]++);
-    const W0 = Math.max(300, Math.round(host.clientWidth || 720)), H0 = 230, m = { t: 22, r: 16, b: 30, l: 44 };
+    const W0 = Math.max(300, Math.round(host.clientWidth || 720)), H0 = 262, m = { t: 54, r: 16, b: 30, l: 44 };
     const W = W0 - m.l - m.r, H = H0 - m.t - m.b;
     host.textContent = '';
     const svg = svgEl('svg', { viewBox: `0 0 ${W0} ${H0}`, width: W0, height: H0, role: 'img', 'aria-label': `Histogram of ${vals.length} candidate pair scores; review from ${review.toFixed(2)}, auto-merge from ${auto.toFixed(2)}` });
     host.append(svg);
-    const ticks = L.niceTicks(0, Math.max(1, ...counts), 4), top = ticks[ticks.length - 1] || 1;
+    const ticks = L.niceTicks(0, Math.max(1, ...counts) * 1.05, 4), top = ticks[ticks.length - 1] || 1;
     const y = (c) => H - (c / top) * H, x = (v) => v * W;
     ticks.forEach((t) => {
       svgEl('line', { x1: m.l, x2: m.l + W, y1: m.t + y(t), y2: m.t + y(t), class: 'grid' }, svg);
@@ -155,13 +155,20 @@
     });
     [0, 0.2, 0.4, 0.6, 0.8, 1].forEach((t) => { svgEl('text', { x: x(t), y: H + 20, 'text-anchor': 'middle', class: 'tick' }, g).textContent = t.toFixed(1); });
     svgEl('line', { x1: 0, x2: W, y1: H, y2: H, class: 'axis' }, g);
-    svgEl('line', { x1: x(review), x2: x(review), y1: -8, y2: H, class: 's-muted' }, g);
-    svgEl('line', { x1: x(auto), x2: x(auto), y1: -8, y2: H, class: 's-accent' }, g);
-    const close = x(auto) - x(review) < 70;
-    svgEl('text', { x: x(review) - 4, y: -10, 'text-anchor': 'end', class: 'lbl lbl--muted' }, g).textContent = 'review ' + review.toFixed(2);
-    svgEl('text', { x: Math.min(W, x(auto) + 4), y: close ? 8 : -10, 'text-anchor': x(auto) > W - 90 ? 'end' : 'start', class: 'lbl' }, g).textContent = 'auto ' + auto.toFixed(2);
+    const LW = 84, rAt = x(review) < LW ? 'start' : 'end', aAt = x(auto) > W - LW ? 'end' : 'start';
+    const rx = rAt === 'end' ? x(review) - 4 : x(review) + 4, ax = aAt === 'end' ? x(auto) - 4 : x(auto) + 4;
+    const span = (px, at) => (at === 'end' ? [px - LW, px] : [px, px + LW]);
+    const [r0, r1] = span(rx, rAt), [a0, a1] = span(ax, aAt);
+    const stack = r1 > a0 && a1 > r0;
+    svgEl('line', { x1: x(review), x2: x(review), y1: stack ? -30 : -14, y2: H, class: 's-muted' }, g);
+    svgEl('line', { x1: x(auto), x2: x(auto), y1: -14, y2: H, class: 's-accent' }, g);
+    svgEl('text', { x: rx, y: stack ? -20 : -4, 'text-anchor': rAt, class: 'lbl lbl--muted' }, g).textContent = 'review ' + review.toFixed(2);
+    svgEl('text', { x: ax, y: -4, 'text-anchor': aAt, class: 'lbl' }, g).textContent = 'auto ' + auto.toFixed(2);
+    if (S.truth) svgEl('text', { x: W0 - 2, y: 13, 'text-anchor': 'end', class: 'lbl lbl--sample' }, svg).textContent = `Synthetic · seed ${SEED}`;
     host._w = W0;
-    $('#hist-cap').textContent = `Each bar counts candidate pairs by match score. ${n0(vals.length)} pairs from blocking.`;
+    const nAuto = vals.filter((v) => v >= auto).length, nRev = vals.filter((v) => v >= review && v < auto).length;
+    $('#b3').textContent = vals.length ? `${n0(nAuto)} of ${n0(vals.length)} pairs auto-merge; ${n0(nRev)} go to a person` : 'No candidate pairs to score';
+    L.figure(host, { legend: $('#hist-lg'), caption: `Each bar counts candidate pairs by match score. ${n0(vals.length)} pairs from blocking, instead of comparing every row with every other.` });
   }
   window.addEventListener('resize', L.debounce(() => { const h = $('#hist'); if (S.res && Math.abs((h._w || 0) - h.clientWidth) > 4) drawHist(); }, 150));
 
@@ -239,7 +246,7 @@
         el('td', {}, [el('strong', { text: [g.first, g.last].filter(Boolean).join(' ') || g.email || gs.master }), el('br'), el('span', { class: 'note', text: [g.email, g.company].filter(Boolean).join(' · ') })]),
         el('td', { class: 'num', text: gs.members.length }),
         el('td', { class: 'num', text: S.weak.get(ci).toFixed(2) }),
-        el('td', { text: sig || '–' }),
+        el('td', { class: 'hide-sm', text: sig || '–' }),
         el('td', {}, btn),
       ]), det);
     });
@@ -386,6 +393,15 @@
   }
 
   // ---------------------------------------------------------------- wiring
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = $('.lab-quick'); if (!strip) return;
+    const items = $$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
+  quick();
   const thrFmt = (v) => v.toFixed(2);
   L.bindRange('auto', thrFmt, () => { if (+$('#review').value > +$('#auto').value) { $('#review').value = $('#auto').value; $('output[for="review"]').textContent = thrFmt(+$('#review').value); } recluster(); });
   L.bindRange('review', thrFmt, () => { if (+$('#review').value > +$('#auto').value) { $('#auto').value = $('#review').value; $('output[for="auto"]').textContent = thrFmt(+$('#auto').value); } recluster(); });

@@ -62,15 +62,13 @@
   const renderFindings = (findings) => {
     if (!findings.length) {
       ui.findings.replaceChildren(L.el('li', {}, [
-        L.el('span', { class: 'tag tag--ok', text: 'clear' }),
-        L.el('div', {}, [L.el('p', { class: 'f-msg', text: 'No rule fired.' })]),
+        L.el('p', { class: 'f-msg' }, [L.el('span', { class: 'tag tag--ok', text: 'clear' }), ' No rule fired.']),
       ]));
       return;
     }
     ui.findings.replaceChildren(...findings.map((f) => L.el('li', { id: 'find-' + f.id, tabindex: '-1' }, [
-      L.el('span', { class: SEV_TAG[f.severity], text: f.severity }),
       L.el('div', {}, [
-        L.el('p', { class: 'f-rule', text: `${f.rule} · ${f.category}` + (f.evidence ? ` · ${f.evidence}` : '') }),
+        L.el('p', { class: 'f-rule' }, [L.el('span', { class: SEV_TAG[f.severity], text: f.severity }), ` ${f.rule} · ${f.category}` + (f.evidence ? ` · ${f.evidence}` : '')]),
         L.el('p', { class: 'f-msg', text: f.message }),
       ]),
       L.el('p', { class: 'f-fix', text: f.fix }),
@@ -88,8 +86,13 @@
     $('k-score').textContent = text.trim() ? `${r.score}/${r.threshold}` : '–';
     $('k-block').textContent = text.trim() ? count('block') : '–';
     $('k-warn').textContent = text.trim() ? count('warn') : '–';
-    $('k-flesch').textContent = r.stats.flesch == null ? '–' : r.stats.flesch;
-    $('k-person').textContent = text.trim() ? `${r.stats.you} : ${r.stats.we}` : '–';
+    const nb = count('block'), nw = count('warn'), s = (k, w) => `${k} ${w}${k === 1 ? '' : 's'}`;
+    $('b2').textContent = !text.trim() ? 'Paste a draft to check it'
+      : r.verdict === 'block' ? `Blocked: ${s(nb, 'finding')} stop this draft`
+      : r.verdict === 'review' ? `Needs review: ${s(nw, 'warning')} add up to ${r.score} (limit ${r.threshold})`
+      : `Auto-approved: risk ${r.score}, under the ${r.threshold} limit`;
+    const nf = nb + nw;
+    $('b3').textContent = nf ? `${s(nf, 'finding')} to fix, each with a suggestion` : 'Nothing to fix';
     annotate(text.replace(/\r\n?/g, '\n'), r.findings);
     renderFindings(r.findings);
     ui.ledger.textContent = JSON.stringify(r.ledger, null, 2);
@@ -125,6 +128,7 @@
     $('b-approve').textContent = tally.approve;
     $('b-review').textContent = tally.review;
     $('b-block').textContent = tally.block;
+    $('b5').textContent = batchResults.length ? `${tally.approve} of ${batchResults.length} variants ship without a human` : "Run an agent's drafts through the gate";
     ui.bRows.replaceChildren(...batchResults.map((b) => {
       const top = b.r.findings.find((f) => f.severity !== 'info') || b.r.findings[0];
       const open = () => {
@@ -206,8 +210,18 @@
   ui.market.addEventListener('change', () => { runGate(); runBatch(); });
   ui.bChannel.addEventListener('change', runBatch);
 
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = L.$('.lab-quick'); if (!strip) return;
+    const items = L.$$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
+
   L.tabs(document);
+  quick();
   ui.batch.value = G.BATCH_SAMPLE;
   renderRegister();
-  loadSample('pass');
+  loadSample('review');
 })();

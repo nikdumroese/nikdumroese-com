@@ -196,12 +196,21 @@
   };
   const hostWidth = (host) => Math.max(300, Math.round(host.clientWidth || 720));
 
-  const frame = (host, { width = hostWidth(host), height = 300, m = { t: 14, r: 16, b: 30, l: 52 }, ariaLabel = 'Chart' } = {}) => {
+  // frame(host, { width, height, m, ariaLabel, sample, interactive })
+  //   sample: 'Synthetic · 104 wks' → small corner tag in a reserved top strip (height grows to keep the plot size).
+  //   interactive: true → svg is role="group" (role="img" would hide the keyboard slider inside it) and a
+  //   visually-hidden polite live region is appended to the host; returned as f.live.
+  const frame = (host, { width = hostWidth(host), height = 300, m = { t: 14, r: 16, b: 30, l: 52 }, ariaLabel = 'Chart', sample, interactive } = {}) => {
+    m = { ...m };
+    if (sample) { m.t += 18; height += 18; }
     host._labW = width;
     host.innerHTML = '';
-    const svg = svgEl('svg', { viewBox: `0 0 ${width} ${height}`, role: 'img', 'aria-label': ariaLabel });
+    const svg = svgEl('svg', { viewBox: `0 0 ${width} ${height}`, role: interactive ? 'group' : 'img', 'aria-label': ariaLabel });
     host.appendChild(svg);
-    return { svg, W: width - m.l - m.r, H: height - m.t - m.b, m, width, height };
+    if (sample) svgEl('text', { x: width - 2, y: 13, 'text-anchor': 'end', class: 'lbl lbl--sample' }, svg).textContent = sample;
+    const live = interactive ? el('div', { class: 'sr-only', 'aria-live': 'polite' }) : null;
+    if (live) host.appendChild(live);
+    return { svg, W: width - m.l - m.r, H: height - m.t - m.b, m, width, height, live };
   };
 
   const yAxis = (f, y, ticks, yfmt) => {
@@ -215,7 +224,10 @@
   /*
     line(host, {
       x: [labels…],                       // category labels, one per point
-      series: [{ values, cls: 's-ink'|'s-accent'|'s-muted', name, area?: true }],
+      xValues: [numbers…], xfmt           // optional numeric x: points placed by value, x ticks from niceTicks
+      series: [{ values, cls: 's-ink'|'s-accent'|'s-muted', name, area?: true, label?: 'Fitted' }],
+                                          // label → direct label right of the last point (lets pages drop the legend)
+      sample: 'Synthetic · 104 wks',      // corner data tag
       bands: [{ lo: [...], hi: [...] }],  // shaded intervals
       markers: [index…],                  // vertical dashed lines (e.g. test start)
       yfmt, xEvery, height, yMin, yMax, ariaLabel, tipFmt(i) → html
@@ -223,8 +235,12 @@
   */
   const line = (host, o) => {
     remember(host, line, o);
-    const f = frame(host, { height: o.height || 300, ariaLabel: o.ariaLabel });
-    const n = o.x.length;
+    const labelled = o.series.filter((s) => s.label);
+    const m = { t: 14, r: 16, b: 30, l: 52 };
+    if (labelled.length) m.r = Math.round(Math.min(hostWidth(host) * 0.3, 14 + Math.max(...labelled.map((s) => String(s.label).length)) * 7.6));
+    const f = frame(host, { height: o.height || 300, m, ariaLabel: o.ariaLabel, sample: o.sample, interactive: !!o.tipFmt });
+    const xv = o.xValues;
+    const n = xv ? xv.length : o.x.length;
     const all = [
       ...o.series.flatMap((s) => s.values),
       ...(o.bands || []).flatMap((b) => [...b.lo, ...b.hi]),
@@ -233,17 +249,29 @@
     if (o.yMin == null && lo > 0 && lo < hi * 0.35) lo = 0;
     const ticks = niceTicks(lo, hi);
     lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length - 1]);
-    const x = (i) => (n <= 1 ? f.W / 2 : (i / (n - 1)) * f.W);
+    const x0 = xv ? Math.min(...xv) : 0, x1 = xv ? Math.max(...xv) : 0;
+    const xs = (v) => ((v - x0) / (x1 - x0 || 1)) * f.W;
+    const x = xv
+      ? (i) => { const a = Math.floor(i), b = Math.ceil(i); return xs(a === b ? xv[a] : xv[a] + (xv[b] - xv[a]) * (i - a)); }
+      : (i) => (n <= 1 ? f.W / 2 : (i / (n - 1)) * f.W);
     const y = (v) => f.H - ((v - lo) / (hi - lo || 1)) * f.H;
     const yfmt = o.yfmt || fmt.compact;
     yAxis(f, y, ticks, yfmt);
 
     const g = svgEl('g', { transform: `translate(${f.m.l},${f.m.t})` }, f.svg);
-    const every = o.xEvery || Math.max(1, Math.ceil(n / Math.max(2, Math.floor(f.W / 64))));
-    o.x.forEach((lab, i) => {
-      if (i % every) return;
-      svgEl('text', { x: x(i), y: f.H + 20, 'text-anchor': 'middle', class: 'tick' }, g).textContent = lab;
-    });
+    if (xv) {
+      const xfmt = o.xfmt || fmt.compact;
+      niceTicks(x0, x1, Math.max(2, Math.floor(f.W / 80))).forEach((t) => {
+        if (t < x0 || t > x1) return;
+        svgEl('text', { x: xs(t), y: f.H + 20, 'text-anchor': 'middle', class: 'tick' }, g).textContent = xfmt(t);
+      });
+    } else {
+      const every = o.xEvery || Math.max(1, Math.ceil(n / Math.max(2, Math.floor(f.W / 64))));
+      o.x.forEach((lab, i) => {
+        if (i % every) return;
+        svgEl('text', { x: x(i), y: f.H + 20, 'text-anchor': 'middle', class: 'tick' }, g).textContent = lab;
+      });
+    }
     svgEl('line', { x1: 0, x2: f.W, y1: f.H, y2: f.H, class: 'axis' }, g);
 
     const path = (vals) => vals.map((v, i) => (Number.isFinite(v) ? `${i && Number.isFinite(vals[i - 1]) ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}` : '')).join('');
@@ -267,6 +295,19 @@
     (o.markers || []).forEach((i) => svgEl('line', { x1: x(i), x2: x(i), y1: 0, y2: f.H, class: 'marker' }, g));
     (o.points || []).forEach((p) => svgEl('circle', { cx: x(p.i), cy: y(p.v), r: p.r || 4, class: p.cls || 'dot-accent' }, g));
 
+    // direct labels: sorted by y, pushed apart to ≥14px, then pulled back inside the plot from the bottom
+    const dl = labelled.map((s) => {
+      let i = s.values.length - 1;
+      while (i >= 0 && !Number.isFinite(s.values[i])) i--;
+      return i < 0 ? null : { s, i, yy: y(s.values[i]) };
+    }).filter(Boolean).sort((a, b) => a.yy - b.yy);
+    dl.forEach((d, k) => { if (k && d.yy - dl[k - 1].yy < 14) d.yy = dl[k - 1].yy + 14; });
+    for (let k = dl.length - 1, lim = f.H; k >= 0; k--) { dl[k].yy = Math.min(dl[k].yy, lim); lim = dl[k].yy - 14; }
+    const lblCls = { 's-accent': 'lbl lbl--accent', 's-muted': 'lbl lbl--muted', 's-faint': 'lbl lbl--muted' };
+    dl.forEach((d) => {
+      svgEl('text', { x: x(d.i) + 8, y: d.yy + 4, class: lblCls[d.s.cls] || 'lbl' }, g).textContent = d.s.label;
+    });
+
     if (o.tipFmt) {
       // keyboard path: focus the plot, arrows step through points; the tooltip mirrors into a live region
       const hit = svgEl('rect', { x: 0, y: 0, width: f.W, height: f.H, class: 'hit', tabindex: 0, role: 'slider', 'aria-label': (o.ariaLabel || 'Chart') + '. Use arrow keys to read values.', 'aria-valuemin': 0, 'aria-valuemax': n - 1, 'aria-valuenow': 0 }, g);
@@ -277,12 +318,17 @@
         guide.setAttribute('x1', x(i)); guide.setAttribute('x2', x(i)); guide.setAttribute('visibility', 'visible');
         const html = o.tipFmt(i);
         hit.setAttribute('aria-valuenow', i);
-        hit.setAttribute('aria-valuetext', html.replace(/<br\s*\/?>/g, ', ').replace(/<[^>]+>/g, ''));
+        const text = html.replace(/<br\s*\/?>/g, ', ').replace(/<[^>]+>/g, '');
+        hit.setAttribute('aria-valuetext', text);
         tip.show(html, cx, cy);
+        return text;
       };
       const move = (ev) => {
         const r = hit.getBoundingClientRect();
-        at(clamp(Math.round(((ev.clientX - r.left) / r.width) * (n - 1)), 0, n - 1), ev.clientX, ev.clientY);
+        const px = ((ev.clientX - r.left) / r.width) * f.W;
+        let best = 0;
+        for (let i = 1; i < n; i++) if (Math.abs(x(i) - px) < Math.abs(x(best) - px)) best = i;
+        at(best, ev.clientX, ev.clientY);
       };
       const off = () => { tip.hide(); guide.setAttribute('visibility', 'hidden'); };
       hit.addEventListener('pointermove', move);
@@ -294,7 +340,7 @@
         if (i == null) return;
         e.preventDefault();
         const r = hit.getBoundingClientRect();
-        at(i, r.left + (x(i) / f.W) * r.width, r.top + 24);
+        f.live.textContent = at(i, r.left + (x(i) / f.W) * r.width, r.top + 24);
       });
     }
     return { x, y, f, g };
@@ -306,8 +352,11 @@
       groups: [{ values, cls: 'b-ink'|'b-accent'|'b-muted'|'b-mid', name }],  // grouped side by side
       stacked: false,                     // true → groups stack
       horizontal: false,                  // true → label column on the left (good for mobile)
-      yfmt, valueFmt, height, ariaLabel, tipFmt(i, gi) → html
-      refLine: number                     // dashed reference line (vertical bars only)
+      yfmt, valueFmt(v, i, gi), height, ariaLabel, tipFmt(i, gi) → html
+      valueEach: false,                   // false → one direct label per category (stacked: total; grouped: last
+                                          //   group's value, placed past the longest bar); true → a label on every bar
+      refLine: number,                    // dashed reference line (vertical bars only)
+      sample: 'Synthetic · 104 wks'       // corner data tag
     })
   */
   const bars = (host, o) => {
@@ -317,8 +366,8 @@
     if (o.horizontal) {
       const rowH = o.rowH || (o.stacked || G === 1 ? 26 : 14 * G + 10);
       const labW = Math.min(o.labelWidth || 150, Math.round(hostWidth(host) * 0.4));
-      const maxChars = Math.floor((labW - 12) / 6.7);
-      const f = frame(host, { height: n * rowH + 34, m: { t: 6, r: 56, b: 26, l: labW }, ariaLabel: o.ariaLabel });
+      const maxChars = Math.floor((labW - 12) / 7.6);
+      const f = frame(host, { height: n * rowH + 34, m: { t: 6, r: 64, b: 26, l: labW }, ariaLabel: o.ariaLabel, sample: o.sample });
       const totals = o.labels.map((_, i) => (o.stacked ? sum(o.groups.map((g) => Math.max(0, g.values[i]))) : Math.max(...o.groups.map((g) => g.values[i]))));
       const mins = o.labels.map((_, i) => Math.min(0, ...o.groups.map((g) => g.values[i])));
       let lo = Math.min(0, ...mins), hi = Math.max(...totals, 0);
@@ -346,17 +395,19 @@
             r.addEventListener('pointermove', (ev) => tip.show(o.tipFmt(i, gi), ev.clientX, ev.clientY));
             r.addEventListener('pointerleave', tip.hide);
           }
+          if (o.valueFmt && o.valueEach && !o.stacked) svgEl('text', { x: x(Math.max(0, v)) + 6, y: by + bh / 2 + 4, class: 'tick' }, g).textContent = o.valueFmt(v, i, gi);
           if (o.stacked) acc += v;
         });
-        if (o.valueFmt) {
+        if (o.valueFmt && !(o.valueEach && !o.stacked)) {
           const v = o.stacked ? acc : o.groups[G - 1].values[i];
-          svgEl('text', { x: x(Math.max(0, v)) + 6, y: y0 + rowH / 2 + 4, class: 'tick' }, g).textContent = o.valueFmt(v, i);
+          const end = o.stacked ? acc : Math.max(...o.groups.map((gr) => gr.values[i]));
+          svgEl('text', { x: x(Math.max(0, end)) + 6, y: y0 + rowH / 2 + 4, class: 'tick' }, g).textContent = o.valueFmt(v, i, G - 1);
         }
       });
       svgEl('line', { x1: x(0), x2: x(0), y1: 0, y2: n * rowH, class: 'axis' }, g);
       return;
     }
-    const f = frame(host, { height: o.height || 280, ariaLabel: o.ariaLabel });
+    const f = frame(host, { height: o.height || 280, m: { t: o.valueFmt ? 30 : 14, r: 16, b: 30, l: 52 }, ariaLabel: o.ariaLabel, sample: o.sample });
     const totals = o.labels.map((_, i) => (o.stacked ? sum(o.groups.map((g) => Math.max(0, g.values[i]))) : Math.max(...o.groups.map((g) => g.values[i]))));
     let lo = Math.min(0, ...o.groups.flatMap((g) => g.values)), hi = Math.max(...totals, 0);
     const ticks = niceTicks(lo, hi);
@@ -379,15 +430,22 @@
           r.addEventListener('pointermove', (ev) => tip.show(o.tipFmt(i, gi), ev.clientX, ev.clientY));
           r.addEventListener('pointerleave', tip.hide);
         }
+        if (o.valueFmt && o.valueEach && !o.stacked) svgEl('text', { x: bx + bw / 2, y: y(Math.max(0, v)) - 6, 'text-anchor': 'middle', class: 'tick' }, g).textContent = o.valueFmt(v, i, gi);
         if (o.stacked) acc += v;
       });
+      if (o.valueFmt && !(o.valueEach && !o.stacked)) {
+        const v = o.stacked ? acc : o.groups[G - 1].values[i];
+        const top = o.stacked ? acc : Math.max(...o.groups.map((gr) => gr.values[i]));
+        svgEl('text', { x: x0 + w / 2, y: y(Math.max(0, top)) - 6, 'text-anchor': 'middle', class: 'tick' }, g).textContent = o.valueFmt(v, i, G - 1);
+      }
       if (!(i % every)) svgEl('text', { x: x0 + w / 2, y: f.H + 20, 'text-anchor': 'middle', class: 'tick' }, g).textContent = lab;
     });
     svgEl('line', { x1: 0, x2: f.W, y1: y(0), y2: y(0), class: 'axis' }, g);
     if (Number.isFinite(o.refLine)) svgEl('line', { x1: 0, x2: f.W, y1: y(o.refLine), y2: y(o.refLine), class: 's-muted' }, g);
   };
 
-  /* histogram(host, { values, mark: number, bins, xfmt, ariaLabel }) — mark drawn as accent line */
+  /* histogram(host, { values, mark: number, markLabel, bins, xfmt, ariaLabel, sample, valueFmt(count, i) })
+     mark drawn as accent line; valueFmt → count label above each non-empty bin wide enough (≥22px) to hold it */
   const histogram = (host, o) => {
     remember(host, histogram, o);
     const v = o.values.filter(Number.isFinite);
@@ -395,7 +453,7 @@
     const B = o.bins || 20, w = (hi - lo) / B || 1;
     const counts = new Array(B).fill(0);
     v.forEach((x) => counts[Math.min(B - 1, Math.floor((x - lo) / w))]++);
-    const f = frame(host, { height: o.height || 220, ariaLabel: o.ariaLabel });
+    const f = frame(host, { height: o.height || 220, m: { t: o.valueFmt ? 28 : 14, r: 16, b: 30, l: 52 }, ariaLabel: o.ariaLabel, sample: o.sample });
     const ticks = niceTicks(0, Math.max(...counts), 4);
     const top = ticks[ticks.length - 1] || 1;
     const y = (c) => f.H - (c / top) * f.H;
@@ -403,6 +461,9 @@
     const g = svgEl('g', { transform: `translate(${f.m.l},${f.m.t})` }, f.svg);
     const x = (val) => ((val - lo) / (hi - lo || 1)) * f.W;
     counts.forEach((c, i) => svgEl('rect', { x: (i / B) * f.W + 1, y: y(c), width: Math.max(1, f.W / B - 2), height: f.H - y(c), class: 'b-muted' }, g));
+    if (o.valueFmt && f.W / B >= 22) counts.forEach((c, i) => {
+      if (c) svgEl('text', { x: ((i + 0.5) / B) * f.W, y: y(c) - 5, 'text-anchor': 'middle', class: 'tick' }, g).textContent = o.valueFmt(c, i);
+    });
     const xfmt = o.xfmt || fmt.compact;
     niceTicks(lo, hi, 5).forEach((t) => {
       if (t < lo || t > hi) return;
@@ -449,7 +510,11 @@
   const bindRange = (id, fmtFn, onInput) => {
     const input = document.getElementById(id);
     const out = document.querySelector(`output[for="${id}"]`);
-    const sync = () => { if (out) out.textContent = fmtFn ? fmtFn(+input.value) : input.value; };
+    const sync = () => {
+      const text = fmtFn ? fmtFn(+input.value) : input.value;
+      if (out) out.textContent = text;
+      input.setAttribute('aria-valuetext', text);
+    };
     input.addEventListener('input', () => { sync(); onInput && onInput(+input.value); });
     sync();
     return () => +input.value;
@@ -465,5 +530,80 @@
     return () => (btns.find((b) => b.getAttribute('aria-pressed') === 'true') || btns[0]).dataset.value;
   };
 
-  window.Lab = { $, $$, el, svgEl, esc, fmt, rng, sum, mean, sd, quantile, clamp, solve, ridge, parseCSV, toCSV, download, readFile, debounce, tip, niceTicks, line, bars, histogram, tabs, bindRange, bindSeg };
+  /*
+    figure(host, { caption, legend, position: 'top'|'bottom' }) → <figure>
+      Wraps a chart host (once) in <figure class="lab-figure"> with a <figcaption> takeaway sentence; call again to
+      update the caption. legend: an element (e.g. the .legend under the chart) moved inside the figure.
+  */
+  const figure = (host, { caption, legend, position = 'top' } = {}) => {
+    let fig = host.parentElement;
+    if (!fig || !fig.matches('figure.lab-figure')) {
+      fig = el('figure', { class: 'lab-figure' });
+      host.before(fig);
+      fig.append(host);
+    }
+    if (legend && legend.parentElement !== fig) host.after(legend);
+    if (caption != null) {
+      let cap = $(':scope > figcaption', fig);
+      if (!cap) {
+        cap = el('figcaption');
+        if (position === 'bottom') fig.append(cap); else fig.prepend(cap);
+      }
+      cap.textContent = caption;
+    }
+    return fig;
+  };
+
+  /*
+    dataTable(host, columns, rows, { summary = 'Data table', open }) → <details>
+      columns: ['Week', …] or [{ label, key?, num?: true, hideSm?: true, fmt?: (v, row) → string }]
+      rows: arrays (by column index) or objects (by column key).
+      Renders <details class="lab-data"><summary>…</summary><div class="tbl-wrap"><table class="tbl">…</table></div></details>
+      into host (replacing its content); keeps the open state across re-renders.
+  */
+  const dataTable = (host, columns, rows, { summary = 'Data table', open } = {}) => {
+    const cols = columns.map((c) => (typeof c === 'string' ? { label: c } : c));
+    const prev = $(':scope > details.lab-data', host);
+    const cls = (c) => [c.num && 'num', c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || null;
+    const cell = (r, c, ci) => {
+      const v = Array.isArray(r) ? r[ci] : r[c.key];
+      return c.fmt ? c.fmt(v, r) : v == null ? '' : String(v);
+    };
+    const det = el('details', { class: 'lab-data', open: open ?? (prev ? prev.open : false) }, [
+      el('summary', { text: summary }),
+      el('div', { class: 'tbl-wrap' }, el('table', { class: 'tbl' }, [
+        el('thead', {}, el('tr', {}, cols.map((c) => el('th', { scope: 'col', class: cls(c), text: c.label })))),
+        el('tbody', {}, rows.map((r) => el('tr', {}, cols.map((c, ci) => el('td', { class: cls(c), text: cell(r, c, ci) }))))),
+      ])),
+    ]);
+    host.replaceChildren(det);
+    return det;
+  };
+
+  // Horizontal-scroll cue: any .tbl-wrap wider than its content gets .is-scrollable (and .is-end once scrolled to
+  // the right edge). Found automatically as pages render; scrollCue() forces a re-check.
+  const wraps = new WeakSet();
+  const cueOne = (w) => {
+    const over = w.scrollWidth - w.clientWidth > 2;
+    w.classList.toggle('is-scrollable', over);
+    w.classList.toggle('is-end', over && w.scrollLeft + w.clientWidth >= w.scrollWidth - 2);
+  };
+  const cueRO = 'ResizeObserver' in window ? new ResizeObserver((es) => es.forEach((e) => cueOne(e.target))) : null;
+  const scrollCue = () => $$('.tbl-wrap').forEach((w) => {
+    if (!wraps.has(w)) {
+      wraps.add(w);
+      w.addEventListener('scroll', () => cueOne(w), { passive: true });
+      cueRO && cueRO.observe(w);
+    }
+    cueOne(w);
+  });
+  const cueSoon = debounce(scrollCue, 100);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scrollCue); else scrollCue();
+  // tooltip and chart redraws mutate constantly and never contain tables
+  new MutationObserver((recs) => {
+    if (recs.some((r) => !(r.target.closest && r.target.closest('.tip, .chart')))) cueSoon();
+  }).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('resize', cueSoon);
+
+  window.Lab = { $, $$, el, svgEl, esc, fmt, rng, sum, mean, sd, quantile, clamp, solve, ridge, parseCSV, toCSV, download, readFile, debounce, tip, niceTicks, line, bars, histogram, tabs, bindRange, bindSeg, figure, dataTable, scrollCue };
 })();

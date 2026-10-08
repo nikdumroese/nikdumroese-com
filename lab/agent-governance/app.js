@@ -170,9 +170,9 @@
   const renderCounts = () => {
     const g = S.st.gate;
     $('#k-events').textContent = S.st.rows.length;
-    $('#k-auto').textContent = g.auto;
-    $('#k-review').textContent = g.review;
-    $('#k-block').textContent = g.block;
+    $('#b-ledger').textContent = S.st.rows.length
+      ? `${g.auto} of ${S.st.rows.length} actions run; ${g.review} wait for review, ${g.block} blocked`
+      : 'The ledger is empty; step the replay to ingest actions';
     $('#k-find').textContent = S.st.findings.length;
   };
 
@@ -284,7 +284,7 @@
   const renderGate = () => {
     const g = S.st.gate;
     const queue = g.pending.filter((p) => !p.overridden);
-    $('#k-queue').textContent = queue.length;
+    $('#b-gate').textContent = queue.length ? `${queue.length} action${queue.length === 1 ? '' : 's'} wait${queue.length === 1 ? 's' : ''} for a human` : 'Nothing is waiting for a human';
     $('#k-ov').textContent = S.overrides.length;
     $('#k-exp').textContent = '$' + fmt.num(S.st.outcomes.totalGateExposureRevenue);
     const host = $('#queue');
@@ -333,10 +333,11 @@
     const base = d.baselines[S.stream];
     const alarmDays = new Set(d.alarms.filter((a) => `${a.agentId}|${a.channel}` === S.stream).map((a) => a.date));
     const values = DAYS.map((day) => (byDay.has(day) ? byDay.get(day).mean : NaN));
-    const series = [{ values, cls: 's-ink', name: 'Daily mean' }];
-    if (base) series.push({ values: DAYS.map(() => base.mean), cls: 's-muted', name: 'Baseline' });
-    series.push({ values: DAYS.map(() => p.tov.warnBelow), cls: 's-accent', name: 'Warn line' });
+    const series = [{ values, cls: 's-ink', name: 'Daily mean', label: 'Daily mean' }];
+    if (base) series.push({ values: DAYS.map(() => base.mean), cls: 's-muted', name: 'Baseline', label: 'Baseline' });
+    series.push({ values: DAYS.map(() => p.tov.warnBelow), cls: 's-accent', name: 'Warn line', label: 'Warn line' });
     L.line($('#c-drift'), {
+      sample: `Fixture · ${DAYS.length} days`,
       x: DAYS.map((x) => x.slice(5)),
       series,
       yMin: 0, yMax: 1, height: 260, yfmt: (v) => v.toFixed(1),
@@ -348,6 +349,21 @@
         return `${DAYS[i]}<br>Mean ${pt.mean.toFixed(2)} (${pt.n} scored)<br>Baseline ${base.mean.toFixed(2)}${alarmDays.has(DAYS[i]) ? '<br>Alarm' : ''}`;
       },
     });
+    const streamAlarms = d.alarms.filter((a) => `${a.agentId}|${a.channel}` === S.stream);
+    L.figure($('#c-drift'), {
+      caption: !base ? `${STREAM_LABEL[S.stream]}: nothing scored yet.`
+        : streamAlarms.length ? `${STREAM_LABEL[S.stream]}: ${streamAlarms.map((a) => `${a.date.slice(5)} scored ${a.mean.toFixed(2)}`).join(', ')}, against a usual ${base.mean.toFixed(2)}.`
+        : `${STREAM_LABEL[S.stream]}: every scored day stays near its usual ${base.mean.toFixed(2)}.`,
+    });
+    L.dataTable($('#drift-data'), ['Day', { label: 'Mean score', num: true }, { label: 'Scored', num: true, hideSm: true }, { label: 'Baseline', num: true }, 'Alarm'],
+      DAYS.map((day) => {
+        const pt = byDay.get(day);
+        return [day.slice(5), pt ? pt.mean.toFixed(2) : '–', pt ? pt.n : 0, base ? base.mean.toFixed(2) : '–', alarmDays.has(day) ? 'Yes' : ''];
+      }), { summary: 'Daily scores as a table' });
+    const flaggedStreams = new Set(d.alarms.map((a) => `${a.agentId}|${a.channel}`));
+    $('#b-drift').textContent = !d.alarms.length ? 'No agent drifted from its usual tone'
+      : flaggedStreams.size === 1 ? `${STREAM_LABEL[[...flaggedStreams][0]]}: ${d.alarms.length === 1 ? 'one day' : d.alarms.length + ' days'} off its usual tone`
+      : `${flaggedStreams.size} agent streams drifted off their usual tone`;
     $('#drift-note').textContent = base
       ? `Baseline ${base.mean.toFixed(2)} from ${base.n} day${base.n === 1 ? '' : 's'}. Alarm if a day is under the warn line (${p.tov.warnBelow.toFixed(2)}) or more than ${p.drift.dropThreshold.toFixed(2)} under the baseline (below ${(base.mean - p.drift.dropThreshold).toFixed(2)}).`
       : 'No scored actions from this stream in the ledger yet.';
@@ -463,6 +479,16 @@
     renderReport();
   }
 
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = L.$('.lab-quick'); if (!strip) return;
+    const items = L.$$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
+
+  quick();
   L.tabs($('#detail'));
   buildRules();
   S.sel = 'evt-spend-001';

@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/mmm/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="A media mix model fitted to two years of weekly spend and revenue shows where the next euro of media budget earns most. Runs in your browser." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 01</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>Media mix model &amp; budget optimizer</h1>
     <p class="lead">A media mix model fitted to two years of weekly spend and revenue reads each channel's response curve and shows where the next euro of media budget earns most. Change the budget or the limits and the plan recomputes.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
@@ -54,7 +51,7 @@
     <div class="lab-grid">
       <aside class="lab-controls" id="controls" aria-label="Controls">
         <span class="group-label">Data</span>
-        <div class="field">
+        <div class="field" data-quick>
           <span class="label" id="scen-label">Synthetic scenario</span>
           <div class="seg" id="scen-seg" role="group" aria-labelledby="scen-label">
             <button type="button" data-value="balanced" aria-pressed="true">Balanced</button>
@@ -73,7 +70,7 @@
         <p class="note" id="data-note"></p>
 
         <span class="group-label">Optimizer</span>
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="budget">Weekly budget</label><output for="budget" id="budget-out"></output></div>
           <input type="range" id="budget" min="-50" max="50" step="1" value="0" />
           <p class="hint">Change against today's average weekly spend.</p>
@@ -94,43 +91,43 @@
       </aside>
 
       <div class="lab-out">
+        <div class="lab-quick" role="group" aria-label="Key controls"></div>
         <section class="lab-block" aria-labelledby="b1">
-          <p class="kicker"><span class="idx">01</span> Optimizer</p>
-          <h2 id="b1">Where the next euro should go</h2>
+          <p class="kicker">Optimizer</p>
+          <h2 id="b1" aria-live="polite">Where the next euro should go</h2>
           <div class="stat-strip">
-            <div class="stat"><span class="n" id="k-drev">–</span><span class="l">Revenue change / week</span></div>
             <div class="stat"><span class="n" id="k-drevp">–</span><span class="l">As % of weekly revenue</span></div>
             <div class="stat"><span class="n" id="k-roas">–</span><span class="l">Media ROI, now → plan</span></div>
           </div>
           <p id="plan-text" aria-live="polite"></p>
           <p class="note" id="plan-warn" hidden></p>
           <div class="chart" id="c-plan"></div>
-          <div class="legend"><span><i class="k-bar-muted"></i>Now</span><span><i class="k-bar-accent"></i>Plan</span></div>
+          <div class="legend" id="lg-plan"><span><i class="k-bar-muted"></i>Now</span><span><i class="k-bar-accent"></i>Plan</span></div>
           <div class="tbl-wrap">
             <table class="tbl" id="t-plan">
-              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">Now / wk</th><th scope="col" class="num">Plan / wk</th><th scope="col" class="num">Change</th><th scope="col" class="num">Next € returns</th></tr></thead>
+              <thead><tr><th scope="col">Channel</th><th scope="col" class="num hide-sm">Now / wk</th><th scope="col" class="num hide-sm">Plan / wk</th><th scope="col" class="num">Change</th><th scope="col" class="num">Next € returns (at plan)</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
         </section>
 
         <section class="lab-block" aria-labelledby="b2">
-          <p class="kicker"><span class="idx">02</span> Fit</p>
+          <p class="kicker">Model fit</p>
           <h2 id="b2">Does the model track revenue?</h2>
           <p>Curves are chosen on the first 91 weeks. The last 13 weeks are held out and predicted blind.</p>
           <div class="stat-strip">
             <div class="stat"><span class="n" id="k-r2">–</span><span class="l">R² (train)</span></div>
             <div class="stat"><span class="n" id="k-mape">–</span><span class="l">MAPE (train)</span></div>
-            <div class="stat"><span class="n" id="k-hold">–</span><span class="l">MAPE (holdout)</span></div>
             <div class="stat"><span class="n" id="k-media">–</span><span class="l">Revenue from media</span></div>
           </div>
           <div class="chart" id="c-fit"></div>
-          <div class="legend"><span><i></i>Actual</span><span><i class="k-accent"></i>Model</span><span><i class="k-band"></i>Holdout</span></div>
+          <div class="legend" id="lg-fit"><span><i class="k-band"></i>Holdout weeks</span></div>
+          <div id="tbl-fit"></div>
           <p class="note" id="fit-note"></p>
         </section>
 
         <section class="lab-block" aria-labelledby="b3">
-          <p class="kicker"><span class="idx">03</span> Decomposition</p>
+          <p class="kicker">Decomposition</p>
           <h2 id="b3">What each channel added</h2>
           <p>Incremental revenue per channel over the full period. The plan is built on marginal ROI, what the next euro returns at today's spend.</p>
           <div class="stat-strip">
@@ -142,14 +139,14 @@
           <div class="tbl-wrap">
             <table class="tbl" id="t-decomp">
               <caption class="sample">ROI = incremental revenue per euro of spend. Half-sat = weekly spend where the curve reaches half its ceiling.</caption>
-              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">Avg / wk</th><th scope="col" class="num">Revenue</th><th scope="col" class="num">ROI</th><th scope="col" class="num">Marginal ROI</th><th scope="col" class="num hide-sm">Decay</th><th scope="col" class="num hide-sm">Half-sat</th></tr></thead>
+              <thead><tr><th scope="col">Channel</th><th scope="col" class="num hide-sm">Avg / wk</th><th scope="col" class="num">Revenue</th><th scope="col" class="num">ROI</th><th scope="col" class="num">Marginal ROI</th><th scope="col" class="num hide-sm">Decay</th><th scope="col" class="num hide-sm">Half-sat</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
         </section>
 
         <section class="lab-block" aria-labelledby="b4">
-          <p class="kicker"><span class="idx">04</span> Response curves</p>
+          <p class="kicker">Response curves</p>
           <h2 id="b4">Where each channel flattens</h2>
           <div class="seg" id="chan-seg" role="group" aria-label="Channel"></div>
           <div class="chart" id="c-curve"></div>
@@ -158,7 +155,7 @@
         </section>
 
         <section class="lab-block" id="b-rec" aria-labelledby="b5">
-          <p class="kicker"><span class="idx">05</span> Parameter recovery</p>
+          <p class="kicker">Parameter recovery</p>
           <h2 id="b5">Does the model recover the known curves?</h2>
           <p>The synthetic data comes from known curves, so this table checks the fit against the answer. Real data has no answer key, so calibrate the model with geo tests.</p>
           <div class="tbl-wrap">
@@ -200,25 +197,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../agent-governance/"><span class="kicker">← 07</span><b>Agent governance</b></a>
-      <a href="../geo-lift/"><span class="kicker">02 →</span><b>Geo-lift test</b></a>
+      <a href="../agent-governance/"><span class="kicker">← Previous</span><b>Agent governance</b></a>
+      <a href="../geo-lift/"><span class="kicker">Next →</span><b>Geo-lift test</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Media%20mix%20model">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>

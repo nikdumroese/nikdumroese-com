@@ -6,12 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Not found — Nik Dumroese</title>
 <meta name="robots" content="noindex" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <!-- root-absolute paths: GitHub Pages serves this file at whatever URL failed -->
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="/assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body>
@@ -19,7 +17,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="/">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="/lab/">Lab</a>
       <a href="/about.html">About</a>
@@ -30,12 +27,19 @@
 </header>
 <main id="main">
   <section class="hero hero--404 wrap">
-    <p class="kicker"><span class="idx">404</span></p>
+    <p class="kicker">404 · page not found</p>
     <h1 class="display">This page ran off on its own.</h1>
     <p class="lead">The link's broken, but the work isn't. Head back to the start, or try the lab.</p>
     <div class="hero__cta">
       <a class="btn" href="/">Back home <span class="arrow">→</span></a>
       <a class="btn btn--ghost" href="/lab/">Try the live lab <span class="arrow">→</span></a>
+    </div>
+  </section>
+  <section class="section section--tight wrap">
+    <div class="index">
+      <a class="row" href="/lab/mmm/"><span><span class="row__title">Media mix model &amp; budget optimizer</span></span><span class="row__side"><span class="row__go">Open →</span></span></a>
+      <a class="row" href="/lab/geo-lift/"><span><span class="row__title">Geo-lift incrementality test</span></span><span class="row__side"><span class="row__go">Open →</span></span></a>
+      <a class="row" href="/lab/agent-governance/"><span><span class="row__title">Governance layer for marketing agents</span></span><span class="row__side"><span class="row__go">Open →</span></span></a>
     </div>
   </section>
 </main>

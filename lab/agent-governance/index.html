@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/agent-governance/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="Every action a marketing agent takes lands in an append-only ledger and gets checked, and the gate records whether it would run, wait for a human or be stopped. Replay ten days of fixture data in your browser." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 07</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>Governance layer for marketing agents</h1>
     <p class="lead">Every action a marketing agent takes (send an email, publish a post, raise a budget) lands in a ledger and gets checked. The gate then records whether the action would run, wait for a human or be stopped. Each week the system reports which agents drifted from their usual tone.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Jump to policy controls</a>
@@ -54,7 +51,7 @@
     <div class="lab-grid">
       <aside class="lab-controls" id="controls" aria-label="Controls">
         <span class="group-label">Replay</span>
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="pos">Events in the ledger</label><output for="pos"></output></div>
           <input type="range" id="pos" min="0" max="27" step="1" value="27" aria-describedby="pos-hint" />
           <p class="hint" id="pos-hint">Fixture events in time order. Each step re-runs the checks over everything ingested so far.</p>
@@ -67,7 +64,7 @@
         </div>
 
         <span class="group-label">Spend policy</span>
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="ceil">Blog Agent ad budget ceiling</label><output for="ceil"></output></div>
           <input type="range" id="ceil" min="0" max="1000" step="10" value="300" />
           <p class="hint">Daily budget per campaign. A budget change above it fails the spend check.</p>
@@ -137,95 +134,261 @@
       </aside>
 
       <div class="lab-out">
+        <div class="lab-quick" role="group" aria-label="Key controls"></div>
         <section class="lab-block" aria-labelledby="b-arch">
-          <p class="kicker"><span class="idx">01</span> Architecture</p>
-          <h2 id="b-arch">From agent action to weekly report</h2>
-          <div class="diagram">
-            <svg viewBox="0 0 760 350" role="img" aria-labelledby="arch-t arch-d">
-              <title id="arch-t">Agent governance pipeline</title>
-              <desc id="arch-d">Connectors feed a normalizer, which writes to an append-only event ledger. Checks read the ledger. The approval gate maps check results to auto, review or block; human overrides are appended back to the ledger. Drift reads tone scores from the ledger. Outcomes, drift and gate decisions feed the weekly report and digest, which the dashboard shows.</desc>
+          <p class="kicker">Architecture</p>
+          <h2 id="b-arch">Agents act; the layer decides what runs, waits or stops</h2>
+          <div class="diagram diagram--desktop">
+            <svg viewBox="0 0 972 150" role="img" aria-labelledby="ctx-t ctx-d">
+              <title id="ctx-t">Where the governance layer sits</title>
+              <desc id="ctx-d">Marketing agents send every action to the governance layer. It asks a human approver about risky actions, and the approver ships the approved ones to the ad and email platforms. Clean actions pass straight through to the platforms.</desc>
               <defs>
-                <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow" /></marker>
-                <marker id="ah-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow--accent" /></marker>
+                <marker id="cx-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow" /></marker>
+                <marker id="cx-aha" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow--accent" /></marker>
               </defs>
+              <rect class="d-box" x="10" y="20" width="196" height="80" />
+              <text class="d-title" x="22" y="44">Marketing agents</text>
+              <text class="d-sub" x="22" y="66">Zapier · Lindy · bots</text>
+              <text class="d-sub" x="22" y="84">send · post · spend</text>
 
-              <rect class="d-box" x="10" y="20" width="160" height="72" />
-              <text class="d-title" x="22" y="44">Connectors</text>
-              <text class="d-sub" x="22" y="63">Zapier · Lindy · HubSpot</text>
-              <text class="d-sub" x="22" y="79">fixture by default</text>
+              <rect class="d-box--accent" x="262" y="20" width="196" height="80" />
+              <text class="d-title" x="274" y="44">Governance layer</text>
+              <text class="d-sub" x="274" y="66">checks · gate · log</text>
+              <text class="d-sub" x="274" y="84">drift · weekly report</text>
 
-              <rect class="d-box" x="205" y="20" width="160" height="72" />
-              <text class="d-title" x="217" y="44">Normalize</text>
-              <text class="d-sub" x="217" y="63">one row per action</text>
-              <text class="d-sub" x="217" y="79">+ who did it, how sure</text>
+              <rect class="d-box" x="514" y="20" width="196" height="80" />
+              <text class="d-title" x="526" y="44">Human approver</text>
+              <text class="d-sub" x="526" y="66">admin or legal</text>
+              <text class="d-sub" x="526" y="84">approve or reject</text>
 
-              <rect class="d-box--accent" x="400" y="20" width="160" height="72" />
-              <text class="d-title" x="412" y="44">Event ledger</text>
-              <text class="d-sub" x="412" y="63">append-only</text>
-              <text class="d-sub" x="412" y="79">PGlite (Postgres)</text>
+              <rect class="d-box" x="766" y="20" width="196" height="80" />
+              <text class="d-title" x="778" y="44">Ad &amp; email platforms</text>
+              <text class="d-sub" x="778" y="66">ads · email · CMS</text>
+              <text class="d-sub" x="778" y="84">social networks</text>
 
-              <rect class="d-box" x="590" y="20" width="160" height="72" />
-              <text class="d-title" x="602" y="44">Checks</text>
-              <text class="d-sub" x="602" y="63">tone · claims · competitor</text>
-              <text class="d-sub" x="602" y="79">regulated · spend · conflict</text>
-
-              <rect class="d-box" x="590" y="146" width="160" height="72" />
-              <text class="d-title" x="602" y="170">Approval gate</text>
-              <text class="d-sub" x="602" y="189">auto · review · block</text>
-              <text class="d-sub" x="602" y="205">dry-run, policy rules</text>
-
-              <rect class="d-box" x="400" y="146" width="160" height="72" />
-              <text class="d-title" x="412" y="170">Human override</text>
-              <text class="d-sub" x="412" y="189">admin or legal</text>
-              <text class="d-sub" x="412" y="205">latest row wins</text>
-
-              <rect class="d-box" x="205" y="146" width="160" height="72" />
-              <text class="d-title" x="217" y="170">Drift detector</text>
-              <text class="d-sub" x="217" y="189">daily tone per agent</text>
-              <text class="d-sub" x="217" y="205">vs. its own baseline</text>
-
-              <rect class="d-box--soft" x="10" y="146" width="160" height="72" />
-              <text class="d-title" x="22" y="170">Outcomes</text>
-              <text class="d-sub" x="22" y="189">sessions, revenue</text>
-              <text class="d-sub" x="22" y="205">joined by subject</text>
-
-              <rect class="d-box--on" x="10" y="266" width="550" height="64" />
-              <text class="d-title d-on" x="22" y="292">Weekly report + digest</text>
-              <text class="d-sub d-on" x="22" y="314">totals · top 3 · findings · drift alarms · gate queue · outcome impact</text>
-
-              <rect class="d-box" x="590" y="266" width="160" height="64" />
-              <text class="d-title" x="602" y="292">Dashboard</text>
-              <text class="d-sub" x="602" y="314">Next.js, role-gated</text>
-
-              <path class="d-edge" d="M170 56 H203" marker-end="url(#ah)" />
-              <path class="d-edge--accent" d="M365 56 H398" marker-end="url(#ah-a)" />
-              <path class="d-edge" d="M560 56 H588" marker-end="url(#ah)" />
-              <path class="d-edge" d="M670 92 V144" marker-end="url(#ah)" />
-              <path class="d-edge" d="M590 182 H562" marker-end="url(#ah)" />
-              <text class="d-label" x="566" y="140">results</text>
-              <path class="d-edge--dash" d="M480 146 V94" marker-end="url(#ah)" />
-              <text class="d-label" x="486" y="124">appended</text>
-              <path class="d-edge" d="M420 92 V118 H285 V144" marker-end="url(#ah)" />
-              <text class="d-label" x="290" y="112">tone scores</text>
-              <path class="d-edge" d="M90 218 V264" marker-end="url(#ah)" />
-              <path class="d-edge" d="M285 218 V264" marker-end="url(#ah)" />
-              <path class="d-edge" d="M480 218 V264" marker-end="url(#ah)" />
-              <path class="d-edge" d="M670 218 V242 H545 V264" marker-end="url(#ah)" />
-              <path class="d-edge" d="M560 298 H588" marker-end="url(#ah)" />
+              <path class="d-edge--accent" d="M206 60 H260" marker-end="url(#cx-aha)" />
+              <text class="d-label" x="234" y="52" text-anchor="middle">sends</text>
+              <path class="d-edge" d="M458 60 H512" marker-end="url(#cx-ah)" />
+              <text class="d-label" x="486" y="52" text-anchor="middle">asks</text>
+              <path class="d-edge" d="M710 60 H764" marker-end="url(#cx-ah)" />
+              <text class="d-label" x="738" y="52" text-anchor="middle">ships</text>
+              <path class="d-edge" d="M360 100 V136 H864 V102" marker-end="url(#cx-ah)" />
+              <text class="d-label" x="612" y="130" text-anchor="middle">passes clean actions</text>
             </svg>
           </div>
+          <div class="diagram diagram--mobile">
+            <svg viewBox="0 0 362 442" role="img" aria-labelledby="ctxm-t ctxm-d">
+              <title id="ctxm-t">Where the governance layer sits</title>
+              <desc id="ctxm-d">Marketing agents send every action to the governance layer. It asks a human approver about risky actions, and the approver ships the approved ones to the ad and email platforms. Clean actions pass straight through to the platforms.</desc>
+              <defs>
+                <marker id="cm-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow" /></marker>
+                <marker id="cm-aha" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow--accent" /></marker>
+              </defs>
+              <rect class="d-box" x="20" y="10" width="280" height="80" />
+              <text class="d-title" x="32" y="36">Marketing agents</text>
+              <text class="d-sub" x="32" y="60">Zapier · Lindy · bots</text>
+              <text class="d-sub" x="32" y="78">send · post · spend</text>
+
+              <rect class="d-box--accent" x="20" y="124" width="280" height="80" />
+              <text class="d-title" x="32" y="150">Governance layer</text>
+              <text class="d-sub" x="32" y="174">checks · gate · log</text>
+              <text class="d-sub" x="32" y="192">drift · weekly report</text>
+
+              <rect class="d-box" x="20" y="238" width="280" height="80" />
+              <text class="d-title" x="32" y="264">Human approver</text>
+              <text class="d-sub" x="32" y="288">admin or legal</text>
+              <text class="d-sub" x="32" y="306">approve or reject</text>
+
+              <rect class="d-box" x="20" y="352" width="280" height="80" />
+              <text class="d-title" x="32" y="378">Ad &amp; email platforms</text>
+              <text class="d-sub" x="32" y="402">ads · email · CMS</text>
+              <text class="d-sub" x="32" y="420">social networks</text>
+
+              <path class="d-edge--accent" d="M160 90 V122" marker-end="url(#cm-aha)" />
+              <text class="d-label" x="170" y="111">sends</text>
+              <path class="d-edge" d="M160 204 V236" marker-end="url(#cm-ah)" />
+              <text class="d-label" x="170" y="225">asks</text>
+              <path class="d-edge" d="M160 318 V350" marker-end="url(#cm-ah)" />
+              <text class="d-label" x="170" y="339">ships</text>
+              <path class="d-edge" d="M300 164 H334 V392 H302" marker-end="url(#cm-ah)" />
+              <text class="d-label" x="346" y="278" text-anchor="middle" transform="rotate(90 346 278)">passes clean actions</text>
+            </svg>
+          </div>
+          <p class="note diagram-caption">In the source build the gate runs in dry-run: agents still act directly, and the layer records what it would have held. A pre-flight endpoint runs the same checks before an action ships.</p>
+
+          <h3 class="group-label mt-md">Inside the layer</h3>
+          <div class="diagram diagram--desktop">
+            <svg viewBox="0 0 972 404" role="img" aria-labelledby="arch-t arch-d">
+              <title id="arch-t">Agent governance pipeline</title>
+              <desc id="arch-d">Connectors send actions to a normalizer, which writes to an append-only event ledger. The ledger feeds the checks, which score each action for the approval gate. The gate queues held actions for a human; human overrides are written back to the ledger as new rows. The ledger feeds tone scores to the drift detector. Outcomes, drift flags, overrides and held actions roll up into the weekly report and digest, which the dashboard shows.</desc>
+              <defs>
+                <marker id="dx-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow" /></marker>
+                <marker id="dx-aha" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow--accent" /></marker>
+              </defs>
+
+              <rect class="d-box" x="10" y="20" width="196" height="92" />
+              <text class="d-title" x="22" y="44">Connectors</text>
+              <text class="d-sub" x="22" y="66">Zapier · Lindy</text>
+              <text class="d-sub" x="22" y="84">HubSpot · fixture</text>
+
+              <rect class="d-box" x="262" y="20" width="196" height="92" />
+              <text class="d-title" x="274" y="44">Normalize</text>
+              <text class="d-sub" x="274" y="66">one row per action</text>
+              <text class="d-sub" x="274" y="84">+ who acted, how sure</text>
+
+              <rect class="d-box--accent" x="514" y="20" width="196" height="92" />
+              <text class="d-title" x="526" y="44">Event ledger</text>
+              <text class="d-sub" x="526" y="66">append-only</text>
+              <text class="d-sub" x="526" y="84">PGlite (Postgres)</text>
+
+              <rect class="d-box" x="766" y="20" width="196" height="92" />
+              <text class="d-title" x="778" y="44">Checks</text>
+              <text class="d-sub" x="778" y="66">tone · claims</text>
+              <text class="d-sub" x="778" y="84">competitor · spend</text>
+              <text class="d-sub" x="778" y="102">regulated · conflict</text>
+
+              <rect class="d-box" x="766" y="176" width="196" height="76" />
+              <text class="d-title" x="778" y="200">Approval gate</text>
+              <text class="d-sub" x="778" y="222">auto · review · block</text>
+              <text class="d-sub" x="778" y="240">dry-run policy rules</text>
+
+              <rect class="d-box" x="514" y="176" width="196" height="76" />
+              <text class="d-title" x="526" y="200">Human override</text>
+              <text class="d-sub" x="526" y="222">admin or legal</text>
+              <text class="d-sub" x="526" y="240">latest row wins</text>
+
+              <rect class="d-box" x="262" y="176" width="196" height="76" />
+              <text class="d-title" x="274" y="200">Drift detector</text>
+              <text class="d-sub" x="274" y="222">daily tone per agent</text>
+              <text class="d-sub" x="274" y="240">vs. own baseline</text>
+
+              <rect class="d-box--soft" x="10" y="176" width="196" height="76" />
+              <text class="d-title" x="22" y="200">Outcomes</text>
+              <text class="d-sub" x="22" y="222">sessions, revenue</text>
+              <text class="d-sub" x="22" y="240">joined by subject</text>
+
+              <rect class="d-box--on" x="10" y="316" width="700" height="76" />
+              <text class="d-title d-on" x="22" y="340">Weekly report + digest</text>
+              <text class="d-sub d-on" x="22" y="362">totals · top 3 · findings · drift alarms</text>
+              <text class="d-sub d-on" x="22" y="380">gate queue · outcome impact</text>
+
+              <rect class="d-box" x="766" y="316" width="196" height="76" />
+              <text class="d-title" x="778" y="340">Dashboard</text>
+              <text class="d-sub" x="778" y="362">Next.js, role-gated</text>
+
+              <path class="d-edge" d="M206 66 H260" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="234" y="58" text-anchor="middle">sends</text>
+              <path class="d-edge--accent" d="M458 66 H512" marker-end="url(#dx-aha)" />
+              <text class="d-label" x="486" y="58" text-anchor="middle">writes</text>
+              <path class="d-edge" d="M710 66 H764" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="738" y="58" text-anchor="middle">feeds</text>
+              <path class="d-edge" d="M864 112 V174" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="872" y="148">scores</text>
+              <path class="d-edge" d="M766 214 H712" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="738" y="206" text-anchor="middle">queues</text>
+              <path class="d-edge--dash" d="M612 176 V114" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="620" y="150">writes</text>
+              <path class="d-edge" d="M560 112 V142 H360 V174" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="372" y="136">feeds tone</text>
+              <path class="d-edge" d="M108 252 V314" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="116" y="288">joins</text>
+              <path class="d-edge" d="M360 252 V314" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="368" y="288">flags</text>
+              <path class="d-edge" d="M612 252 V314" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="620" y="288">logs</text>
+              <path class="d-edge" d="M864 252 V284 H690 V314" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="760" y="278">holds</text>
+              <path class="d-edge" d="M710 354 H764" marker-end="url(#dx-ah)" />
+              <text class="d-label" x="738" y="346" text-anchor="middle">shows</text>
+            </svg>
+          </div>
+          <div class="diagram diagram--mobile">
+            <svg viewBox="0 0 362 920" role="img" aria-labelledby="archm-t archm-d">
+              <title id="archm-t">Agent governance pipeline</title>
+              <desc id="archm-d">Connectors send actions to a normalizer, which writes to an append-only event ledger. The ledger feeds the checks, which score each action for the approval gate. The gate queues held actions for a human; human overrides are added back to the ledger as new rows. The ledger feeds tone scores to the drift detector. The ledger's counts and the drift flags roll up into the weekly report and digest, which the dashboard shows.</desc>
+              <defs>
+                <marker id="dm-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow" /></marker>
+                <marker id="dm-aha" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow--accent" /></marker>
+              </defs>
+
+              <rect class="d-box" x="10" y="10" width="342" height="62" />
+              <text class="d-title" x="22" y="36">Connectors</text>
+              <text class="d-sub" x="22" y="58">Zapier · Lindy · HubSpot</text>
+
+              <rect class="d-box" x="10" y="106" width="342" height="62" />
+              <text class="d-title" x="22" y="132">Normalize</text>
+              <text class="d-sub" x="22" y="154">one row per action, who acted</text>
+
+              <rect class="d-box--accent" x="10" y="202" width="118" height="458" />
+              <text class="d-title" x="22" y="228">Event</text>
+              <text class="d-title" x="22" y="246">ledger</text>
+              <text class="d-sub" x="22" y="270">append-only</text>
+              <text class="d-sub" x="22" y="288">PGlite</text>
+
+              <rect class="d-box" x="180" y="202" width="172" height="116" />
+              <text class="d-title" x="192" y="228">Checks</text>
+              <text class="d-sub" x="192" y="250">tone · claims</text>
+              <text class="d-sub" x="192" y="268">competitor</text>
+              <text class="d-sub" x="192" y="286">regulated</text>
+              <text class="d-sub" x="192" y="304">spend · conflict</text>
+
+              <rect class="d-box" x="180" y="352" width="172" height="80" />
+              <text class="d-title" x="192" y="378">Approval gate</text>
+              <text class="d-sub" x="192" y="400">auto, review</text>
+              <text class="d-sub" x="192" y="418">or block</text>
+
+              <rect class="d-box" x="180" y="466" width="172" height="80" />
+              <text class="d-title" x="192" y="492">Human override</text>
+              <text class="d-sub" x="192" y="514">admin or legal</text>
+              <text class="d-sub" x="192" y="532">latest row wins</text>
+
+              <rect class="d-box" x="180" y="580" width="172" height="80" />
+              <text class="d-title" x="192" y="606">Drift detector</text>
+              <text class="d-sub" x="192" y="628">tone per agent</text>
+              <text class="d-sub" x="192" y="646">vs. own baseline</text>
+
+              <rect class="d-box--on" x="10" y="716" width="342" height="98" />
+              <text class="d-title d-on" x="22" y="742">Weekly report + digest</text>
+              <text class="d-sub d-on" x="22" y="764">totals · top 3 · findings</text>
+              <text class="d-sub d-on" x="22" y="782">drift alarms · gate queue</text>
+              <text class="d-sub d-on" x="22" y="800">outcome impact by subject</text>
+
+              <rect class="d-box" x="10" y="848" width="342" height="62" />
+              <text class="d-title" x="22" y="874">Dashboard</text>
+              <text class="d-sub" x="22" y="896">Next.js, role-gated</text>
+
+              <path class="d-edge" d="M181 72 V104" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="190" y="93">sends</text>
+              <path class="d-edge--accent" d="M69 168 V200" marker-end="url(#dm-aha)" />
+              <text class="d-label" x="78" y="189">writes</text>
+              <path class="d-edge" d="M128 240 H178" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="153" y="232" text-anchor="middle">feeds</text>
+              <path class="d-edge" d="M266 318 V350" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="275" y="339">scores</text>
+              <path class="d-edge" d="M266 432 V464" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="275" y="453">queues</text>
+              <path class="d-edge--dash" d="M180 506 H130" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="154" y="498" text-anchor="middle">adds</text>
+              <path class="d-edge" d="M128 620 H178" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="153" y="612" text-anchor="middle">feeds</text>
+              <path class="d-edge" d="M69 660 V714" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="78" y="692">counts</text>
+              <path class="d-edge" d="M266 660 V714" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="275" y="692">flags</text>
+              <path class="d-edge" d="M181 814 V846" marker-end="url(#dm-ah)" />
+              <text class="d-label" x="190" y="835">shows</text>
+            </svg>
+          </div>
+          <div class="legend" aria-label="Diagram key"><span><i class="k-bar-accent"></i>Event ledger: the only store, append-only</span><span><i></i>Data flow</span><span><i class="k-muted"></i>Human override, written back as a new row</span></div>
           <p class="note diagram-caption">Nothing in the ledger is edited. Checks, gate decisions and human overrides are new rows, so any week can be replayed and audited from the rows alone.</p>
         </section>
 
         <section class="lab-block" aria-labelledby="b-ledger">
-          <p class="kicker"><span class="idx">02</span> Ledger replay</p>
-          <h2 id="b-ledger">Change the policy and every decision is recomputed</h2>
-          <p>27 fixture actions from four agents over ten days, rechecked under the policy in the controls. Select a row to see its full check trace. The tone, claims, competitor and regulated-language checks are summarised here. The <a class="link" href="../claims-check/">brand &amp; claims gate</a> (Lab / 04) covers copy checks in more depth on text you paste in.</p>
+          <p class="kicker">Ledger replay</p>
+          <h2 id="b-ledger">22 of 27 actions run; 3 wait for review, 2 blocked</h2>
+          <p>27 fixture actions from four agents over ten days, rechecked under the policy in the controls: change it and every decision is recomputed. Select a row to see its full check trace. The tone, claims, competitor and regulated-language checks are summarised here. The <a class="link" href="../claims-check/">brand &amp; claims gate</a> covers copy checks in more depth on text you paste in.</p>
           <div class="stat-strip">
             <div class="stat"><span class="n" id="k-events">–</span><span class="l">Events in ledger</span></div>
-            <div class="stat"><span class="n" id="k-auto">–</span><span class="l">Auto-approve</span></div>
-            <div class="stat"><span class="n" id="k-review">–</span><span class="l">Needs review</span></div>
-            <div class="stat"><span class="n" id="k-block">–</span><span class="l">Blocked</span></div>
             <div class="stat"><span class="n" id="k-find">–</span><span class="l">Findings</span></div>
           </div>
           <p class="note mt-sm" id="last" aria-live="polite"></p>
@@ -248,8 +411,8 @@
         </section>
 
         <section class="lab-block" aria-labelledby="b-gate">
-          <p class="kicker"><span class="idx">03</span> Approval gate</p>
-          <h2 id="b-gate">Waiting for a human</h2>
+          <p class="kicker">Approval gate</p>
+          <h2 id="b-gate">5 actions wait for a human</h2>
           <p>Actions the policy marked Needs review or Blocked. When you approve or reject one, you append an override row to the ledger, and the system decision stays beside it. The counts, the report and the revenue figure below all update.</p>
           <div class="field">
             <span class="label" id="role-label">Acting as</span>
@@ -260,7 +423,6 @@
             <p class="hint">In the source build only these two roles can override a decision.</p>
           </div>
           <div class="stat-strip">
-            <div class="stat"><span class="n" id="k-queue">–</span><span class="l">Awaiting a human</span></div>
             <div class="stat"><span class="n" id="k-ov">–</span><span class="l">Override rows</span></div>
             <div class="stat"><span class="n" id="k-exp">–</span><span class="l">Revenue on held actions</span></div>
           </div>
@@ -281,15 +443,15 @@
         </section>
 
         <section class="lab-block" aria-labelledby="b-drift">
-          <p class="kicker"><span class="idx">04</span> Drift</p>
-          <h2 id="b-drift">Which agents sound off their usual tone</h2>
+          <p class="kicker">Drift</p>
+          <h2 id="b-drift">Lifecycle Bot · Email: one day off its usual tone</h2>
           <p>For each agent and channel: the daily mean tone score. A day raises an alarm if it falls below the warn line, or if it drops further below the stream's own baseline than the drop setting allows.</p>
           <div class="field">
             <span class="label" id="stream-label">Agent and channel</span>
             <div class="seg" id="stream" role="group" aria-labelledby="stream-label"></div>
           </div>
           <div class="chart" id="c-drift"></div>
-          <div class="legend"><span><i></i>Daily mean tone score</span><span><i class="k-muted"></i>Baseline</span><span><i class="k-accent"></i>Warn line</span></div>
+          <div id="drift-data"></div>
           <p class="note mt-sm" id="drift-note"></p>
           <h3 class="group-label mt-md">Flagged days</h3>
           <p id="alarms-empty" hidden>No alarms in the ledger so far.</p>
@@ -302,7 +464,7 @@
         </section>
 
         <section class="lab-block" aria-labelledby="b-report">
-          <p class="kicker"><span class="idx">05</span> Weekly report</p>
+          <p class="kicker">Weekly report</p>
           <h2 id="b-report">A weekly digest with no model in the loop</h2>
           <p>Built from the current ledger state, in the same structure as the source build's report and digest.</p>
           <div class="btns">
@@ -359,25 +521,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../agent-swarm/"><span class="kicker">← 06</span><b>Agent swarm</b></a>
-      <a href="../mmm/"><span class="kicker">01 →</span><b>Media mix model</b></a>
+      <a href="../agent-swarm/"><span class="kicker">← Previous</span><b>Agent swarm</b></a>
+      <a href="../mmm/"><span class="kicker">Next →</span><b>Media mix model</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your agents?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Agent%20governance">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>

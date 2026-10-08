@@ -411,29 +411,31 @@
     $('#more').setAttribute('aria-expanded', String(state.all));
     const c = { A: 0, B: 0, C: 0, none: 0 };
     scored.forEach((s) => c[s.tier]++);
-    $('#k-a').textContent = c.A; $('#k-b').textContent = c.B; $('#k-c').textContent = c.C; $('#k-n').textContent = c.none;
+    $('#k-b').textContent = c.B; $('#k-c').textContent = c.C; $('#k-n').textContent = c.none;
+    $('#b1').textContent = `${c.A} of ${scored.length} accounts clear Tier A at ${cfg.tA}+`;
   };
 
   const renderExplain = () => {
     const sc = scored.find((s) => s.a.id === state.sel);
     const { a } = sc;
-    $('#b2').textContent = a.name;
+    $('#b2').textContent = sc.tier === 'none' ? `${a.name} scores ${pts(sc.total)}: no outreach` : `${a.name} scores ${pts(sc.total)}: Tier ${sc.tier}, ${sc.branch.name.toLowerCase()}`;
     $('#x-sub').textContent = `${a.domain} · ${a.f.industry} · ${a.f.headcount} people · ${STAGE[a.f.funding_stage]}`;
     $('#x-icp').textContent = `${pts(sc.icpScore)}/15`;
     $('#x-sig').textContent = `${pts(sc.signal)}/${cfg.cap}`;
-    $('#x-tot').textContent = pts(sc.total);
-    $('#x-tier').textContent = tierLabel(sc.tier);
 
     const labels = [], gi = [], gs = [], gc = [];
     sc.icp.forEach((p, i) => { labels.push(ICP_DIMS[i].label); gi.push(p.pts); gs.push(0); gc.push(0); });
     sc.sig.forEach((p) => { labels.push(SIG[p.key].label); gi.push(0); gs.push(p.pts); gc.push(0); });
     if (sc.cut > 1e-9) { labels.push(`Cap at ${cfg.cap}`); gi.push(0); gs.push(0); gc.push(-sc.cut); }
     L.bars($('#x-chart'), {
-      labels, horizontal: true, stacked: true, labelWidth: 170,
+      labels, horizontal: true, stacked: true, labelWidth: 170, sample: 'Synthetic · seed 303',
       groups: [{ values: gi, cls: 'b-ink' }, { values: gs, cls: 'b-accent' }, { values: gc, cls: 'b-muted' }],
       valueFmt: (v) => (v < 0 ? '−' + pts(-v) : '+' + pts(v)),
       ariaLabel: `Score breakdown for ${a.name}: ICP ${pts(sc.icpScore)}, signal ${pts(sc.signal)} after cap, total ${pts(sc.total)}`,
     });
+
+    const topSig = [...sc.sig].sort((p, q) => q.pts - p.pts)[0];
+    L.figure($('#x-chart'), { legend: $('#x-legend'), caption: `ICP fit adds ${pts(sc.icpScore)} of 15` + (topSig ? `; ${SIG[topSig.key].label} is the biggest signal at +${pts(topSig.pts)}.` : '; no signal fired.') + (sc.cut > 1e-9 ? ` The cap removes ${pts(sc.cut)}.` : '') });
 
     const tb = $('#x-rules tbody');
     tb.innerHTML = '';
@@ -474,6 +476,7 @@
     const list = $('#g-list');
     list.innerHTML = '';
     if (!sc.branch) {
+      $('#b3').textContent = 'Below threshold, so nothing is drafted';
       $('#g-v').textContent = 'Not drafted';
       $('#g-v').className = 'verdict__v';
       $('#g-why').textContent = 'Below threshold. Nothing goes out.';
@@ -483,6 +486,7 @@
     $('#g-v').textContent = g.pass ? 'PASS' : 'FAIL';
     $('#g-v').className = 'verdict__v' + (g.pass ? '' : ' is-stop');
     const nf = g.rules.filter((r) => !r.ok).length;
+    $('#b3').textContent = g.pass ? `Draft passes all ${g.rules.length} gate checks and sends` : `Draft fails ${nf} of ${g.rules.length} gate checks and is held`;
     $('#g-why').textContent = g.pass ? `${g.words} words · all fields present · sending` : `${nf} rule${nf > 1 ? 's' : ''} failed · one LLM retry with the failures as feedback, then human review`;
     g.rules.forEach((r) => list.append(el('li', {}, [
       el('span', { class: r.ok ? 'tag tag--ok' : 'tag tag--stop', text: r.ok ? 'Pass' : 'Fail' }),
@@ -512,16 +516,23 @@
   // ---------- learn tab ----------
   const renderLearn = () => {
     const r = state.learned;
-    $('#l-src').textContent = r.aucSrc.toFixed(3);
+    $('#b4').textContent = r.aucFit > r.aucSrc
+      ? `Learned weights lift held-out AUC from ${r.aucSrc.toFixed(2)} to ${r.aucFit.toFixed(2)}`
+      : `Learned weights don't beat the source AUC of ${r.aucSrc.toFixed(2)}`;
     $('#l-cur').textContent = r.aucCur.toFixed(3);
-    $('#l-fit').textContent = r.aucFit.toFixed(3);
     $('#l-base').textContent = fmt.pct(r.base, 0);
     $('#l-n').textContent = r.nTest;
     const top = Math.max(...r.coef.slice(5), 1e-9);
     const learned = r.coef.map((c) => 5 * c / top);
     const current = [1, 1, 1, 1, 1, ...SIGNALS.map((d) => cfg.w[d.key])];
+    const gap = SIGNALS.map((d, i) => ({ d, l: learned[i + 5], c: current[i + 5] })).sort((p, q) => Math.abs(q.l - q.c) - Math.abs(p.l - p.c))[0];
+    const signed = (v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace(/\.0$/, '');
+    $('#b5').textContent = `${gap.d.label}: worth ${signed(gap.l)} points by outcomes, set at ${signed(gap.c)}`;
+    const lift = r.liftFit[0] / (r.base || 1);
+    $('#b6').textContent = `Top-decile accounts convert at ${fmt.pct(r.liftFit[0], 0)}, ${lift.toFixed(1)}× the base rate`;
+    L.figure($('#l-lift'), { legend: $('#l-lift-legend'), caption: `Learned model, top decile: ${fmt.pct(r.liftFit[0], 0)} converted. Source weights: ${fmt.pct(r.liftSrc[0], 0)}. Base rate: ${fmt.pct(r.base, 0)}.` });
     L.bars($('#l-w'), {
-      labels: FEAT_LABELS, horizontal: true, labelWidth: 170,
+      labels: FEAT_LABELS, horizontal: true, labelWidth: 170, sample: 'Synthetic · seed 4242, n = 400',
       groups: [{ values: learned, cls: 'b-accent', name: 'Learned' }, { values: current, cls: 'b-ink', name: 'Current' }],
       tipFmt: (i, g) => `${FEAT_LABELS[i]}<br>${g ? 'Current' : 'Learned'}: ${(g ? current : learned)[i].toFixed(2)} pts${i < 5 ? ' per ICP point' : ''}`,
       ariaLabel: 'Learned versus current weights for 5 ICP dimensions and 10 signals',
@@ -531,7 +542,7 @@
       groups: [{ values: r.liftFit, cls: 'b-accent' }, { values: r.liftSrc, cls: 'b-ink' }],
       tipFmt: (i, g) => `Decile ${i + 1}<br>${g ? 'Source weights' : 'Learned'}: ${fmt.pct((g ? r.liftSrc : r.liftFit)[i], 0)} converted`,
       ariaLabel: `Conversion rate by score decile. Top decile: learned ${fmt.pct(r.liftFit[0], 0)}, source ${fmt.pct(r.liftSrc[0], 0)}; base rate ${fmt.pct(r.base, 0)}`,
-      height: 260, refLine: r.base,
+      height: 260, refLine: r.base, sample: 'Synthetic · seed 4242, n = 400',
     });
   };
 
@@ -543,6 +554,15 @@
     SIGNALS.forEach((d) => setVal(`w-${d.key}`, w[d.key]));
     $('#apply-note').textContent = 'Applied: ' + SIGNALS.map((d) => `${d.label} ${w[d.key]}`).join(' · ') + '. Live ranking updated.';
   });
+
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = L.$('.lab-quick'); if (!strip) return;
+    const items = L.$$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
 
   // ---------- wiring ----------
   const update = () => {
@@ -570,6 +590,7 @@
   $('#body').addEventListener('input', runGate);
   L.tabs(document, (p) => { if (p === 'p-learn') renderLearn(); });
 
+  quick();
   update();
   state.learned = learn(+$('#lam').value, cfg);
   renderLearn();

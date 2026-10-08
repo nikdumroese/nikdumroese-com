@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/geo-lift/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="Estimate how many sales a campaign caused by comparing test cities against a synthetic control built from the other cities. Runs in your browser." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 02</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>Geo-lift incrementality test</h1>
     <p class="lead">A geo-lift test tells you how many sales a campaign caused. The campaign runs in a few test cities, and a synthetic control built from the other cities shows what those cities would have sold without it.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
@@ -66,12 +63,12 @@
         </div>
 
         <span class="group-label">Simulation</span>
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="lift">True injected lift</label><output for="lift"></output></div>
           <input type="range" id="lift" min="0" max="25" step="0.5" value="8" aria-describedby="lift-hint" />
           <p class="hint" id="lift-hint">Simulation only. You set the true effect, then see whether the method recovers it.</p>
         </div>
-        <div id="seed-field"><div class="field">
+        <div id="seed-field" data-quick><div class="field">
           <div class="field__top"><label for="seed">Data seed</label><output for="seed"></output></div>
           <input type="range" id="seed" min="1" max="20" step="1" value="1" />
           <p class="hint">Redraws the noise. Same model, different luck.</p>
@@ -107,6 +104,7 @@
       </aside>
 
       <div class="lab-out">
+          <div class="lab-quick" role="group" aria-label="Key controls"></div>
           <div class="tabs" role="tablist" aria-label="Mode">
             <button class="tab" role="tab" id="t-analyze" aria-controls="p-analyze" aria-selected="true">Analyze</button>
             <button class="tab" role="tab" id="t-plan" aria-controls="p-plan" aria-selected="false">Plan a test</button>
@@ -114,7 +112,6 @@
 
           <div role="tabpanel" id="p-analyze" aria-labelledby="t-analyze" class="lab-out">
             <section class="lab-block" aria-labelledby="verdict-h">
-              <p class="kicker"><span class="idx">01</span> Verdict</p>
               <h2 id="verdict-h">Did the campaign cause a lift?</h2>
               <div class="verdict" aria-live="polite">
                 <span class="verdict__v" id="verdict-v">–</span>
@@ -122,35 +119,35 @@
               </div>
               <div class="stat-strip">
                 <div class="stat"><span class="n" id="k-incr">–</span><span class="l" id="k-incr-l">Incremental conversions</span></div>
-                <div class="stat"><span class="n" id="k-p">–</span><span class="l">Placebo p-value</span></div>
                 <div class="stat"><span class="n" id="k-roas">–</span><span class="l" id="k-roas-l">iROAS</span></div>
-                <div class="stat"><span class="n" id="k-cpi">–</span><span class="l">Cost per incremental conv.</span></div>
-                <div class="stat"><span class="n" id="k-mape">–</span><span class="l">Pre-period fit error (MAPE)</span></div>
+                <div class="stat"><span class="n" id="k-p">–</span><span class="l">Placebo p-value</span></div>
               </div>
               <p class="note mt-sm" id="truth"></p>
               <p id="fit-warn-wrap" hidden><span class="tag tag--warn" id="fit-warn"></span></p>
             </section>
 
             <section class="lab-block" aria-labelledby="b-fit">
-              <p class="kicker"><span class="idx">02</span> Counterfactual</p>
+              <p class="kicker">Counterfactual</p>
               <h2 id="b-fit">Test cities vs. their synthetic control</h2>
               <p>Daily conversions summed over the test cities. The dashed line is a weighted blend of control cities, fitted on the pre-period only. After the start line, the gap between them is the effect.</p>
               <div class="chart" id="c-fit"></div>
-              <div class="legend"><span><i></i>Actual, test cities</span><span><i class="k-muted"></i>Synthetic control</span><span><i class="k-band"></i>90% placebo range</span></div>
+              <div class="legend" id="lg-fit"><span><i></i>Actual, test cities</span><span><i class="k-muted"></i>Synthetic control</span><span><i class="k-band"></i>90% placebo range</span></div>
+              <div id="d-fit"></div>
             </section>
 
             <section class="lab-block" aria-labelledby="b-gap">
-              <p class="kicker"><span class="idx">03</span> Effect</p>
+              <p class="kicker">Effect</p>
               <h2 id="b-gap">How the lift builds day by day</h2>
               <p>The shaded band shows how big the daily gap gets in control cities that saw no campaign.</p>
               <div class="chart" id="c-gap"></div>
               <div class="legend"><span><i></i>Actual − synthetic</span><span><i class="k-band"></i>90% placebo range</span></div>
               <div class="chart" id="c-cum"></div>
-              <div class="legend"><span><i class="k-accent"></i>Cumulative incremental conversions</span><span><i class="k-band"></i>90% interval</span></div>
+              <div class="legend" id="lg-cum"><span><i class="k-accent"></i>Cumulative incremental conversions</span><span><i class="k-band"></i>90% interval</span></div>
+              <div id="d-gap"></div>
             </section>
 
             <section class="lab-block" aria-labelledby="b-placebo">
-              <p class="kicker"><span class="idx">04</span> Inference</p>
+              <p class="kicker">Inference</p>
               <h2 id="b-placebo">How big a gap chance alone produces</h2>
               <p id="placebo-txt"></p>
               <div class="chart" id="c-placebo"></div>
@@ -158,7 +155,7 @@
             </section>
 
             <section class="lab-block" aria-labelledby="b-w">
-              <p class="kicker"><span class="idx">05</span> Donors</p>
+              <p class="kicker">Donors</p>
               <h2 id="b-w">Who builds the synthetic control</h2>
               <p id="weights-txt"></p>
               <div class="tbl-wrap">
@@ -172,23 +169,22 @@
 
           <div role="tabpanel" id="p-plan" aria-labelledby="t-plan" class="lab-out" hidden>
             <section class="lab-block" aria-labelledby="b-power">
-              <p class="kicker"><span class="idx">01</span> Power</p>
+              <p class="kicker">Power</p>
               <h2 id="b-power">Smallest lift this design can detect</h2>
               <p>Before spending, back-test the design on history. The method replays fake tests inside the pre-period, adds a known lift to the test cities, and counts how often the 90% interval excludes zero.</p>
               <div class="stat-strip">
-                <div class="stat"><span class="n" id="k-mde">–</span><span class="l">Minimum detectable effect (80% power)</span></div>
                 <div class="stat"><span class="n" id="k-share">–</span><span class="l">Share of volume in test</span></div>
                 <div class="stat"><span class="n" id="k-pmape">–</span><span class="l">Avg. pre-fit error</span></div>
                 <div class="stat"><span class="n" id="k-reps">–</span><span class="l">Back-test windows</span></div>
               </div>
               <p class="hint" id="plan-err" role="alert"></p>
               <div class="chart" id="c-power"></div>
-              <div class="legend"><span><i class="k-accent"></i>Detection rate</span><span><i class="k-muted"></i>80% power</span></div>
               <p id="plan-txt" aria-live="polite"></p>
+              <div id="d-power"></div>
             </section>
 
             <section class="lab-block" aria-labelledby="b-suggest">
-              <p class="kicker"><span class="idx">02</span> Geo selection</p>
+              <p class="kicker">Geo selection</p>
               <h2 id="b-suggest">Suggest test cities</h2>
               <p>Ranks every city by how well the others can reproduce its pre-period, then picks the best-fitting ones until the test group holds 12–20% of volume. Very large cities (over 6% of volume) are skipped: they're hard to reproduce and costly to hold out.</p>
               <div class="btns"><button class="btn btn--sm" type="button" id="suggest">Suggest test cities</button></div>
@@ -234,25 +230,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../mmm/"><span class="kicker">← 01</span><b>Media mix model</b></a>
-      <a href="../lead-scorer/"><span class="kicker">03 →</span><b>Lead scorer</b></a>
+      <a href="../mmm/"><span class="kicker">← Previous</span><b>Media mix model</b></a>
+      <a href="../lead-scorer/"><span class="kicker">Next →</span><b>Lead scorer</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Geo-lift%20test">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>

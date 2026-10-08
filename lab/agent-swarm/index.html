@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/agent-swarm/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="Agent roles coordinate through mailboxes and one governance rule. Step through a real run and watch every proposal decision get recomputed from the audit log." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 06</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>Multi-agent swarm with no one in charge</h1>
     <p class="lead">Independent agent roles coordinate through mailboxes and a single governance rule. No agent or person decides who acts next. This page replays a real run and recomputes every decision from its audit log.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Jump to controls</a>
@@ -54,26 +51,33 @@
     <div class="lab-out">
 
       <section class="lab-block" aria-labelledby="b-arch">
-        <p class="kicker"><span class="idx">01</span> Architecture</p>
-        <h2 id="b-arch">What runs where</h2>
+        <h2 id="b-arch">No supervisor: the files decide who acts next</h2>
         <p>In the run replayed here, the roles built a six-milestone plan into another of my repos, with no supervisor assigning work. Each role is a fresh <code>claude -p</code> call that sees only the run objective, its own charter, the board and its own unread mail. Its answer must match a JSON schema. A small Python layer files the answer into folders and appends one line to the log. LangGraph then asks the router who can act, and starts all of them in parallel.</p>
-        <div class="diagram mt-md" id="diagram" role="img" aria-labelledby="diagram-cap"></div>
+        <div class="diagram diagram--desktop mt-md" id="ctx" role="img" aria-label="System context: the router reads the run directory and starts eligible roles; roles write results to the run directory and read their inbox from it; engineer edits the target repo; a human can file objections into the run directory."></div>
+        <div class="diagram diagram--mobile mt-md" id="ctx-m" aria-hidden="true"></div>
+        <ul class="swarm-key mt-sm" aria-label="Diagram key">
+          <li><i class="swarm-key__box"></i>Accent box: the router, the only place that decides who acts. No model call.</li>
+          <li><i class="swarm-key__solid"></i>Solid arrow: happens on every turn</li>
+          <li><i class="swarm-key__dash"></i>Dashed arrow: optional or after the fact (a human objection, observability)</li>
+        </ul>
+        <h3 class="group-label mt-md">Inside the swarm</h3>
+        <div class="diagram diagram--desktop mt-sm" id="diagram" role="img" aria-labelledby="diagram-cap"></div>
+        <div class="diagram diagram--mobile mt-sm" id="diagram-m" aria-hidden="true"></div>
         <p class="note diagram-caption" id="diagram-cap"><b>Routing is a pure function of the files.</b> <code>route()</code> reads the proposal folders and the append-only log, promotes what has cleared its objection window, and returns one <code>Send</code> per role that has a reason to act. It makes no model call and takes no human input, so the same files always give the same answer.</p>
       </section>
 
       <section class="lab-block" aria-labelledby="b-sim">
-        <p class="kicker"><span class="idx">02</span> Governance simulator</p>
-        <h2 id="b-sim">Step through the log</h2>
+        <h2 id="b-sim">One objection sends an integrated proposal back to open</h2>
         <p>A proposal integrates (is accepted and handed to <code>engineer</code> to build) once every other role has finished an <code>ok</code> turn since it was filed and no objection is on file. <code>engineer</code>, the one role with write access, is left out of that count. An objection against an integrated proposal moves it back to open. The page recomputes all of it at every step, from the log alone.</p>
         <p class="note mt-sm">Excerpts from a real run, trimmed and lightly edited for length. The model turns are recorded. The governance is computed here.</p>
 
         <div class="lab-grid mt-md">
           <aside class="lab-controls" id="controls" aria-label="Simulator controls">
             <span class="group-label">Replay</span>
-            <div class="field">
+            <div class="field" data-quick>
               <div class="field__top"><label for="pos">Position in log</label><output for="pos" id="pos-out"></output></div>
-              <input type="range" id="pos" min="0" max="46" step="1" value="0" aria-describedby="pos-hint" />
-              <p class="hint" id="pos-hint">Events applied so far. 0 is the moment before the first turn.</p>
+              <input type="range" id="pos" min="0" max="46" step="1" value="15" aria-describedby="pos-hint" />
+              <p class="hint" id="pos-hint">Events applied so far. It opens at the event where critic reopens P001; Reset goes back to 0, before the first turn.</p>
               <div class="btns">
                 <button class="btn btn--sm" type="button" id="step">Step</button>
                 <button class="btn btn--ghost btn--sm" type="button" id="play" aria-pressed="false">Play</button>
@@ -101,6 +105,7 @@
           </aside>
 
           <div class="lab-out">
+            <div class="lab-quick" role="group" aria-label="Key controls"></div>
             <div>
               <div class="verdict" aria-live="polite">
                 <span class="verdict__v" id="verdict-v">–</span>
@@ -134,8 +139,7 @@
       </section>
 
       <section class="lab-block" aria-labelledby="b-turn">
-        <p class="kicker"><span class="idx">03</span> One role turn</p>
-        <h2 id="b-turn">What a role sees, and what it may say back</h2>
+        <h2 id="b-turn">A role sees its inbox and answers in a fixed schema</h2>
         <p id="turn-intro"></p>
         <div class="tabs mt-md" role="tablist" aria-label="Role turn">
           <button class="tab" role="tab" id="t-in" aria-controls="p-in" aria-selected="true">Inbox</button>
@@ -196,7 +200,6 @@
       </section>
 
       <section class="lab-block" aria-labelledby="b-obs">
-        <p class="kicker"><span class="idx">04</span> Observability</p>
         <h2 id="b-obs">Where the money and the waiting went</h2>
         <p id="obs-intro"></p>
         <div class="stat-strip" id="obs-stats"></div>
@@ -262,25 +265,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../crm-dedupe/"><span class="kicker">← 05</span><b>CRM dedupe</b></a>
-      <a href="../agent-governance/"><span class="kicker">07 →</span><b>Agent governance</b></a>
+      <a href="../crm-dedupe/"><span class="kicker">← Previous</span><b>CRM dedupe</b></a>
+      <a href="../agent-governance/"><span class="kicker">Next →</span><b>Agent governance</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want a swarm<br>on your repo?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Agent%20swarm">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>

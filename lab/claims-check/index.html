@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/claims-check/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="Check AI-written marketing copy against brand voice, an approved-claims register, competitor rules and market-specific regulated language. Each draft is auto-approved, sent for review or blocked, with the reason." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 04</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>Brand &amp; claims gate for AI-written copy</h1>
     <p class="lead">Before an agent ships marketing copy, the gate checks every line against brand voice, approved claims, competitor rules and regulated wording. Each draft is auto-approved, sent for review or blocked, and the page shows why.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
@@ -54,7 +51,7 @@
     <div class="lab-grid">
       <aside class="lab-controls" id="controls" aria-label="Controls">
         <span class="group-label">Placement</span>
-        <div class="field">
+        <div class="field" data-quick>
           <label for="channel">Channel</label>
           <select class="select" id="channel" aria-describedby="channel-hint">
             <option value="rsa">Google Responsive Search Ad</option>
@@ -85,6 +82,7 @@
       </aside>
 
       <div class="lab-out">
+        <div class="lab-quick" role="group" aria-label="Key controls"></div>
         <div class="tabs" role="tablist" aria-label="Views">
           <button class="tab" role="tab" id="t-gate" aria-controls="p-gate" aria-selected="true">Check a draft</button>
           <button class="tab" role="tab" id="t-batch" aria-controls="p-batch" aria-selected="false">Batch</button>
@@ -93,7 +91,6 @@
 
         <div role="tabpanel" id="p-gate" aria-labelledby="t-gate" class="lab-out">
           <section class="lab-block" aria-labelledby="b2">
-            <p class="kicker"><span class="idx">01</span> Verdict</p>
             <h2 id="b2">What the gate decides</h2>
             <div class="verdict" aria-live="polite" aria-atomic="true">
               <span class="verdict__v" id="verdict">–</span>
@@ -103,17 +100,14 @@
               <div class="stat"><span class="n" id="k-score">–</span><span class="l">Risk score</span></div>
               <div class="stat"><span class="n" id="k-block">–</span><span class="l">Block</span></div>
               <div class="stat"><span class="n" id="k-warn">–</span><span class="l">Warn</span></div>
-              <div class="stat"><span class="n" id="k-flesch">–</span><span class="l">Reading ease</span></div>
-              <div class="stat"><span class="n" id="k-person">–</span><span class="l">‘You’ vs ‘we’ mentions</span></div>
             </div>
             <div class="annot" id="annot" aria-label="Annotated copy"></div>
             <p class="note">Highlights mark each finding. Select one to jump to it.</p>
           </section>
 
           <section class="lab-block" aria-labelledby="b1">
-            <p class="kicker"><span class="idx">02</span> Draft</p>
             <h2 id="b1">Edit the draft; the verdict updates as you type</h2>
-            <div class="field">
+            <div class="field" data-quick>
               <span class="label" id="samples-label">Load a sample draft</span>
               <div class="btns" role="group" aria-labelledby="samples-label">
                 <button type="button" class="btn btn--ghost btn--sm" data-sample="pass">Auto-approve</button>
@@ -130,13 +124,11 @@
           </section>
 
           <section class="lab-block" aria-labelledby="b3">
-            <p class="kicker"><span class="idx">03</span> Findings</p>
             <h2 id="b3">Each finding comes with a fix</h2>
-            <ul class="findings" id="findings"></ul>
+            <ul class="findings cc-findings" id="findings"></ul>
           </section>
 
           <section class="lab-block" aria-labelledby="b4">
-            <p class="kicker"><span class="idx">04</span> Audit</p>
             <h2 id="b4">What gets written to the ledger</h2>
             <p>The gate appends every decision to the ledger: which draft, which rule set, which rules fired. An auditor or legal reviews that record later.</p>
             <pre class="code" id="ledger"></pre>
@@ -145,7 +137,6 @@
 
         <div role="tabpanel" id="p-batch" aria-labelledby="t-batch" class="lab-out" hidden>
           <section class="lab-block" aria-labelledby="b5">
-            <p class="kicker"><span class="idx">01</span> Batch</p>
             <h2 id="b5">Run an agent's drafts through the gate</h2>
             <p>An agent writes 20 variants. The gate sorts them before anyone looks. It uses the market and threshold set in the controls.</p>
             <div class="field">
@@ -169,7 +160,6 @@
             </div>
           </section>
           <section class="lab-block" aria-labelledby="b6">
-            <p class="kicker"><span class="idx">02</span> Results</p>
             <h2 id="b6">Verdict per variant</h2>
             <p>Select a row to open that variant in the single-draft view.</p>
             <div class="tbl-wrap">
@@ -184,7 +174,6 @@
 
         <div role="tabpanel" id="p-config" aria-labelledby="t-config" class="lab-out" hidden>
           <section class="lab-block" aria-labelledby="b7">
-            <p class="kicker"><span class="idx">01</span> Config</p>
             <h2 id="b7">Rules live in a file brand and legal can edit</h2>
             <p>Each rule has an ID, a category, a severity, a scope and a fix. Brand, legal and marketing ops change the file; the engine code stays the same.</p>
             <div class="field">
@@ -196,7 +185,6 @@
             </div>
           </section>
           <section class="lab-block" aria-labelledby="b8">
-            <p class="kicker"><span class="idx">02</span> Register</p>
             <h2 id="b8">Approved claims</h2>
             <p>Any number, percentage or superlative in the copy must match a row here: same wording, same number, right market, not retired.</p>
             <div class="tbl-wrap">
@@ -208,7 +196,6 @@
             <p class="note" id="competitors"></p>
           </section>
           <section class="lab-block" aria-labelledby="b9">
-            <p class="kicker"><span class="idx">03</span> Active rules</p>
             <h2 id="b9">Rules that apply to this channel and market</h2>
             <p id="rules-count"></p>
             <pre class="code" id="rules-json"></pre>
@@ -251,25 +238,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../lead-scorer/"><span class="kicker">← 03</span><b>Lead scorer</b></a>
-      <a href="../crm-dedupe/"><span class="kicker">05 →</span><b>CRM dedupe</b></a>
+      <a href="../lead-scorer/"><span class="kicker">← Previous</span><b>Lead scorer</b></a>
+      <a href="../crm-dedupe/"><span class="kicker">Next →</span><b>CRM dedupe</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want this gate on<br>your agents?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Brand%20and%20claims%20gate">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>

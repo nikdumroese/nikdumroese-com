@@ -296,6 +296,18 @@
   // Shared line() spaces x labels by count only; thin them by host width so dates don't collide on phones.
   const every = (host, n, px = 64) => Math.max(1, Math.ceil(n / Math.max(3, Math.floor((host.clientWidth || 720) / px))));
   const tick = (x, d = 0) => fmt.num(x, d);
+  const sampleTag = () => (state.data.synthetic ? 'Synthetic · seed ' + getSeed() : null);
+
+  const dataTable = (host, cols, rows) => L.dataTable(host, cols.map((c, i) => ({ label: c, num: i > 0 })), rows);
+
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = L.$('.lab-quick'); if (!strip) return;
+    const items = L.$$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
 
   const renderGeoList = () => {
     const box = $('geo-list');
@@ -415,8 +427,6 @@
     $('k-p').textContent = p.toFixed(2);
     $('k-roas').textContent = spend > 0 ? (real.incr * value / spend).toFixed(2) + '×' : '–';
     $('k-roas-l').textContent = spend > 0 ? `iROAS (90%: ${(lo * value / spend).toFixed(2)} to ${(hi * value / spend).toFixed(2)})` : 'iROAS (enter spend)';
-    $('k-cpi').textContent = spend > 0 && real.incr > 0 ? fmt.eur(spend / real.incr) : '–';
-    $('k-mape').textContent = fmt.pct(real.mape);
 
     const truth = $('truth');
     if (d.synthetic) {
@@ -432,26 +442,38 @@
     const bLo = cf.map((v, t) => (t >= s ? v + a.dLo[t] : NaN)), bHi = cf.map((v, t) => (t >= s ? v + a.dHi[t] : NaN));
     L.line($('c-fit'), {
       x: xs, xEvery: every($('c-fit'), xs.length), series: [{ values: cf, cls: 's-muted' }, { values: actual, cls: 's-ink' }],
-      bands: [{ lo: bLo, hi: bHi }], markers: [s],
+      bands: [{ lo: bLo, hi: bHi }], markers: [s], sample: sampleTag(),
       ariaLabel: 'Daily conversions in the test cities versus their synthetic control, with a 90% placebo band after the test start.',
       tipFmt: (i) => `${xs[i]}<br>Actual ${tick(actual[i])}<br>Synthetic ${tick(cf[i])}`,
     });
     const gap = actual.map((v, t) => v - cf[t]);
     L.line($('c-gap'), {
-      x: xs, xEvery: every($('c-gap'), xs.length), series: [{ values: gap, cls: 's-ink' }], bands: [{ lo: a.dLo, hi: a.dHi }], markers: [s], height: 220,
+      x: xs, xEvery: every($('c-gap'), xs.length), series: [{ values: gap, cls: 's-ink' }], bands: [{ lo: a.dLo, hi: a.dHi }], markers: [s], height: 220, sample: sampleTag(),
       ariaLabel: 'Daily gap between actual and synthetic control.',
       tipFmt: (i) => `${xs[i]}<br>Gap ${tick(gap[i])}`,
     });
     const px = xs.slice(s);
     L.line($('c-cum'), {
-      x: px, xEvery: every($('c-cum'), px.length), series: [{ values: a.cumGap, cls: 's-accent', area: true }], bands: [{ lo: a.cumLo, hi: a.cumHi }], height: 220,
+      x: px, xEvery: every($('c-cum'), px.length), series: [{ values: a.cumGap, cls: 's-accent' }], bands: [{ lo: a.cumLo, hi: a.cumHi }], height: 220, sample: sampleTag(),
       ariaLabel: 'Cumulative incremental conversions in the test period with 90% interval.',
       tipFmt: (i) => `${px[i]}<br>Cumulative ${tick(a.cumGap[i])}<br>90%: ${tick(a.cumLo[i])} to ${tick(a.cumHi[i])}`,
     });
 
+    $('b-fit').textContent = sig === 'none' ? 'Test cities stayed within noise of their synthetic control'
+      : `Test cities ran ${signed(real.lift)} ${sig === 'pos' ? 'above' : 'against'} their synthetic control`;
+    L.figure($('c-fit'), { legend: $('lg-fit'), caption: `Pre-period fit error ${fmt.pct(real.mape)}. ` + (real.mape <= 0.1
+      ? 'The control tracks the test cities before launch, so the gap after the start line is the effect.'
+      : 'The control tracks the test cities loosely before launch, so read the gap with care.') });
+    $('b-gap').textContent = `The gap adds up to ${tick(real.incr)} conversions in ${a.P} days`;
+    L.figure($('c-cum'), { legend: $('lg-cum'), caption: `After ${a.P} days: ${tick(real.incr)} incremental conversions, 90% interval ${tick(lo)} to ${tick(hi)}.` });
+    dataTable($('d-fit'), ['Date', 'Actual', 'Synthetic'], xs.map((x, t) => [x + (t === s ? ' (start)' : ''), tick(actual[t]), tick(cf[t])]));
+    dataTable($('d-gap'), ['Date', 'Daily gap', 'Cumulative', '90% low', '90% high'],
+      px.map((x, i) => [x, tick(gap[s + i]), tick(a.cumGap[i]), tick(a.cumLo[i]), tick(a.cumHi[i])]));
+
     if (a.pl.length) {
-      L.histogram($('c-placebo'), { values: a.ratios, mark: real.ratio, markLabel: 'Your test', bins: 18, xfmt: (v) => v.toFixed(1), ariaLabel: 'Distribution of post/pre RMSPE ratios across placebo groups, with the real test marked.' });
+      L.histogram($('c-placebo'), { sample: sampleTag(), values: a.ratios, mark: real.ratio, markLabel: 'Your test', bins: 18, xfmt: (v) => v.toFixed(1), ariaLabel: 'Distribution of post/pre RMSPE ratios across placebo groups, with the real test marked.' });
       const beaten = a.ratios.filter((r) => r < real.ratio).length;
+      $('b-placebo').textContent = `Your test's gap beats ${beaten} of ${a.pl.length} placebo groups`;
       $('placebo-txt').textContent = `${a.pl.length} placebo groups of ${state.test.length} control ${state.test.length > 1 ? 'cities' : 'city'}, each given its own synthetic control. Your test's post/pre error ratio is ${real.ratio.toFixed(2)}, above ${beaten} of them. p = ${p.toFixed(2)}.`;
     }
 
@@ -462,6 +484,7 @@
       L.el('td', { text: d.geos[r.g] }), L.el('td', { text: d.regions[r.g] }),
       L.el('td', { class: 'num', text: fmt.pct(r.w) }), L.el('td', { class: 'num', text: tick(mean(Array.from(d.Y[r.g].slice(0, s)))) }),
     ])));
+    if (rows.length) $('b-w').textContent = `${d.geos[rows[0].g]} carries ${fmt.pct(rows[0].w, 0)} of the synthetic control`;
     $('weights-txt').textContent = `${Array.from(real.w).filter((w) => w > 0.001).length} of ${real.donors.length} control cities get weight. Test cities: ${state.test.map((g) => d.geos[g]).join(', ')}.`;
   };
 
@@ -470,22 +493,24 @@
     const d = state.data, s = testStart(), post = getLen();
     if (!state.test.length) return;
     const r = plan(d, state.test, s, post);
-    if (r.error) { $('plan-err').textContent = r.error; $('k-mde').textContent = '–'; return; }
+    if (r.error) { $('plan-err').textContent = r.error; $('b-power').textContent = 'Smallest lift this design can detect'; return; }
     $('plan-err').textContent = '';
-    $('k-mde').textContent = Number.isFinite(r.mde) ? '+' + (r.mde * 100).toFixed(1) + '%' : '> 20%';
+    $('b-power').textContent = Number.isFinite(r.mde) ? `This design detects lifts of +${(r.mde * 100).toFixed(1)}% or more` : 'This design cannot detect lifts under 20%';
     $('k-share').textContent = fmt.pct(volumeShare(d, state.test, s));
     $('k-reps').textContent = String(r.reps);
     $('k-pmape').textContent = fmt.pct(r.mape);
     const x = r.grid.map((g) => (g * 100).toFixed(1) + '%');
     L.line($('c-power'), {
-      x, series: [{ values: r.grid.map(() => 0.8), cls: 's-muted' }, { values: r.power, cls: 's-accent' }], yMin: 0, yMax: 1, xEvery: Math.max(2, every($('c-power'), x.length, 56)),
+      x, series: [{ values: r.grid.map(() => 0.8), cls: 's-muted', label: '80% power' }, { values: r.power, cls: 's-accent', label: 'Detection rate' }], yMin: 0, yMax: 1, sample: sampleTag(), xEvery: Math.max(2, every($('c-power'), x.length, 56)),
       yfmt: (v) => Math.round(v * 100) + '%', height: 260,
       ariaLabel: 'Detection rate by true lift, with the 80% power line.',
       tipFmt: (i) => `True lift ${x[i]}<br>Detected in ${Math.round(r.power[i] * 100)}% of back-tests`,
     });
     $('plan-txt').textContent = `For these test cities and a ${post}-day test, the method detects a true lift of ${Number.isFinite(r.mde) ? '+' + (r.mde * 100).toFixed(1) + '%' : 'more than 20%'} in 80% of back-tests. ` +
       'Smaller effects will often read as noise.' + (!(r.mde <= 0.1) ? ' Add cities or run longer.' : '');
+    dataTable($('d-power'), ['True lift', 'Detection rate'], r.grid.map((g, i) => [x[i], Math.round(r.power[i] * 100) + '%']));
   };
 
+  quick();
   loadSynthetic();
 })();

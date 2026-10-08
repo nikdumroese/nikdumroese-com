@@ -136,25 +136,94 @@
   const breakable = (t) => t.replace(/\S{24,}/g, (w) => w.replace(/([/._,:-])/g, '$1\u200B'));
   const joinAnd = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]);
 
-  // ---------- 01 diagram ----------
-  const drawDiagram = () => {
-    const host = document.getElementById('diagram');
-    const svg = svgEl('svg', { viewBox: '0 0 960 500', 'aria-hidden': 'true' }, host);
+  // ---------- 01 diagrams ----------
+  const canvas = (host, w, h) => {
+    const svg = svgEl('svg', { viewBox: `0 0 ${w} ${h}`, 'aria-hidden': 'true' }, host);
     const defs = svgEl('defs', {}, svg);
+    const pre = host.id + '-';
     [['ah', 'd-arrow'], ['ah-acc', 'd-arrow--accent']].forEach(([id, cls]) => {
-      const m = svgEl('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+      const m = svgEl('marker', { id: pre + id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
       svgEl('path', { d: 'M0,0 L10,5 L0,10 z', class: cls }, m);
     });
-    const text = (x, y, s, cls, anchor = 'start') => { svgEl('text', { x, y, class: cls, 'text-anchor': anchor }, svg).textContent = s; };
-    const box = (x, y, w, h, title, subs, cls = 'd-box') => {
-      svgEl('rect', { x, y, width: w, height: h, class: cls }, svg);
-      text(x + 12, y + 22, title, 'd-title');
-      subs.forEach((s, i) => text(x + 12, y + 40 + i * 15, s, 'd-sub'));
+    const text = (x, y, s, cls, anchor = 'start', rot) => {
+      svgEl('text', { x, y, class: cls, 'text-anchor': anchor, transform: rot ? `rotate(${rot} ${x} ${y})` : null }, svg).textContent = s;
     };
-    const edge = (d, cls = 'd-edge', acc = false) => svgEl('path', { d, class: cls, 'marker-end': `url(#${acc ? 'ah-acc' : 'ah'})` }, svg);
+    const box = (x, y, w2, h2, title, subs, cls = 'd-box', lh = 15) => {
+      svgEl('rect', { x, y, width: w2, height: h2, class: cls }, svg);
+      text(x + 12, y + 22, title, 'd-title');
+      subs.forEach((t, i) => text(x + 12, y + 22 + lh + 4 + i * lh, t, 'd-sub'));
+    };
+    const edge = (d, cls = 'd-edge', both = false) => {
+      const m = `url(#${pre}${cls === 'd-edge--accent' ? 'ah-acc' : 'ah'})`;
+      svgEl('path', { d, class: cls, 'marker-end': m, 'marker-start': both ? m : null }, svg);
+    };
+    return { svg, text, box, edge };
+  };
+
+  // Phones get a stacked column: nodes top to bottom, links in the left gutter, loops up the right edge.
+  // nodes: [{ t, subs, cls }]; links[i] joins node i and i+1: { label, dir: 'down'|'up', cls }
+  // loops: [{ from, to, label, cls, lane }] drawn on the right, arrow ending at `to`.
+  const stacked = (host, nodes, links, loops = []) => {
+    const W = 320, BW = 270, GAP = 46, LH = 18;
+    const hs = nodes.map((n) => 34 + n.subs.length * LH);
+    const ys = hs.reduce((a, h, i) => a.concat(i ? a[i - 1] + hs[i - 1] + GAP : 4), []);
+    const H = ys[ys.length - 1] + hs[hs.length - 1] + 4;
+    const c = canvas(host, W, H);
+    nodes.forEach((n, i) => c.box(4, ys[i], BW, hs[i], n.t, n.subs, n.cls || 'd-box', LH));
+    links.forEach((l, i) => {
+      const y0 = ys[i] + hs[i], y1 = ys[i + 1];
+      c.edge(l.dir === 'up' ? `M36,${y1 - 1} L36,${y0 + 3}` : `M36,${y0 + 1} L36,${y1 - 3}`, l.cls || 'd-edge');
+      c.text(48, (y0 + y1) / 2 + 5, l.label, 'd-label');
+    });
+    loops.forEach((l) => {
+      const x = BW + 4 + (l.lane || 18);
+      const ya = ys[l.from] + hs[l.from] / 2, yb = ys[l.to] + hs[l.to] / 2;
+      c.edge(`M${BW + 4},${ya} L${x},${ya} L${x},${yb} L${BW + 7},${yb}`, l.cls || 'd-edge');
+      c.text(x + 13, (ya + yb) / 2, l.label, 'd-label', 'middle', -90);
+    });
+  };
+
+  // System context first: five boxes, every arrow a verb.
+  const drawContext = () => {
+    const c = canvas(document.getElementById('ctx'), 960, 260);
+    c.box(20, 16, 150, 64, 'Human', ['optional', 'dashboard Reject'], 'd-box--soft');
+    c.box(330, 16, 260, 64, 'Router', ['picks who acts next', 'pure function, no model call'], 'd-box--accent');
+    c.box(20, 170, 200, 74, 'Run directory', ['mail · proposals', 'objections · log']);
+    c.box(400, 170, 220, 74, 'Roles', ['4 × claude -p per turn', 'only engineer can write']);
+    c.box(720, 170, 220, 74, 'Target repo', ['code changes land here']);
+    c.edge('M60,80 L60,167', 'd-edge--dash');
+    c.text(68, 128, 'files objections', 'd-label');
+    c.edge('M200,168 L200,48 L327,48');
+    c.text(208, 112, 'reads files + log', 'd-label');
+    c.edge('M480,80 L480,167', 'd-edge--accent');
+    c.text(488, 128, 'starts eligible roles', 'd-label');
+    c.edge('M400,196 L223,196');
+    c.text(310, 188, 'writes results', 'd-label', 'middle');
+    c.edge('M220,222 L397,222');
+    c.text(310, 238, 'reads inbox', 'd-label', 'middle');
+    c.edge('M620,207 L717,207');
+    c.text(669, 199, 'engineer edits', 'd-label', 'middle');
+
+    stacked(document.getElementById('ctx-m'), [
+      { t: 'Human', subs: ['optional, dashboard Reject'], cls: 'd-box--soft' },
+      { t: 'Run directory', subs: ['mail · proposals', 'objections · log'] },
+      { t: 'Router', subs: ['picks who acts next', 'pure function, no model call'], cls: 'd-box--accent' },
+      { t: 'Roles', subs: ['4 × claude -p per turn', 'only engineer can write'] },
+      { t: 'Target repo', subs: ['code changes land here'] },
+    ], [
+      { label: 'files objections', cls: 'd-edge--dash' },
+      { label: 'router reads files + log' },
+      { label: 'starts eligible roles', cls: 'd-edge--accent' },
+      { label: 'engineer edits' },
+    ], [{ from: 3, to: 1, label: 'write results, read inbox' }]);
+  };
+
+  const drawDiagram = () => {
+    const c = canvas(document.getElementById('diagram'), 960, 500);
+    const { text, box, edge } = c;
 
     // roles (from the pack)
-    svgEl('rect', { x: 290, y: 8, width: 662, height: 112, class: 'd-group' }, svg);
+    svgEl('rect', { x: 290, y: 8, width: 662, height: 112, class: 'd-group' }, c.svg);
     text(300, 24, 'pack: governance-pivot  (index.tsv + config.json)', 'd-label');
     const cfg = D.roleConfig;
     const roleSub = { research: ['web + read tools', 'budget $' + cfg.research.budget_usd], architect: ['read-only tools', 'files proposals'], critic: ['read-only tools', 'files objections'], engineer: ['only write role', 'Write, Edit, Bash'] };
@@ -162,40 +231,58 @@
 
     // router
     box(16, 34, 234, 150, 'Router', ['LangGraph StateGraph', 'route() imports next.py:', 'sweep_proposals()', 'activatable()', 'Send → every eligible role', 'no model call, no human'], 'd-box--accent');
-    edge('M250,70 L292,70', 'd-edge--accent', true);
-    text(256, 62, 'Send', 'd-label');
+    edge('M250,70 L292,70', 'd-edge--accent');
+    text(256, 62, 'starts', 'd-label');
 
     // turn + schema gate
-    box(300, 160, 310, 74, 'claude -p, one per turn', ['tools scoped per role (--restricted,', 'except research) · budget · model'], 'd-box');
-    box(650, 160, 302, 74, 'Schema gate', ['--json-schema contract.schema.json', 'structured_output or error'], 'd-box');
+    box(300, 160, 290, 74, 'claude -p, one per turn', ['tools scoped per role (--restricted,', 'except research) · budget · model']);
+    box(640, 160, 312, 74, 'Schema gate', ['--json-schema contract.schema.json', 'structured_output or error']);
     edge('M455,120 L455,158');
-    text(463, 144, 'bundle: objective, charter, board, inbox', 'd-label');
-    edge('M610,197 L648,197');
+    text(463, 144, 'sends bundle: objective, charter, inbox', 'd-label');
+    edge('M590,197 L638,197');
+    text(614, 189, 'returns', 'd-label', 'middle');
     edge('M800,234 L800,284');
-    text(792, 262, 'file_result.py: file it, log one line', 'd-label', 'end');
+    text(792, 262, 'file_result.py writes + logs', 'd-label', 'end');
 
     // run directory
-    svgEl('rect', { x: 290, y: 286, width: 662, height: 110, class: 'd-group' }, svg);
+    svgEl('rect', { x: 290, y: 286, width: 662, height: 110, class: 'd-group' }, c.svg);
     text(300, 302, 'run directory (the only state)', 'd-label');
-    box(300, 312, 150, 74, 'log/', ['events.ndjson', 'append-only'], 'd-box');
+    box(300, 312, 150, 74, 'log/', ['events.ndjson', 'append-only']);
     box(463, 312, 150, 74, 'mailbox/', ['inbox → consumed'], 'd-box--soft');
     box(626, 312, 150, 74, 'proposals/', ['open · integrated', 'done · objections'], 'd-box--soft');
     box(789, 312, 150, 74, 'tensions/', ['open · resolved'], 'd-box--soft');
 
-    // router reads the files
-    edge('M300,349 L133,349 L133,186', 'd-edge--accent', true);
-    text(142, 340, 'reads files + log', 'd-label');
+    edge('M300,349 L133,349 L133,186', 'd-edge--accent');
+    text(142, 340, 'router reads files + log', 'd-label');
 
     // observability
     box(16, 420, 234, 66, 'observe/ + evals', ['cost per role, objection matrix', 'proposal lifecycle'], 'd-box--soft');
     edge('M375,386 L375,453 L252,453', 'd-edge--dash');
+    text(262, 446, 'reads log', 'd-label');
+
+    stacked(document.getElementById('diagram-m'), [
+      { t: 'Router', subs: ['LangGraph StateGraph', 'route() imports next.py', 'no model call, no human'], cls: 'd-box--accent' },
+      { t: 'Roles from the pack', subs: ['research · architect · critic', 'engineer (only write role)'] },
+      { t: 'claude -p, one per turn', subs: ['tools scoped per role', 'budget + model per role'] },
+      { t: 'Schema gate', subs: ['--json-schema contract', 'structured_output or error'] },
+      { t: 'Run directory', subs: ['log/events.ndjson, append-only', 'mailbox/ · proposals/', 'tensions/'] },
+      { t: 'observe/ + evals', subs: ['cost per role, objections', 'proposal lifecycle'], cls: 'd-box--soft' },
+    ], [
+      { label: 'starts every eligible role', cls: 'd-edge--accent' },
+      { label: 'sends bundle: charter, inbox' },
+      { label: 'returns JSON' },
+      { label: 'file_result.py writes + logs' },
+      { label: 'observe reads the log', cls: 'd-edge--dash' },
+    ], [{ from: 4, to: 0, label: 'router reads files + log', cls: 'd-edge--accent' }]);
   };
 
   // ---------- 02 simulator ----------
   const pos = document.getElementById('pos');
   pos.max = N;
   const injected = [];
-  let cur = 0, timer = null;
+  // open on the turn block 03 walks through: critic's objection reopens the already-integrated P001
+  const START = D.sample.event + 1;
+  let cur = START, timer = null;
 
   const tl = document.getElementById('tl');
   const effectsOf = (k) => {
@@ -458,7 +545,9 @@
   const doneIds = ids.filter((id) => final.st[id] === 'done');
   document.getElementById('obs-intro').textContent = `All ${EVs.length} logged turns of the run, ${hhmmss(first)} to ${hhmmss(last)} UTC. The longest quiet stretch, ${dur(gaps.m)}, follows the rate-limit error: the run stopped and was restarted later. Costs are the CLI's own total_cost_usd per turn.`;
   const stats = document.getElementById('obs-stats');
-  [[String(EVs.length), 'Logged turns'], [usd(totalCost, 0), 'Total model cost'], [`${doneIds.length} / ${ids.length}`, 'Proposals done'], [String(D.objs.length), 'Objections filed']]
+  const top = [...roleStats].sort((a, b) => b.cost - a.cost)[0];
+  document.getElementById('b-obs').textContent = `The ${top.role} role spent ${Math.round((top.cost / totalCost) * 100)}% of the run's ${usd(totalCost, 0)}`;
+  [[String(EVs.length), 'Logged turns'], [`${doneIds.length} / ${ids.length}`, 'Proposals done'], [String(D.objs.length), 'Objections filed']]
     .forEach(([n, l]) => stats.append(el('div', { class: 'stat' }, [el('span', { class: 'n', text: n }), el('span', { class: 'l', text: l })])));
 
   const byCost = [...roleStats].sort((a, b) => b.cost - a.cost);
@@ -509,7 +598,18 @@
   const realWarn = EVs.filter((e) => e.status === 'ok_with_warnings').length;
   document.getElementById('check-line').innerHTML = `<b>Check:</b> replaying the rule over all ${EVs.length} events leaves ${match} of ${ids.length} proposals in the folder the real run left them in, and predicts ${full.warnings.length} "non-integrated proposal" warnings. The log has ${realWarn} turns with warnings; the other ${realWarn - full.warnings.length} was a duplicate-tension skip.`;
 
+  // ≤860px the sidebar renders after every output; move the key controls up beside the results
+  const quick = () => {
+    const strip = L.$('.lab-quick'); if (!strip) return;
+    const items = L.$$('[data-quick]').map((n) => { const m = document.createComment('quick'); n.before(m); return [n, m]; });
+    const mq = matchMedia('(max-width: 860px)');
+    const place = () => items.forEach(([n, m]) => (mq.matches ? strip.append(n) : m.after(n)));
+    mq.addEventListener('change', place); place();
+  };
+
+  drawContext();
   drawDiagram();
+  quick();
   L.tabs(document.getElementById('b-turn').parentNode);
   render();
 })();

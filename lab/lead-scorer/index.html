@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://nikdumroese.com/lab/lead-scorer/" />
 <meta name="robots" content="index, follow" />
 <meta name="author" content="Niklaas Dumroese" />
-<meta name="theme-color" content="#F4F1EA" />
+<meta name="theme-color" content="#F3F5F1" />
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
 <meta property="og:site_name" content="Niklaas Dumroese" />
 <meta property="og:type" content="website" />
@@ -18,9 +18,7 @@
 <meta property="og:description" content="Score accounts on ICP fit and live product-usage signals, see the rule behind every point, route each to an upgrade, integrator or evaluator sequence, and let conversions re-weight the model." />
 <meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preload" href="../../assets/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <meta name="color-scheme" content="light" />
 <link rel="llms" type="text/markdown" href="/llms.txt" />
 <link rel="stylesheet" href="../../assets/styles.css" />
@@ -32,7 +30,6 @@
 <header class="nav">
   <div class="wrap nav__inner">
     <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
-    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
     <nav class="nav__links" id="menu" aria-label="Primary">
       <a href="../index.html">Lab</a>
       <a href="../../about.html">About</a>
@@ -44,7 +41,7 @@
 
 <main id="main">
   <section class="lab-head wrap">
-    <p class="crumb"><a href="../index.html">Lab</a> / 03</p>
+    <p class="crumb"><a href="../index.html">Lab</a></p>
     <h1>Lead scorer with product-usage signals</h1>
     <p class="lead">Every account gets a score from ICP fit and live product-usage signals, and every point traces to a rule. Accounts above the threshold go to one of three sequences: upgrade for heavy self-hosted users, integrator for teams building with the code, evaluator for the rest.</p>
     <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
@@ -53,7 +50,7 @@
   <section class="lab wrap">
     <div class="lab-grid">
       <aside class="lab-controls" id="controls" aria-label="Scoring controls">
-        <div class="field">
+        <div class="field" data-quick>
           <div class="field__top"><label for="tA">Tier A at or above</label><output for="tA"></output></div>
           <input type="range" id="tA" min="2" max="40" step="1" value="20" />
         </div>
@@ -93,6 +90,7 @@
       </aside>
 
       <div class="lab-out">
+        <div class="lab-quick" role="group" aria-label="Key controls"></div>
         <div class="tabs" role="tablist" aria-label="Views">
           <button class="tab" role="tab" id="t-score" aria-controls="p-score" aria-selected="true">Score and route</button>
           <button class="tab" role="tab" id="t-learn" aria-controls="p-learn" aria-selected="false">Learn from outcomes</button>
@@ -100,11 +98,10 @@
 
         <div role="tabpanel" id="p-score" aria-labelledby="t-score" class="lab-out">
           <section class="lab-block" aria-labelledby="b1">
-            <p class="kicker"><span class="idx">01</span> Ranked accounts</p>
+            <p class="kicker">Ranked accounts</p>
             <h2 id="b1">50 accounts, scored live</h2>
             <p>ICP fit (0–15) plus capped signal points.</p>
             <div class="stat-strip">
-              <div class="stat"><span class="n" id="k-a">–</span><span class="l">Tier A</span></div>
               <div class="stat"><span class="n" id="k-b">–</span><span class="l">Tier B</span></div>
               <div class="stat"><span class="n" id="k-c">–</span><span class="l">Tier C</span></div>
               <div class="stat"><span class="n" id="k-n">–</span><span class="l">No outreach</span></div>
@@ -124,9 +121,9 @@
                   <th scope="col" class="num">#</th>
                   <th scope="col">Account</th>
                   <th scope="col">Tier</th>
-                  <th scope="col">Branch</th>
-                  <th scope="col" class="num" id="h-icp">ICP</th>
-                  <th scope="col" class="num" id="h-signal">Signal</th>
+                  <th scope="col" class="hide-sm">Branch</th>
+                  <th scope="col" class="num hide-sm" id="h-icp">ICP</th>
+                  <th scope="col" class="num hide-sm" id="h-signal">Signal</th>
                   <th scope="col" class="num" id="h-total">Total</th>
                 </tr></thead>
                 <tbody></tbody>
@@ -138,17 +135,15 @@
           </section>
 
           <section class="lab-block" aria-labelledby="b2" id="explain">
-            <p class="kicker"><span class="idx">02</span> Why this score</p>
+            <p class="kicker">Why this score</p>
             <h2 id="b2">Select an account</h2>
             <p id="x-sub"></p>
             <div class="stat-strip">
               <div class="stat"><span class="n" id="x-icp">–</span><span class="l">ICP fit</span></div>
               <div class="stat"><span class="n" id="x-sig">–</span><span class="l">Signal</span></div>
-              <div class="stat"><span class="n" id="x-tot">–</span><span class="l">Total</span></div>
-              <div class="stat"><span class="n" id="x-tier">–</span><span class="l">Tier</span></div>
             </div>
             <div class="chart" id="x-chart"></div>
-            <div class="legend"><span><i class="k-bar"></i>ICP dimension</span><span><i class="k-bar-accent"></i>Signal</span><span><i class="k-bar-muted"></i>Removed by cap</span></div>
+            <div class="legend" id="x-legend"><span><i class="k-bar"></i>ICP dimension</span><span><i class="k-bar-accent"></i>Signal</span><span><i class="k-bar-muted"></i>Removed by cap</span></div>
             <div class="tbl-wrap">
               <table class="tbl" id="x-rules">
                 <caption class="note">Every point and the rule that produced it.</caption>
@@ -164,7 +159,7 @@
           </section>
 
           <section class="lab-block" aria-labelledby="b3" id="outreach">
-            <p class="kicker"><span class="idx">03</span> First touch</p>
+            <p class="kicker">First touch</p>
             <h2 id="b3">Checked before it sends</h2>
             <p class="note"><b>Template draft. In production an LLM writes it and the gate below decides whether it sends.</b> The template only uses signals that fired for this account. Edit it and the gate re-runs.</p>
             <div class="field">
@@ -188,7 +183,6 @@
 
         <div role="tabpanel" id="p-learn" aria-labelledby="t-learn" class="lab-out" hidden>
           <section class="lab-block" aria-labelledby="b4">
-            <p class="kicker"><span class="idx">04</span> Learn from outcomes</p>
             <h2 id="b4">Let conversions re-weight the model</h2>
             <p>400 past accounts with a known outcome: converted or not. A logistic regression on the 5 ICP dimensions and 10 signal flags learns which inputs predicted a conversion. Trained on 75%, scored on the 25% it never saw.</p>
             <div class="field">
@@ -197,16 +191,14 @@
               <p class="hint">Higher pulls weights toward zero. Guards against overfitting a few hundred rows.</p>
             </div>
             <div class="stat-strip">
-              <div class="stat"><span class="n" id="l-src">–</span><span class="l">AUC, source weights</span></div>
               <div class="stat"><span class="n" id="l-cur">–</span><span class="l">AUC, your settings</span></div>
-              <div class="stat"><span class="n" id="l-fit">–</span><span class="l">AUC, learned model</span></div>
               <div class="stat"><span class="n" id="l-base">–</span><span class="l">Base conversion</span></div>
             </div>
             <p class="note">AUC: the chance a random converter outscores a random non-converter. 0.5 is a coin flip. Held-out set, n = <span id="l-n">–</span>.</p>
           </section>
 
           <section class="lab-block" aria-labelledby="b5">
-            <p class="kicker"><span class="idx">05</span> Weights</p>
+            <p class="kicker">Weights</p>
             <h2 id="b5">What conversions say each signal is worth</h2>
             <p>Points per unit. Learned coefficients are rescaled so the strongest signal equals 5, the top of the hand-set scale.</p>
             <div class="chart" id="l-w"></div>
@@ -218,11 +210,11 @@
           </section>
 
           <section class="lab-block" aria-labelledby="b6">
-            <p class="kicker"><span class="idx">06</span> Lift</p>
+            <p class="kicker">Lift</p>
             <h2 id="b6">Do top-scored accounts convert more?</h2>
             <p>All 400 accounts, each scored by a model that did not train on it (4-fold cross-validation). Decile 1 is the top 10% by score. A good score concentrates converters in the top deciles.</p>
             <div class="chart" id="l-lift"></div>
-            <div class="legend"><span><i class="k-bar-accent"></i>Learned model</span><span><i class="k-bar"></i>Source weights</span><span><i class="k-muted"></i>Base rate</span></div>
+            <div class="legend" id="l-lift-legend"><span><i class="k-bar-accent"></i>Learned model</span><span><i class="k-bar"></i>Source weights</span><span><i class="k-muted"></i>Base rate</span></div>
           </section>
         </div>
       </div>
@@ -256,25 +248,25 @@
       </div>
     </details>
       <nav class="lab-pager" aria-label="More lab projects">
-      <a href="../geo-lift/"><span class="kicker">← 02</span><b>Geo-lift test</b></a>
-      <a href="../claims-check/"><span class="kicker">04 →</span><b>Brand &amp; claims gate</b></a>
+      <a href="../geo-lift/"><span class="kicker">← Previous</span><b>Geo-lift test</b></a>
+      <a href="../claims-check/"><span class="kicker">Next →</span><b>Brand &amp; claims gate</b></a>
     </nav>
   </section>
 </main>
 
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
     <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Lead%20scorer">hello@nikdumroese.com</a></p>
     <div class="foot__links">
-      <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
       <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+      <a href="https://work.nikdumroese.com" target="_blank" rel="noopener">Client case studies (login) ↗</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>Download CV ↓</a>
     </div>
     <div class="foot__base">
-      <span>© 2026 Niklaas Dumroese</span>
-      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+      <span>© 2026 Niklaas Dumroese · Updated October 2026</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a> · <a href="https://github.com/nikdumroese/nikdumroese-mcp" target="_blank" rel="noopener">MCP</a></span>
     </div>
   </div>
 </footer>
