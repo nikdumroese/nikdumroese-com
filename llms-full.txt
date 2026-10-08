@@ -115,7 +115,7 @@ Collection GitHub ↗
 All repositories on GitHub ↗
 Lab Live projects
 Run the work yourself.
-Five tools from the AI and marketing-science side of my work. Each runs in your browser on sample data or your own CSV. Change the inputs; the numbers recompute.
+Seven tools from the AI, agent and marketing-science side of my work. Each runs in your browser on sample data or your own CSV. Change the inputs; the numbers recompute.
 01 Media mix model & budget optimizer — https://nikdumroese.com/lab/mmm/
 Fits adstock and saturation curves to two years of weekly spend, then moves budget to where the next euro earns most.
 02 Geo-lift incrementality test — https://nikdumroese.com/lab/geo-lift/
@@ -126,6 +126,10 @@ ICP fit plus product-usage signals, every point traceable to a rule. Learns weig
 Checks agent-drafted ad copy against voice, an approved-claims register, competitor and regulated-language rules. Pass, review, or block.
 05 CRM dedupe & standardiser — https://nikdumroese.com/lab/crm-dedupe/
 Drop in a messy contact export. Get one clean record per person, every merge explained, nothing sent to a server.
+06 Multi-agent swarm with no orchestrator — https://nikdumroese.com/lab/agent-swarm/
+Replays a real run of the swarm. Every proposal decision is recomputed live from the audit log, and you can inject an objection to see the outcome change.
+07 Governance layer for marketing agents — https://nikdumroese.com/lab/agent-governance/
+Every agent action lands in a ledger, gets checked, and runs, waits for a human, or is stopped. Approve or reject held actions and watch drift and the weekly report update.
 All lab projects →
 
 ============================================================

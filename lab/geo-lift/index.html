@@ -48,16 +48,29 @@
     <h1>Geo-lift incrementality test</h1>
     <p class="lead">Measure what a campaign actually caused, not what the ad platform claims. Run it in a few test regions, then compare them against a synthetic control built from the rest.</p>
     <div class="lab-head__meta">
-      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">Runs in your browser</span>
       <span class="tag">No data leaves the page</span>
       <span class="tag">Synthetic control</span>
       <span class="tag">Placebo inference</span>
     </div>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
   <section class="lab wrap" id="geo-app">
     <div class="lab-grid">
-      <aside class="lab-controls" aria-label="Controls">
+      <aside class="lab-controls" id="controls" aria-label="Controls">
+        <span class="group-label">Your data</span>
+        <div class="field">
+          <label for="csv">Upload CSV (date, geo, kpi)</label>
+          <input type="file" id="csv" accept=".csv,text/csv" aria-describedby="data-status" />
+          <p class="hint" id="data-status"></p>
+          <p class="hint" id="csv-err" role="alert"></p>
+          <div class="btns">
+            <button class="btn btn--ghost btn--sm" type="button" id="sample">Download this data</button>
+            <span id="reset-wrap" hidden><button class="btn btn--ghost btn--sm" type="button" id="reset">Reset to sample</button></span>
+          </div>
+        </div>
+
         <span class="group-label">Simulation</span>
         <div class="field">
           <div class="field__top"><label for="lift">True injected lift</label><output for="lift"></output></div>
@@ -86,27 +99,17 @@
           <p class="hint" id="geo-share" aria-live="polite"></p>
         </div>
 
-        <span class="group-label">Economics</span>
-        <div class="field">
-          <label for="spend">Campaign spend in test geos (€)</label>
-          <input class="input" type="number" id="spend" min="0" step="1000" value="40000" inputmode="numeric" />
-        </div>
-        <div class="field">
-          <label for="value">Value per conversion (€)</label>
-          <input class="input" type="number" id="value" min="0" step="5" value="90" inputmode="decimal" />
-        </div>
-
-        <span class="group-label">Your data</span>
-        <div class="field">
-          <label for="csv">Upload CSV (date, geo, kpi)</label>
-          <input type="file" id="csv" accept=".csv,text/csv" aria-describedby="data-status" />
-          <p class="hint" id="data-status"></p>
-          <p class="hint" id="csv-err" role="alert"></p>
-          <div class="btns">
-            <button class="btn btn--ghost btn--sm" type="button" id="sample">Download this data</button>
-            <span id="reset-wrap" hidden><button class="btn btn--ghost btn--sm" type="button" id="reset">Back to synthetic</button></span>
+        <details class="ctl-more">
+          <summary>Economics</summary>
+          <div class="field">
+            <label for="spend">Campaign spend in test geos (€)</label>
+            <input class="input" type="number" id="spend" min="0" step="1000" value="40000" inputmode="numeric" />
           </div>
-        </div>
+          <div class="field">
+            <label for="value">Value per conversion (€)</label>
+            <input class="input" type="number" id="value" min="0" step="5" value="90" inputmode="decimal" />
+          </div>
+        </details>
       </aside>
 
       <div class="lab-out">
@@ -204,12 +207,12 @@
     <details class="acc method" id="method">
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
-        <aside class="meta"><dl>
+        <div class="meta"><dl>
           <div><dt>Method</dt><dd>Synthetic control with in-space placebo inference</dd></div>
           <div><dt>Built from</dt><dd>An incrementality framework Nik built from scratch at a fintech. <a class="link" href="../../about.html">Context</a></dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Not client data.</dd></div>
           <div><dt>Runs</dt><dd>Plain JavaScript in this page. No libraries, no server.</dd></div>
-        </dl></aside>
+        </dl></div>
         <div class="case__body">
           <h3>The data</h3>
           <p>40 German cities, 132 days of daily conversions, generated in your browser. Each city is its size times a shared national trend, a weekly pattern, a regional factor (North, West, South, East), two hidden factors with city-specific loadings, its own drift and count noise. After day 90 the test cities get the lift you set. Nothing else changes.</p>
@@ -236,6 +239,10 @@
         </div>
       </div>
     </details>
+      <nav class="lab-pager" aria-label="More lab projects">
+      <a href="../mmm/"><span class="kicker">← 01</span><b>Media mix model</b></a>
+      <a href="../lead-scorer/"><span class="kicker">03 →</span><b>Lead scorer</b></a>
+    </nav>
   </section>
 </main>
 
@@ -243,7 +250,7 @@
   <div class="wrap">
     <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
-    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Geo-lift%20test">hello@nikdumroese.com</a></p>
     <div class="foot__links">
       <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>

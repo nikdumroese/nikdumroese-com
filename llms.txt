@@ -6,8 +6,8 @@ I design the pipelines, models, agents, and data that decide how go-to-market te
 
 ## Pages
 
-- [Home](https://nikdumroese.com/): positioning, selected work (4 case studies), and open-source projects.
-- [Lab](https://nikdumroese.com/lab/): five live AI and marketing-science tools that run in the browser.
+- [Home](https://nikdumroese.com/): positioning, selected work (5 case studies), the live Lab, and open-source projects.
+- [Lab](https://nikdumroese.com/lab/): seven live AI, agent and marketing-science tools that run in the browser.
 - [About](https://nikdumroese.com/about.html): background — from performance marketing to performance of GTM — and how I work.
 - [CV (PDF)](https://nikdumroese.com/Nik_Dumroese_CV.pdf): full experience, skills, and certifications.
 
@@ -28,6 +28,8 @@ Working tools that run client-side on synthetic sample data or an uploaded CSV. 
 - [Intent-signal lead scorer](https://nikdumroese.com/lab/lead-scorer/): ICP fit plus product-usage signals, every point traceable to a rule. Learns weights from outcomes and gates outreach copy before it sends.
 - [Brand & claims gate for AI-written copy](https://nikdumroese.com/lab/claims-check/): Checks agent-drafted ad copy against voice, an approved-claims register, competitor and regulated-language rules. Pass, review, or block.
 - [CRM dedupe & standardiser](https://nikdumroese.com/lab/crm-dedupe/): Drop in a messy contact export. Get one clean record per person, every merge explained, nothing sent to a server.
+- [Multi-agent swarm with no orchestrator](https://nikdumroese.com/lab/agent-swarm/): Replays a real run of the swarm. Every proposal decision is recomputed live from the audit log, and you can inject an objection to see the outcome change.
+- [Governance layer for marketing agents](https://nikdumroese.com/lab/agent-governance/): Every agent action lands in a ledger, gets checked, and runs, waits for a human, or is stopped. Approve or reject held actions and watch drift and the weekly report update.
 
 ## Open source
 

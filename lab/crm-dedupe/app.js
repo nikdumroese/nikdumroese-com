@@ -14,7 +14,7 @@
   const sc = (x) => (x == null ? '–' : x.toFixed(2));
 
   // ---------------------------------------------------------------- data in
-  function setData(rows, headers, truth, label) {
+  function setData(rows, headers, truth, label, own) {
     S.rows = rows; S.headers = headers; S.truth = truth; S.decisions = {}; S.open.clear();
     S.mergesShown = S.reviewShown = PAGE;
     S.map = E.detectColumns(headers);
@@ -26,19 +26,24 @@
       ? 'Sample only. The generator knows which rows are the same person.'
       : 'Not available for your own data: there is no answer key.';
     buildMapping();
+    const hasName = S.map.first || S.map.last || S.map.full, hasKey = S.map.email || S.map.phone;
+    if (own && (!hasName || !hasKey)) {
+      $('#map-more').open = true;
+      $('#map-note').textContent = `Could not detect ${[!hasName && 'a name column', !hasKey && 'an email or phone column'].filter(Boolean).join(' or ')}. Pick it below; unmapped columns pass through.`;
+    } else $('#map-note').textContent = 'Detected from your headers. Change any that are wrong; unmapped columns pass through.';
     runAll();
   }
 
   function loadSample() {
     const g = E.generate(L.rng(SEED), PEOPLE);
-    $('#paste').value = L.toCSV(g.rows, g.headers);
+    $('#paste').value = '';
     setData(g.rows, g.headers, g.truth, `Sample: ${g.rows.length} synthetic rows for ${g.people} fictional people.`);
   }
 
   function loadText(text, label) {
     const rows = L.parseCSV(text);
     const headers = rows.length ? Object.keys(rows[0]) : Object.keys(L.parseCSV((text.split(/\r?\n/)[0] || '') + '\nx')[0] || {});
-    setData(rows, headers.filter(Boolean), null, rows.length ? `${label}: ${n0(rows.length)} rows, ${headers.length} columns.` : `${label}: no data rows found.`);
+    setData(rows, headers.filter(Boolean), null, rows.length ? `${label}: ${n0(rows.length)} rows, ${headers.length} columns.` : `${label}: no data rows found.`, true);
   }
 
   function buildMapping() {
@@ -93,7 +98,7 @@
     $('#k-out').textContent = n0(out);
     $('#k-dup').textContent = n0(merged);
     $('#k-rev').textContent = n0(pending);
-    $('#k-fix').textContent = n0(fixes.length);
+    $('#sum-live').textContent = n ? `${n0(n)} rows in, ${n0(out)} records out. ${n0(pending)} ${pending === 1 ? 'pair awaits' : 'pairs await'} review.` : 'No rows loaded.';
 
     const to = $('#truth-out');
     if (S.truth && $('#truth').checked) {
@@ -269,9 +274,13 @@
         const b = el('button', { type: 'button', class: 'btn btn--sm' + (p.decision === val ? '' : ' btn--ghost'), 'aria-pressed': String(p.decision === val), 'data-key': key + '#' + val, text: label });
         b.addEventListener('click', () => {
           if (S.decisions[key] === val) delete S.decisions[key]; else S.decisions[key] = val;
+          const all = () => [...$('#review-list').querySelectorAll('button[data-key]')];
+          const idx = all().indexOf(b);
           recluster();
-          const again = [...$('#review-list').querySelectorAll('button[data-key]')].find((x) => x.dataset.key === key + '#' + val);
-          if (again) again.focus();
+          // The pair can drop out of the queue once a merge links it transitively; then land on whatever took its slot.
+          const now = all(), again = now.find((x) => x.dataset.key === key + '#' + val);
+          const next = again || now[idx - (idx % 2)] || now[now.length - 2];
+          if (next) next.focus();
         });
         return b;
       };
@@ -389,7 +398,6 @@
     const f = e.target.files[0];
     if (!f) return;
     const text = await L.readFile(f);
-    $('#paste').value = text.length < 400000 ? text : '';
     loadText(text, f.name);
   });
   $('#fix-filter').addEventListener('change', renderFixes);

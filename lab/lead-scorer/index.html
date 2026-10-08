@@ -48,46 +48,48 @@
     <h1>Intent-signal lead scorer</h1>
     <p class="lead">Rank accounts on ICP fit plus live product-usage signals, see exactly why each one scored what it did, and route it to the right outreach branch.</p>
     <div class="lab-head__meta">
-      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">Runs in your browser</span>
       <span class="tag">No data leaves the page</span>
       <span class="tag">Rules + logistic regression</span>
     </div>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
   <section class="lab wrap">
     <div class="lab-grid">
-      <aside class="lab-controls" aria-label="Scoring controls">
-        <span class="group-label">Signal weights</span>
-        <div id="weights"></div>
-
-        <span class="group-label">Signal cap</span>
-        <div class="field">
-          <div class="field__top"><label for="cap">Max signal points</label><output for="cap"></output></div>
-          <input type="range" id="cap" min="5" max="30" step="1" value="15" />
-          <p class="hint">Source model caps signals at 15 so a noisy account can't outrank a good fit on volume alone.</p>
-        </div>
-
-        <span class="group-label">Tier thresholds</span>
+      <aside class="lab-controls" id="controls" aria-label="Scoring controls">
         <div class="field">
           <div class="field__top"><label for="tA">Tier A at or above</label><output for="tA"></output></div>
           <input type="range" id="tA" min="2" max="40" step="1" value="20" />
         </div>
         <div class="field">
-          <div class="field__top"><label for="tB">Tier B at or above</label><output for="tB"></output></div>
-          <input type="range" id="tB" min="1" max="39" step="1" value="12" />
-        </div>
-        <div class="field">
-          <div class="field__top"><label for="tC">Tier C at or above</label><output for="tC"></output></div>
-          <input type="range" id="tC" min="0" max="38" step="1" value="7" />
-          <p class="hint">Below Tier C: no outreach. Thresholds stay ordered A &gt; B &gt; C.</p>
+          <div class="field__top"><label for="cap">Max signal points (cap)</label><output for="cap"></output></div>
+          <input type="range" id="cap" min="5" max="30" step="1" value="15" />
+          <p class="hint">Source model caps signals at 15 so a noisy account can't outrank a good fit on volume alone.</p>
         </div>
 
-        <span class="group-label">Recency</span>
-        <div class="field">
-          <div class="field__top"><label for="half">Signal half-life</label><output for="half"></output></div>
-          <input type="range" id="half" min="0" max="30" step="1" value="0" />
-          <p class="hint">0 = off, the source model. Otherwise a signal loses half its points every N days.</p>
-        </div>
+        <details class="ctl-more">
+          <summary>Signal weights (10)</summary>
+          <div id="weights"></div>
+        </details>
+
+        <details class="ctl-more">
+          <summary>Recency &amp; tiers</summary>
+          <div class="field">
+            <div class="field__top"><label for="half">Signal half-life</label><output for="half"></output></div>
+            <input type="range" id="half" min="0" max="30" step="1" value="0" />
+            <p class="hint">0 = off, the source model. Otherwise a signal loses half its points every N days.</p>
+          </div>
+          <div class="field">
+            <div class="field__top"><label for="tB">Tier B at or above</label><output for="tB"></output></div>
+            <input type="range" id="tB" min="1" max="39" step="1" value="12" />
+          </div>
+          <div class="field">
+            <div class="field__top"><label for="tC">Tier C at or above</label><output for="tC"></output></div>
+            <input type="range" id="tC" min="0" max="38" step="1" value="7" />
+            <p class="hint">Below Tier C: no outreach. Thresholds stay ordered A &gt; B &gt; C.</p>
+          </div>
+        </details>
 
         <div class="btns">
           <button class="btn btn--ghost btn--sm" type="button" id="reset">Reset to source model</button>
@@ -122,7 +124,7 @@
             </div>
             <div class="tbl-wrap">
               <table class="tbl" id="rank">
-                <caption class="note" id="rank-cap">Click a row or focus it and press Enter.</caption>
+                <caption class="note" id="rank-cap">Select an account name to see why it scored what it did.</caption>
                 <thead><tr>
                   <th scope="col" class="num">#</th>
                   <th scope="col">Account</th>
@@ -234,11 +236,11 @@
     <details class="acc method" id="method">
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
-        <aside class="meta"><dl>
+        <div class="meta"><dl>
           <div><dt>Method</dt><dd>Rule-based ICP + weighted signal score, tier and branch routing, deterministic copy gate, L2 logistic regression for re-weighting.</dd></div>
           <div><dt>Built from</dt><dd>A port of the scoring model in Nik's GTM engine build for an open-source, usage-based billing product with a developer-led funnel.</dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Account names are fictional. Not client data.</dd></div>
-        </dl></aside>
+        </dl></div>
         <div class="case__body">
           <h3>The model</h3>
           <p>Two layers. ICP fit is five firmographic dimensions scored 0–3 each: billing complexity, company scale, funding and growth, headcount, technical fit. Max 15. Signal score is a weighted sum of ten intent signals, capped at 15. The product PQL signal is itself a composite of five usage triggers (invoice volume, plan and metric count, team seats, failed payments, months self-hosted), so it scales with how hard the account is hitting the free tier.</p>
@@ -258,6 +260,10 @@
         </div>
       </div>
     </details>
+      <nav class="lab-pager" aria-label="More lab projects">
+      <a href="../geo-lift/"><span class="kicker">← 02</span><b>Geo-lift test</b></a>
+      <a href="../claims-check/"><span class="kicker">04 →</span><b>Brand &amp; claims gate</b></a>
+    </nav>
   </section>
 </main>
 
@@ -265,7 +271,7 @@
   <div class="wrap">
     <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
-    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Lead%20scorer">hello@nikdumroese.com</a></p>
     <div class="foot__links">
       <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>

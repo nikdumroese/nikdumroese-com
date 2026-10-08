@@ -48,15 +48,16 @@
     <h1>Media mix model &amp; budget optimizer</h1>
     <p class="lead">Fit a marketing mix model on two years of weekly spend and revenue, then move budget to where the next euro earns most. Change the budget and the limits; the plan recomputes from the fitted response curves.</p>
     <div class="lab-head__meta">
-      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">Runs in your browser</span>
       <span class="tag">No data leaves the page</span>
       <span class="tag">Adstock + Hill MMM</span>
     </div>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
   <section class="lab wrap">
     <div class="lab-grid">
-      <aside class="lab-controls" aria-label="Controls">
+      <aside class="lab-controls" id="controls" aria-label="Controls">
         <span class="group-label">Data</span>
         <div class="field">
           <span class="label" id="scen-label">Synthetic scenario</span>
@@ -82,22 +83,45 @@
           <input type="range" id="budget" min="-50" max="50" step="1" value="0" />
           <p class="hint">Change against today's average weekly spend.</p>
         </div>
-        <div class="field">
-          <div class="field__top"><label for="maxchg">Max change per channel</label><output for="maxchg"></output></div>
-          <input type="range" id="maxchg" min="5" max="100" step="5" value="30" />
-          <p class="hint">How far any one channel may move from today. Keeps the plan inside the range the model has seen.</p>
-        </div>
-        <div class="field">
-          <span class="label">Lock channels</span>
-          <div id="locks"></div>
-          <p class="hint">Locked channels keep today's spend.</p>
-        </div>
+        <details class="ctl-more">
+          <summary>Constraints</summary>
+          <div class="field">
+            <div class="field__top"><label for="maxchg">Max change per channel</label><output for="maxchg"></output></div>
+            <input type="range" id="maxchg" min="5" max="100" step="5" value="30" />
+            <p class="hint">How far any one channel may move from today. Keeps the plan inside the range the model has seen.</p>
+          </div>
+          <div class="field">
+            <span class="label">Lock channels</span>
+            <div id="locks"></div>
+            <p class="hint">Locked channels keep today's spend.</p>
+          </div>
+        </details>
       </aside>
 
       <div class="lab-out">
         <section class="lab-block" aria-labelledby="b1">
-          <p class="kicker"><span class="idx">01</span> Fit</p>
-          <h2 id="b1">Does the model track revenue?</h2>
+          <p class="kicker"><span class="idx">01</span> Optimizer</p>
+          <h2 id="b1">Where the next euro should go</h2>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-drev">–</span><span class="l">Revenue / week</span></div>
+            <div class="stat"><span class="n" id="k-drevp">–</span><span class="l">Of weekly revenue</span></div>
+            <div class="stat"><span class="n" id="k-roas">–</span><span class="l">Media ROAS</span></div>
+          </div>
+          <p id="plan-text" aria-live="polite"></p>
+          <p class="note" id="plan-warn" hidden></p>
+          <div class="chart" id="c-plan"></div>
+          <div class="legend"><span><i class="k-bar-muted"></i>Now</span><span><i class="k-bar-accent"></i>Plan</span></div>
+          <div class="tbl-wrap">
+            <table class="tbl" id="t-plan">
+              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">Now / wk</th><th scope="col" class="num">Plan / wk</th><th scope="col" class="num">Change</th><th scope="col" class="num">Next € returns</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b2">
+          <p class="kicker"><span class="idx">02</span> Fit</p>
+          <h2 id="b2">Does the model track revenue?</h2>
           <p>Curves are chosen on the first 91 weeks. The last 13 weeks are held out and predicted blind.</p>
           <div class="stat-strip">
             <div class="stat"><span class="n" id="k-r2">–</span><span class="l">R² (train)</span></div>
@@ -110,9 +134,9 @@
           <p class="note" id="fit-note"></p>
         </section>
 
-        <section class="lab-block" aria-labelledby="b2">
-          <p class="kicker"><span class="idx">02</span> Decomposition</p>
-          <h2 id="b2">What each channel added</h2>
+        <section class="lab-block" aria-labelledby="b3">
+          <p class="kicker"><span class="idx">03</span> Decomposition</p>
+          <h2 id="b3">What each channel added</h2>
           <p>Incremental revenue per channel over the full period. Marginal ROI is what the next euro returns at today's spend. That number drives the plan, not average ROI.</p>
           <div class="stat-strip">
             <div class="stat"><span class="n" id="k-base">–</span><span class="l">Baseline revenue</span></div>
@@ -129,33 +153,13 @@
           </div>
         </section>
 
-        <section class="lab-block" aria-labelledby="b3">
-          <p class="kicker"><span class="idx">03</span> Response curves</p>
-          <h2 id="b3">Where each channel flattens</h2>
+        <section class="lab-block" aria-labelledby="b4">
+          <p class="kicker"><span class="idx">04</span> Response curves</p>
+          <h2 id="b4">Where each channel flattens</h2>
           <div class="seg" id="chan-seg" role="group" aria-label="Channel"></div>
           <div class="chart" id="c-curve"></div>
           <div class="legend" id="lg-curve"></div>
           <p class="note" id="curve-note"></p>
-        </section>
-
-        <section class="lab-block" aria-labelledby="b4">
-          <p class="kicker"><span class="idx">04</span> Optimizer</p>
-          <h2 id="b4">Where the next euro should go</h2>
-          <div class="stat-strip">
-            <div class="stat"><span class="n" id="k-drev">–</span><span class="l">Revenue / week</span></div>
-            <div class="stat"><span class="n" id="k-drevp">–</span><span class="l">Of weekly revenue</span></div>
-            <div class="stat"><span class="n" id="k-roas">–</span><span class="l">Media ROAS</span></div>
-          </div>
-          <p id="plan-text" aria-live="polite"></p>
-          <p class="note" id="plan-warn" hidden></p>
-          <div class="chart" id="c-plan"></div>
-          <div class="legend"><span><i class="k-bar-muted"></i>Now</span><span><i class="k-bar-accent"></i>Plan</span></div>
-          <div class="tbl-wrap">
-            <table class="tbl" id="t-plan">
-              <thead><tr><th scope="col">Channel</th><th scope="col" class="num">Now / wk</th><th scope="col" class="num">Plan / wk</th><th scope="col" class="num">Change</th><th scope="col" class="num">Next € returns</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
         </section>
 
         <section class="lab-block" id="b-rec" aria-labelledby="b5">
@@ -177,12 +181,12 @@
     <details class="acc method" id="method">
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
-        <aside class="meta"><dl>
+        <div class="meta"><dl>
           <div><dt>Method</dt><dd>Regression MMM with geometric adstock, Hill saturation, trend and Fourier seasonality. Budget plan by marginal-return water-filling.</dd></div>
           <div><dt>Built from</dt><dd>Nik's incrementality and measurement work: mix models, geo tests and budget planning for paid channels.</dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model with known curves. Not client data. Or your own CSV, which never leaves the page.</dd></div>
           <div><dt>Runtime</dt><dd>Plain JavaScript in your browser. No libraries, no server.</dd></div>
-        </dl></aside>
+        </dl></div>
         <div class="case__body">
           <h3>The model</h3>
           <p>Each channel's weekly spend goes through two transforms. Adstock carries part of this week's effect into later weeks (a decay of 0.6 means 60% carries over). The Hill curve then makes returns shrink as spend grows. Revenue is modelled as baseline (intercept, linear trend, three yearly Fourier terms) plus the transformed channels.</p>
@@ -201,6 +205,10 @@
         </div>
       </div>
     </details>
+      <nav class="lab-pager" aria-label="More lab projects">
+      <a href="../agent-governance/"><span class="kicker">← 07</span><b>Agent governance</b></a>
+      <a href="../geo-lift/"><span class="kicker">02 →</span><b>Geo-lift test</b></a>
+    </nav>
   </section>
 </main>
 
@@ -208,7 +216,7 @@
   <div class="wrap">
     <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
-    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Media%20mix%20model">hello@nikdumroese.com</a></p>
     <div class="foot__links">
       <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>

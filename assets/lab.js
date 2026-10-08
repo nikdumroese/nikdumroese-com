@@ -163,12 +163,12 @@
   let tipEl;
   const tip = {
     show(html, x, y) {
-      if (!tipEl) { tipEl = el('div', { class: 'tip', role: 'status' }); document.body.append(tipEl); }
+      if (!tipEl) { tipEl = el('div', { class: 'tip', 'aria-hidden': 'true' }); document.body.append(tipEl); }
       tipEl.innerHTML = html;
       tipEl.classList.add('on');
       const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
       // cursor-following position is runtime state; the no-inline-styles rule covers authored markup
-      tipEl.style.left = Math.min(window.innerWidth - w - 8, x + 14) + 'px';
+      tipEl.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + 'px';
       tipEl.style.top = Math.max(8, y - h - 12) + 'px';
     },
     hide() { tipEl && tipEl.classList.remove('on'); },
@@ -268,16 +268,34 @@
     (o.points || []).forEach((p) => svgEl('circle', { cx: x(p.i), cy: y(p.v), r: p.r || 4, class: p.cls || 'dot-accent' }, g));
 
     if (o.tipFmt) {
-      const hit = svgEl('rect', { x: 0, y: 0, width: f.W, height: f.H, class: 'hit' }, g);
+      // keyboard path: focus the plot, arrows step through points; the tooltip mirrors into a live region
+      const hit = svgEl('rect', { x: 0, y: 0, width: f.W, height: f.H, class: 'hit', tabindex: 0, role: 'slider', 'aria-label': (o.ariaLabel || 'Chart') + '. Use arrow keys to read values.', 'aria-valuemin': 0, 'aria-valuemax': n - 1, 'aria-valuenow': 0 }, g);
       const guide = svgEl('line', { x1: 0, x2: 0, y1: 0, y2: f.H, class: 'axis', visibility: 'hidden' }, g);
+      let cur = 0;
+      const at = (i, cx, cy) => {
+        cur = i;
+        guide.setAttribute('x1', x(i)); guide.setAttribute('x2', x(i)); guide.setAttribute('visibility', 'visible');
+        const html = o.tipFmt(i);
+        hit.setAttribute('aria-valuenow', i);
+        hit.setAttribute('aria-valuetext', html.replace(/<br\s*\/?>/g, ', ').replace(/<[^>]+>/g, ''));
+        tip.show(html, cx, cy);
+      };
       const move = (ev) => {
         const r = hit.getBoundingClientRect();
-        const i = clamp(Math.round(((ev.clientX - r.left) / r.width) * (n - 1)), 0, n - 1);
-        guide.setAttribute('x1', x(i)); guide.setAttribute('x2', x(i)); guide.setAttribute('visibility', 'visible');
-        tip.show(o.tipFmt(i), ev.clientX, ev.clientY);
+        at(clamp(Math.round(((ev.clientX - r.left) / r.width) * (n - 1)), 0, n - 1), ev.clientX, ev.clientY);
       };
+      const off = () => { tip.hide(); guide.setAttribute('visibility', 'hidden'); };
       hit.addEventListener('pointermove', move);
-      hit.addEventListener('pointerleave', () => { tip.hide(); guide.setAttribute('visibility', 'hidden'); });
+      hit.addEventListener('pointerleave', off);
+      hit.addEventListener('blur', off);
+      hit.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1, ArrowUp: 1, ArrowDown: -1, PageUp: 10, PageDown: -10 }[e.key];
+        let i = step ? clamp(cur + step, 0, n - 1) : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : null;
+        if (i == null) return;
+        e.preventDefault();
+        const r = hit.getBoundingClientRect();
+        at(i, r.left + (x(i) / f.W) * r.width, r.top + 24);
+      });
     }
     return { x, y, f, g };
   };
@@ -416,8 +434,10 @@
         b.addEventListener('click', () => select(b));
         b.addEventListener('keydown', (e) => {
           const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-          if (!d) return;
-          const nb = btns[(i + d + btns.length) % btns.length];
+          const j = e.key === 'Home' ? 0 : e.key === 'End' ? btns.length - 1 : d ? (i + d + btns.length) % btns.length : -1;
+          if (j < 0) return;
+          e.preventDefault();
+          const nb = btns[j];
           nb.focus(); select(nb);
         });
       });

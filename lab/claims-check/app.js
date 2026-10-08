@@ -135,11 +135,12 @@
         $('t-gate').click();
         ui.copy.focus();
       };
+      const btn = L.el('button', { type: 'button', class: 'row-btn', 'aria-label': `Open variant ${b.i} in the single-draft view`, text: String(b.i), onclick: open });
       return L.el('tr', {
-        class: 'clickable', tabindex: '0', 'aria-label': `Open variant ${b.i} in the single-draft view`,
-        onclick: open, onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } },
+        class: 'clickable',
+        onclick: (e) => { if (!e.target.closest('.row-btn')) btn.click(); },
       }, [
-        L.el('td', { class: 'num', text: b.i }),
+        L.el('td', { class: 'num' }, btn),
         L.el('td', { text: b.text.length > 140 ? b.text.slice(0, 137) + '…' : b.text }),
         L.el('td', {}, [L.el('span', { class: 'tag ' + VERDICT[b.r.verdict].tag, text: VERDICT[b.r.verdict].label })]),
         L.el('td', { class: 'num', text: b.r.score }),

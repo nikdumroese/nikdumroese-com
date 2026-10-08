@@ -385,27 +385,28 @@
   const renderTable = () => {
     const key = state.sort === 'icp' ? 'icpScore' : state.sort;
     const rows = [...scored].sort((x, y) => y[key] - x[key] || y.total - x.total || x.a.name.localeCompare(y.a.name));
-    ['icp', 'signal', 'total'].forEach((k) => $(`#h-${k}`).setAttribute('aria-sort', k === state.sort ? 'descending' : 'none'));
+    ['icp', 'signal', 'total'].forEach((k) => { const h = $(`#h-${k}`); if (k === state.sort) h.setAttribute('aria-sort', 'descending'); else h.removeAttribute('aria-sort'); });
     const tb = $('#rank tbody');
+    const hadFocus = tb.contains(document.activeElement);
     tb.innerHTML = '';
     (state.all ? rows : rows.slice(0, 15)).forEach((sc, i) => {
+      const isSel = sc.a.id === state.sel;
+      const btn = el('button', { type: 'button', class: 'row-btn', 'aria-pressed': String(isSel), 'data-id': sc.a.id, text: sc.a.name, onclick: () => select(sc.a.id, true) });
       const tr = el('tr', {
-        class: 'clickable' + (sc.a.id === state.sel ? ' is-sel' : ''), tabindex: 0,
-        'aria-label': `${sc.a.name}, tier ${tierLabel(sc.tier)}, total ${pts(sc.total)}`,
-        onclick: () => select(sc.a.id, true),
-        onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(sc.a.id, true); } },
+        class: 'clickable' + (isSel ? ' is-sel' : ''),
+        onclick: (e) => { if (!e.target.closest('.row-btn')) btn.click(); },
       }, [
         el('td', { class: 'num', text: String(i + 1) }),
-        el('td', { text: sc.a.name }),
+        el('td', {}, btn),
         el('td', {}, el('span', { class: TIER_CLS[sc.tier], text: tierLabel(sc.tier) })),
         el('td', { text: sc.branch ? `${sc.branch.b} · ${sc.branch.name}` : '–' }),
         el('td', { class: 'num', text: pts(sc.icpScore) }),
         el('td', { class: 'num', text: pts(sc.signal) }),
         el('td', { class: 'num pos', text: pts(sc.total) }),
       ]);
-      if (sc.a.id === state.sel) tr.setAttribute('aria-current', 'true');
       tb.append(tr);
     });
+    if (hadFocus) tb.querySelector('.row-btn[aria-pressed="true"]')?.focus({ preventScroll: true });
     $('#more').textContent = state.all ? 'Show top 15' : 'Show all 50';
     $('#more').setAttribute('aria-expanded', String(state.all));
     const c = { A: 0, B: 0, C: 0, none: 0 };

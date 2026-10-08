@@ -48,15 +48,16 @@
     <h1>Brand &amp; claims gate for AI-written copy</h1>
     <p class="lead">Before an agent ships marketing copy, every line gets checked against the brand voice, the approved-claims register, competitor rules and regulated-language rules. Pass, review or block, with the reason.</p>
     <div class="lab-head__meta">
-      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">Runs in your browser</span>
       <span class="tag">No data leaves the page</span>
       <span class="tag">Deterministic rules engine</span>
     </div>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
   <section class="lab wrap">
     <div class="lab-grid">
-      <aside class="lab-controls" aria-label="Controls">
+      <aside class="lab-controls" id="controls" aria-label="Controls">
         <span class="group-label">Placement</span>
         <div class="field">
           <label for="channel">Channel</label>
@@ -85,16 +86,6 @@
           <p class="hint" id="threshold-hint">Risk score threshold. Warnings add to the score. Lower it to send more drafts to a human. A block finding blocks at any setting.</p>
         </div>
 
-        <span class="group-label">Samples</span>
-        <div class="field">
-          <span class="label" id="samples-label">Load a draft</span>
-          <div class="btns" role="group" aria-labelledby="samples-label">
-            <button type="button" class="btn btn--ghost btn--sm" data-sample="pass">Passes</button>
-            <button type="button" class="btn btn--ghost btn--sm" data-sample="review">Needs review</button>
-            <button type="button" class="btn btn--ghost btn--sm" data-sample="block">Blocks</button>
-          </div>
-          <p class="hint">Each sample sets its own channel and market.</p>
-        </div>
         <p class="note">The brand (Fernway, a business expense-card company), its competitors, claims and evidence IDs are all fictional.</p>
       </aside>
 
@@ -106,18 +97,8 @@
         </div>
 
         <div role="tabpanel" id="p-gate" aria-labelledby="t-gate" class="lab-out">
-          <section class="lab-block" aria-labelledby="b1">
-            <p class="kicker"><span class="idx">01</span> Draft</p>
-            <h2 id="b1">The copy an agent wants to ship</h2>
-            <div class="field">
-              <label for="copy">Draft copy</label>
-              <textarea class="textarea" id="copy" spellcheck="false" aria-describedby="copy-hint"></textarea>
-              <p class="hint" id="copy-hint"></p>
-            </div>
-          </section>
-
           <section class="lab-block" aria-labelledby="b2">
-            <p class="kicker"><span class="idx">02</span> Verdict</p>
+            <p class="kicker"><span class="idx">01</span> Verdict</p>
             <h2 id="b2">What the gate decides</h2>
             <div class="verdict" aria-live="polite" aria-atomic="true">
               <span class="verdict__v" id="verdict">–</span>
@@ -128,10 +109,29 @@
               <div class="stat"><span class="n" id="k-block">–</span><span class="l">Block</span></div>
               <div class="stat"><span class="n" id="k-warn">–</span><span class="l">Warn</span></div>
               <div class="stat"><span class="n" id="k-flesch">–</span><span class="l">Reading ease</span></div>
-              <div class="stat"><span class="n" id="k-person">–</span><span class="l">You : we</span></div>
+              <div class="stat"><span class="n" id="k-person">–</span><span class="l">‘You’ vs ‘we’ mentions</span></div>
             </div>
             <div class="annot" id="annot" aria-label="Annotated copy"></div>
             <p class="note">Highlights mark each finding. Select one to jump to it.</p>
+          </section>
+
+          <section class="lab-block" aria-labelledby="b1">
+            <p class="kicker"><span class="idx">02</span> Draft</p>
+            <h2 id="b1">Edit the draft; the verdict updates as you type</h2>
+            <div class="field">
+              <span class="label" id="samples-label">Load a sample draft</span>
+              <div class="btns" role="group" aria-labelledby="samples-label">
+                <button type="button" class="btn btn--ghost btn--sm" data-sample="pass">Passes</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-sample="review">Needs review</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-sample="block">Blocks</button>
+              </div>
+              <p class="hint">Each sample sets its own channel and market.</p>
+            </div>
+            <div class="field">
+              <label for="copy">Draft copy</label>
+              <textarea class="textarea" id="copy" spellcheck="false" aria-describedby="copy-hint"></textarea>
+              <p class="hint" id="copy-hint"></p>
+            </div>
           </section>
 
           <section class="lab-block" aria-labelledby="b3">
@@ -226,11 +226,11 @@
     <details class="acc method" id="method">
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
-        <aside class="meta"><dl>
+        <div class="meta"><dl>
           <div><dt>Method</dt><dd>Config-driven rules engine: phrase and pattern matchers, length limits, readability, and fuzzy matching against a claims register.</dd></div>
           <div><dt>Built from</dt><dd>The check logic of an agent-governance prototype I built: tone, claims, competitor and regulated-language checks over an agent action ledger.</dd></div>
           <div><dt>Data</dt><dd>Fictional brand, competitors, claims and evidence. Nothing leaves the page.</dd></div>
-        </dl></aside>
+        </dl></div>
         <div class="case__body">
           <h3>The rules engine</h3>
           <p>Each rule is a row of config: an ID, a category, a severity (info, warn or block), the markets and channels it applies to, a matcher and a suggested fix. The engine parses the copy into fields (headline, description, subject and so on), runs every rule in scope, and returns findings with character positions.</p>
@@ -255,6 +255,10 @@
         </div>
       </div>
     </details>
+      <nav class="lab-pager" aria-label="More lab projects">
+      <a href="../lead-scorer/"><span class="kicker">← 03</span><b>Lead scorer</b></a>
+      <a href="../crm-dedupe/"><span class="kicker">05 →</span><b>CRM dedupe</b></a>
+    </nav>
   </section>
 </main>
 
@@ -262,7 +266,7 @@
   <div class="wrap">
     <p class="kicker">Get in touch</p>
     <p class="display">Want this gate on<br>your agents?</p>
-    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Brand%20and%20claims%20gate">hello@nikdumroese.com</a></p>
     <div class="foot__links">
       <a href="../index.html">All lab projects</a>
       <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>

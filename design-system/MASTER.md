@@ -34,7 +34,8 @@ not ops-manager framing. Confident, concrete, low on adjectives.
 | `--ink-20`       | `#C9C4B8`  | hairlines, rules |
 | `--accent`       | `#F5451E`  | vermilion — primary accent, links, CTA, active marks |
 | `--accent-2`     | `#2438FF`  | electric blue — secondary chip only, used rarely |
-| `--on-accent`    | `#FFFFFF`  | text on accent |
+| `--accent-text`  | `#C2300B`  | vermilion for small text (5.0:1 on paper; raw `--accent` is 3.2:1, large/bold or non-text only) |
+| `--on-accent`    | `#111110`  | text on accent fills (ink, 5.2:1; white failed at 3.65:1) |
 
 Swiss logic: near-black Helvetica on warm paper + one hot vermilion. Blue is a rare second voice
 (one project chip, one hover), never both accents loud in the same viewport. No gradients, no
@@ -52,6 +53,11 @@ drop shadows as decoration, no glassmorphism.
 - Entrance: fade+8px rise on scroll via IntersectionObserver, 400ms, staggered ≤80ms.
 - Hover: 200ms colour/underline transitions. No layout-shifting scale transforms.
 - Respect `prefers-reduced-motion: reduce` — disable all of the above.
+
+## Lab (live tools under /lab/)
+- Shared layer: `assets/lab.css` + `assets/lab.js` (SVG charts, tabs, CSV, seeded data). Controls column left, outputs right; on mobile outputs come first.
+- Form controls use ink (`accent-color: var(--ink)`); vermilion is kept for the model/plan series and status, one loud use per viewport.
+- Architecture diagrams are inline SVG using `.diagram` classes.
 
 ## Components
 - **Link:** ink text, vermilion on hover, animated underline (background-size trick), no colour-only cue.

@@ -48,21 +48,22 @@
     <h1>CRM dedupe &amp; standardiser</h1>
     <p class="lead">Drop in a messy contact export, get back one clean record per person, with every merge explained and nothing sent to a server.</p>
     <div class="lab-head__meta">
-      <span class="tag tag--flag">Runs in your browser</span>
+      <span class="tag">Runs in your browser</span>
       <span class="tag">No data leaves the page</span>
       <span class="tag">Record linkage</span>
       <a class="tag" href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">Based on crm-refine ↗</a>
     </div>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Adjust inputs ↓</a>
   </section>
 
   <section class="lab wrap">
     <div class="lab-grid">
-      <aside class="lab-controls" aria-label="Controls">
+      <aside class="lab-controls" id="controls" aria-label="Controls">
         <span class="group-label">Data</span>
         <div class="field">
           <span class="label">Source</span>
           <div class="btns">
-            <button type="button" class="btn btn--sm" id="load-sample">Load sample</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="load-sample">Reset to sample</button>
           </div>
           <p class="hint" id="data-status">Sample: synthetic contacts from fictional companies.</p>
         </div>
@@ -71,16 +72,21 @@
           <input type="file" id="file" accept=".csv,text/csv" />
           <p class="hint">Read in this tab with FileReader. Nothing is uploaded.</p>
         </div>
-        <div class="field">
-          <label for="paste">Or paste CSV</label>
-          <textarea class="textarea textarea--code" id="paste" spellcheck="false" aria-describedby="paste-hint"></textarea>
-          <p class="hint" id="paste-hint">First line is the header. Holds the sample until you replace it.</p>
-          <div class="btns"><button type="button" class="btn btn--sm btn--ghost" id="use-paste">Run on pasted CSV</button></div>
-        </div>
+        <details class="ctl-more" id="paste-more">
+          <summary>Paste CSV instead</summary>
+          <div class="field">
+            <label for="paste">CSV text</label>
+            <textarea class="textarea textarea--code" id="paste" spellcheck="false" aria-describedby="paste-hint" placeholder="first_name,last_name,email,phone,company&#10;Anna,Becker,anna.becker@example.com,030 1234567,Example GmbH"></textarea>
+            <p class="hint" id="paste-hint">First line is the header.</p>
+            <div class="btns"><button type="button" class="btn btn--sm btn--ghost" id="use-paste">Run on pasted CSV</button></div>
+          </div>
+        </details>
 
-        <span class="group-label">Columns</span>
-        <p class="note">Detected from your headers. Change any that are wrong; unmapped columns pass through.</p>
-        <div id="mapping"></div>
+        <details class="ctl-more" id="map-more">
+          <summary>Columns (auto-detected)</summary>
+          <p class="note" id="map-note">Detected from your headers. Change any that are wrong; unmapped columns pass through.</p>
+          <div id="mapping"></div>
+        </details>
 
         <span class="group-label">Matching</span>
         <div class="field">
@@ -136,8 +142,8 @@
             <div class="stat"><span class="n" id="k-out">–</span><span class="l">Records out</span></div>
             <div class="stat"><span class="n" id="k-dup">–</span><span class="l">Duplicates merged</span></div>
             <div class="stat"><span class="n" id="k-rev">–</span><span class="l">Pairs in review</span></div>
-            <div class="stat"><span class="n" id="k-fix">–</span><span class="l">Fields standardised</span></div>
           </div>
+          <p class="note" id="sum-live" role="status" aria-live="polite"></p>
           <p class="note" id="truth-out" hidden></p>
         </section>
 
@@ -226,12 +232,12 @@
     <details class="acc method" id="method">
       <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
       <div class="acc__panel case__grid">
-        <aside class="meta"><dl>
+        <div class="meta"><dl>
           <div><dt>Method</dt><dd>Rule-based standardisation, blocked record linkage, weighted similarity, union-find clustering, rule-based survivorship.</dd></div>
           <div><dt>Built from</dt><dd><a class="link" href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">crm-refine</a>, my open-source CLI (Python, no dependencies), ported to browser JavaScript.</dd></div>
           <div><dt>Data</dt><dd>Synthetic, generated from a seeded model. Fictional people and companies. Not client data.</dd></div>
           <div><dt>Privacy</dt><dd>Your CSV is read in this tab. No network calls.</dd></div>
-        </dl></aside>
+        </dl></div>
         <div class="case__body">
           <h3>1. Standardise</h3>
           <p>Each cell is cleaned before anything is compared. Names are trimmed and cased (Mc, Mac, O', hyphens, and particles like von or van). A full-name column is split, including "Last, First". Emails are lower-cased with plus-tags removed. For Gmail and Googlemail only, dots in the local part are ignored when matching, because Google ignores them too. Phones become E.164 (+4930…) using the row's country, or the default country if the row has none. Legal forms like GmbH &amp; Co. KG, AG, Inc. and Ltd are stripped from company names. Countries become ISO-2 codes. Job titles get a seniority and a function from ordered rules. Lifecycle stages map to one ladder and dates become YYYY-MM-DD. US rows read 03/04 as March 4; others as 3 April.</p>
@@ -259,6 +265,10 @@
         </div>
       </div>
     </details>
+      <nav class="lab-pager" aria-label="More lab projects">
+      <a href="../claims-check/"><span class="kicker">← 04</span><b>Brand &amp; claims gate</b></a>
+      <a href="../agent-swarm/"><span class="kicker">06 →</span><b>Agent swarm</b></a>
+    </nav>
   </section>
 </main>
 
@@ -266,7 +276,7 @@
   <div class="wrap">
     <p class="kicker">Get in touch</p>
     <p class="display">Want this on<br>your data?</p>
-    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com">hello@nikdumroese.com</a></p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20CRM%20dedupe">hello@nikdumroese.com</a></p>
     <div class="foot__links">
       <a href="../index.html">All lab projects</a>
       <a href="https://github.com/nikdumroese/crm-refine" target="_blank" rel="noopener">crm-refine on GitHub ↗</a>

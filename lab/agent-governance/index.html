@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.className=document.documentElement.className.replace("no-js","js");</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Governance layer for marketing agents — Lab — Nik Dumroese</title>
+<meta name="description" content="Every action a marketing agent takes lands in an append-only ledger, gets checked, and either runs, waits for a human, or is stopped. Replay a week of fixture data in your browser." />
+<link rel="canonical" href="https://nikdumroese.com/lab/agent-governance/" />
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Niklaas Dumroese" />
+<meta name="theme-color" content="#F4F1EA" />
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:site_name" content="Niklaas Dumroese" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://nikdumroese.com/lab/agent-governance/" />
+<meta property="og:title" content="Governance layer for marketing agents — Nik Dumroese Lab" />
+<meta property="og:description" content="Every action a marketing agent takes lands in an append-only ledger, gets checked, and either runs, waits for a human, or is stopped. Replay a week of fixture data in your browser." />
+<meta property="og:image" content="https://nikdumroese.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<meta name="color-scheme" content="light" />
+<link rel="llms" type="text/markdown" href="/llms.txt" />
+<link rel="stylesheet" href="../../assets/styles.css" />
+<link rel="stylesheet" href="../../assets/lab.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="../../index.html">Niklaas Dumroese<span class="dot">.</span></a>
+    <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <nav class="nav__links" id="menu" aria-label="Primary">
+      <a href="../index.html">Lab</a>
+      <a href="../../about.html">About</a>
+      <a href="../../Nik_Dumroese_CV.pdf" download>CV</a>
+      <a class="is-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="lab-head wrap">
+    <p class="crumb"><a href="../index.html">Lab</a> / 07</p>
+    <h1>Governance layer for marketing agents</h1>
+    <p class="lead">Every action a marketing agent takes (send an email, publish a post, raise a budget) lands in a ledger and gets checked. Then it runs, waits for a human, or is stopped. Each week the system reports which agents drifted from their usual tone.</p>
+    <div class="lab-head__meta">
+      <span class="tag">Runs in your browser</span>
+      <span class="tag">Fixture data</span>
+      <span class="tag">Append-only ledger</span>
+      <span class="tag">Dry-run approval gate</span>
+    </div>
+    <a class="btn btn--ghost btn--sm lab-jump" href="#controls">Jump to policy controls</a>
+  </section>
+
+  <section class="lab wrap" id="gov-app">
+    <div class="lab-grid">
+      <aside class="lab-controls" id="controls" aria-label="Controls">
+        <span class="group-label">Replay</span>
+        <div class="field">
+          <div class="field__top"><label for="pos">Events in the ledger</label><output for="pos"></output></div>
+          <input type="range" id="pos" min="0" max="27" step="1" value="27" aria-describedby="pos-hint" />
+          <p class="hint" id="pos-hint">Fixture events in time order. Each step re-runs the checks over everything ingested so far.</p>
+          <div class="btns">
+            <button class="btn btn--ghost btn--sm" type="button" id="back">Back</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="step">Step</button>
+            <button class="btn btn--sm" type="button" id="play" aria-pressed="false">Play</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="rewind">Rewind</button>
+          </div>
+        </div>
+
+        <span class="group-label">Spend policy</span>
+        <div class="field">
+          <div class="field__top"><label for="ceil">Blog Agent ad budget ceiling</label><output for="ceil"></output></div>
+          <input type="range" id="ceil" min="0" max="1000" step="10" value="300" />
+          <p class="hint">Daily budget per campaign. A budget change above it fails the spend check.</p>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="maxmail">Max emails per agent per day</label><output for="maxmail"></output></div>
+          <input type="range" id="maxmail" min="1" max="10" step="1" value="5" />
+          <p class="hint">Counted per agent per UTC day. The fixture Lifecycle Bot sends up to 2 a day.</p>
+        </div>
+        <details class="ctl-more">
+          <summary>Other agents' ceilings (2)</summary>
+          <div class="field">
+            <label for="ceil-growth">Growth Agent (USD/day)</label>
+            <input class="input" type="number" id="ceil-growth" min="0" step="10" placeholder="No ceiling" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="ceil-budget">Budget Bot (USD/day)</label>
+            <input class="input" type="number" id="ceil-budget" min="0" step="10" placeholder="No ceiling" inputmode="numeric" />
+            <p class="hint">Empty means no ceiling, as in the source policy: the check passes any amount.</p>
+          </div>
+        </details>
+
+        <span class="group-label">Tone of voice</span>
+        <div class="field">
+          <div class="field__top"><label for="warn">Warn below</label><output for="warn"></output></div>
+          <input type="range" id="warn" min="0" max="1" step="0.05" value="0.75" />
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="fail">Fail below</label><output for="fail"></output></div>
+          <input type="range" id="fail" min="0" max="1" step="0.05" value="0.5" />
+          <p class="hint">Score from 0 to 1. Fail must stay at or below warn; moving one pushes the other.</p>
+        </div>
+
+        <span class="group-label">Drift</span>
+        <div class="field">
+          <div class="field__top"><label for="drop">Drop vs. baseline that raises an alarm</label><output for="drop"></output></div>
+          <input type="range" id="drop" min="0.05" max="0.6" step="0.05" value="0.2" />
+        </div>
+        <details class="ctl-more">
+          <summary>More settings (3)</summary>
+          <div class="field">
+            <div class="field__top"><label for="minsamp">Min. scores per day for drift</label><output for="minsamp"></output></div>
+            <input type="range" id="minsamp" min="1" max="3" step="1" value="1" />
+          </div>
+          <div class="field">
+            <div class="field__top"><label for="window">Conflict window</label><output for="window"></output></div>
+            <input type="range" id="window" min="1" max="72" step="1" value="24" />
+            <p class="hint">Two different agents acting on the same campaign or subject inside this window each get a warning.</p>
+          </div>
+          <div class="field">
+            <div class="field__top"><label for="omin">Min. events per outcome group</label><output for="omin"></output></div>
+            <input type="range" id="omin" min="1" max="10" step="1" value="3" />
+          </div>
+        </details>
+
+        <details class="ctl-more" open>
+          <summary>Approval rules (8)</summary>
+          <p class="hint">Each warn or fail takes the first rule that matches it. The strictest result across the event's checks wins.</p>
+          <div id="rules"></div>
+        </details>
+
+        <p class="hint" id="policy-err" role="alert"></p>
+        <div class="btns">
+          <button class="btn btn--ghost btn--sm" type="button" id="policy-reset">Reset policy</button>
+          <button class="btn btn--ghost btn--sm" type="button" id="policy-dl">Download policy JSON</button>
+        </div>
+      </aside>
+
+      <div class="lab-out">
+        <section class="lab-block" aria-labelledby="b-arch">
+          <p class="kicker"><span class="idx">01</span> Architecture</p>
+          <h2 id="b-arch">From agent action to weekly report</h2>
+          <div class="diagram">
+            <svg viewBox="0 0 760 350" role="img" aria-labelledby="arch-t arch-d">
+              <title id="arch-t">Agent governance pipeline</title>
+              <desc id="arch-d">Connectors feed a normalizer, which writes to an append-only event ledger. Checks read the ledger. The approval gate maps check results to auto, review or block; human overrides are appended back to the ledger. Drift reads tone scores from the ledger. Outcomes, drift and gate decisions feed the weekly report and digest, which the dashboard shows.</desc>
+              <defs>
+                <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow" /></marker>
+                <marker id="ah-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" class="d-arrow--accent" /></marker>
+              </defs>
+
+              <rect class="d-box" x="10" y="20" width="160" height="72" />
+              <text class="d-title" x="22" y="44">Connectors</text>
+              <text class="d-sub" x="22" y="63">Zapier · Lindy · HubSpot</text>
+              <text class="d-sub" x="22" y="79">fixture by default</text>
+
+              <rect class="d-box" x="205" y="20" width="160" height="72" />
+              <text class="d-title" x="217" y="44">Normalize</text>
+              <text class="d-sub" x="217" y="63">one row per action</text>
+              <text class="d-sub" x="217" y="79">+ who did it, how sure</text>
+
+              <rect class="d-box--accent" x="400" y="20" width="160" height="72" />
+              <text class="d-title" x="412" y="44">Event ledger</text>
+              <text class="d-sub" x="412" y="63">append-only</text>
+              <text class="d-sub" x="412" y="79">PGlite (Postgres)</text>
+
+              <rect class="d-box" x="590" y="20" width="160" height="72" />
+              <text class="d-title" x="602" y="44">Checks</text>
+              <text class="d-sub" x="602" y="63">tone · claims · competitor</text>
+              <text class="d-sub" x="602" y="79">regulated · spend · conflict</text>
+
+              <rect class="d-box" x="590" y="146" width="160" height="72" />
+              <text class="d-title" x="602" y="170">Approval gate</text>
+              <text class="d-sub" x="602" y="189">auto · review · block</text>
+              <text class="d-sub" x="602" y="205">dry-run, policy rules</text>
+
+              <rect class="d-box" x="400" y="146" width="160" height="72" />
+              <text class="d-title" x="412" y="170">Human override</text>
+              <text class="d-sub" x="412" y="189">admin or legal</text>
+              <text class="d-sub" x="412" y="205">latest row wins</text>
+
+              <rect class="d-box" x="205" y="146" width="160" height="72" />
+              <text class="d-title" x="217" y="170">Drift detector</text>
+              <text class="d-sub" x="217" y="189">daily tone per agent</text>
+              <text class="d-sub" x="217" y="205">vs. its own baseline</text>
+
+              <rect class="d-box--soft" x="10" y="146" width="160" height="72" />
+              <text class="d-title" x="22" y="170">Outcomes</text>
+              <text class="d-sub" x="22" y="189">sessions, revenue</text>
+              <text class="d-sub" x="22" y="205">joined by subject</text>
+
+              <rect class="d-box--on" x="10" y="266" width="550" height="64" />
+              <text class="d-title d-on" x="22" y="292">Weekly report + digest</text>
+              <text class="d-sub d-on" x="22" y="314">totals · top 3 · findings · drift alarms · gate queue · outcome impact</text>
+
+              <rect class="d-box" x="590" y="266" width="160" height="64" />
+              <text class="d-title" x="602" y="292">Dashboard</text>
+              <text class="d-sub" x="602" y="314">Next.js, role-gated</text>
+
+              <path class="d-edge" d="M170 56 H203" marker-end="url(#ah)" />
+              <path class="d-edge--accent" d="M365 56 H398" marker-end="url(#ah-a)" />
+              <path class="d-edge" d="M560 56 H588" marker-end="url(#ah)" />
+              <path class="d-edge" d="M670 92 V144" marker-end="url(#ah)" />
+              <path class="d-edge" d="M590 182 H562" marker-end="url(#ah)" />
+              <text class="d-label" x="566" y="140">results</text>
+              <path class="d-edge--dash" d="M480 146 V94" marker-end="url(#ah)" />
+              <text class="d-label" x="486" y="124">appended</text>
+              <path class="d-edge" d="M420 92 V118 H285 V144" marker-end="url(#ah)" />
+              <text class="d-label" x="290" y="112">tone scores</text>
+              <path class="d-edge" d="M90 218 V264" marker-end="url(#ah)" />
+              <path class="d-edge" d="M285 218 V264" marker-end="url(#ah)" />
+              <path class="d-edge" d="M480 218 V264" marker-end="url(#ah)" />
+              <path class="d-edge" d="M670 218 V242 H545 V264" marker-end="url(#ah)" />
+              <path class="d-edge" d="M560 298 H588" marker-end="url(#ah)" />
+            </svg>
+          </div>
+          <p class="note diagram-caption">Nothing in the ledger is edited. Checks, gate decisions and human overrides are new rows, so any week can be replayed and audited from the rows alone.</p>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b-ledger">
+          <p class="kicker"><span class="idx">02</span> Ledger replay</p>
+          <h2 id="b-ledger">Every action, checked and decided</h2>
+          <p>27 fixture actions from four agents over ten days. Change the policy on the left and every decision is recomputed. Select a row to see its full check trace. The tone, claims, competitor and regulated-language checks are summarised here. The <a class="link" href="../claims-check/">brand &amp; claims gate</a> (Lab / 04) covers copy checks in more depth on text you paste in.</p>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-events">–</span><span class="l">Events in ledger</span></div>
+            <div class="stat"><span class="n" id="k-auto">–</span><span class="l">Auto-run</span></div>
+            <div class="stat"><span class="n" id="k-review">–</span><span class="l">Awaiting approval</span></div>
+            <div class="stat"><span class="n" id="k-block">–</span><span class="l">Blocked</span></div>
+            <div class="stat"><span class="n" id="k-find">–</span><span class="l">Findings</span></div>
+          </div>
+          <p class="note mt-sm" id="last" aria-live="polite"></p>
+          <p class="note mt-sm" id="log-label">Event log, oldest first. Select an event for its check trace.</p>
+          <ol class="timeline-log mt-sm" id="ev-rows" aria-labelledby="log-label"></ol>
+
+          <h3 class="group-label mt-md" id="d-title">Check trace</h3>
+          <p id="d-empty">Select an event above.</p>
+          <div id="detail" hidden>
+            <dl class="kv" id="d-kv"></dl>
+            <ul class="findings mt-sm" id="d-checks" aria-label="Checks run on this event"></ul>
+            <p class="note mt-sm" id="d-na"></p>
+            <div class="tabs mt-md" role="tablist" aria-label="Event data">
+              <button class="tab" role="tab" id="t-raw" aria-controls="p-raw" aria-selected="true">Raw payload</button>
+              <button class="tab" role="tab" id="t-row" aria-controls="p-row" aria-selected="false">Ledger row</button>
+            </div>
+            <div role="tabpanel" id="p-raw" aria-labelledby="t-raw"><pre class="code" id="d-raw" tabindex="0"></pre></div>
+            <div role="tabpanel" id="p-row" aria-labelledby="t-row" hidden><pre class="code" id="d-row" tabindex="0"></pre></div>
+          </div>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b-gate">
+          <p class="kicker"><span class="idx">03</span> Approval gate</p>
+          <h2 id="b-gate">Waiting for a human</h2>
+          <p>Actions the policy sent to review or block. Approve or reject one and a new override row is appended to the ledger. The system decision stays as it was. The counts, the report and the revenue figure below all update.</p>
+          <div class="field">
+            <span class="label" id="role-label">Acting as</span>
+            <div class="seg" id="role" role="group" aria-labelledby="role-label">
+              <button type="button" data-value="legal" aria-pressed="true">Legal</button>
+              <button type="button" data-value="admin" aria-pressed="false">Admin</button>
+            </div>
+            <p class="hint">In the source build only these two roles can override a decision.</p>
+          </div>
+          <div class="stat-strip">
+            <div class="stat"><span class="n" id="k-queue">–</span><span class="l">Awaiting a human</span></div>
+            <div class="stat"><span class="n" id="k-ov">–</span><span class="l">Override rows</span></div>
+            <div class="stat"><span class="n" id="k-exp">–</span><span class="l">Revenue on held actions</span></div>
+          </div>
+          <p class="note mt-sm">Revenue on held actions: fixture outcome revenue joined to events whose current decision is review or block.</p>
+          <ul class="findings mt-sm" id="queue" aria-label="Approval queue"></ul>
+          <p id="queue-empty" hidden>Nothing is waiting. Every held action has a human decision.</p>
+          <p class="note mt-sm" id="gate-status" aria-live="polite"></p>
+
+          <h3 class="group-label mt-md">Override log</h3>
+          <p id="hist-empty">No overrides yet.</p>
+          <div class="tbl-wrap" id="hist-wrap" hidden>
+            <table class="tbl">
+              <thead><tr><th scope="col">Action</th><th scope="col">System</th><th scope="col">Human</th><th scope="col" class="hide-sm">Role</th></tr></thead>
+              <tbody id="hist"></tbody>
+            </table>
+          </div>
+          <div class="btns"><button class="btn btn--ghost btn--sm" type="button" id="ov-reset">Reload fixture ledger</button></div>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b-drift">
+          <p class="kicker"><span class="idx">04</span> Drift</p>
+          <h2 id="b-drift">Which agents sound off their usual tone</h2>
+          <p>For each agent and channel: the daily mean tone score. A day raises an alarm if it falls below the warn line, or if it drops further below the stream's own baseline than the drop setting allows.</p>
+          <div class="field">
+            <span class="label" id="stream-label">Agent and channel</span>
+            <div class="seg" id="stream" role="group" aria-labelledby="stream-label"></div>
+          </div>
+          <div class="chart" id="c-drift"></div>
+          <div class="legend"><span><i></i>Daily mean tone score</span><span><i class="k-muted"></i>Baseline</span><span><i class="k-accent"></i>Warn line</span></div>
+          <p class="note mt-sm" id="drift-note"></p>
+          <h3 class="group-label mt-md">Flagged days</h3>
+          <p id="alarms-empty" hidden>No alarms in the ledger so far.</p>
+          <div class="tbl-wrap" id="alarms-wrap">
+            <table class="tbl">
+              <thead><tr><th scope="col">Agent / channel</th><th scope="col">Day</th><th scope="col" class="num">Score</th><th scope="col" class="num">Baseline</th><th scope="col" class="hide-sm">Reason</th></tr></thead>
+              <tbody id="alarms"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lab-block" aria-labelledby="b-report">
+          <p class="kicker"><span class="idx">05</span> Weekly report</p>
+          <h2 id="b-report">The digest, built from the ledger</h2>
+          <p>Generated from the current ledger state with the same structure as the source's report and digest. Same ledger, same text.</p>
+          <div class="btns">
+            <button class="btn btn--sm" type="button" id="dl-md">Download markdown</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="dl-txt">Download text</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="dl-json">Download JSON</button>
+          </div>
+          <div id="report" class="mt-md"></div>
+          <p class="note mt-md">No language model writes this digest, here or in the source build. It is assembled from counts and rule rationales. The only model call in the pipeline is the tone-of-voice judge: Claude in production when switched on, otherwise the deterministic mock judge this page uses.</p>
+        </section>
+      </div>
+    </div>
+
+    <details class="acc method" id="method">
+      <summary><span class="acc__title">How it works</span><span class="acc__mark" aria-hidden="true"></span></summary>
+      <div class="acc__panel case__grid">
+        <div class="meta"><dl>
+          <div><dt>Method</dt><dd>Rule-based checks, a policy-driven approval gate, per-stream tone drift</dd></div>
+          <div><dt>Built from</dt><dd>agent-governance, a fixture-only build Nik ran through spec-driven autonomous build loops. <a class="link" href="../../about.html">Context</a></dd></div>
+          <div><dt>Data</dt><dd>Fixture data for a fictional company, Northwind. Not client data.</dd></div>
+          <div><dt>Runs</dt><dd>Plain JavaScript in this page. No libraries, no server.</dd></div>
+        </dl></div>
+        <div class="case__body">
+          <h3>The data</h3>
+          <p>27 agent actions from 1 to 10 August 2026: 16 emails from a Zapier "Lifecycle Bot", 9 blog posts, social posts and ad budget changes from a Lindy "Blog Agent", and one budget change each from a "Growth Agent" and a "Budget Bot" on the same campaign. Six problems are planted: a shouting email, an unbacked revenue claim, a post naming competitors, a "risk-free" promise, a budget over its ceiling, and the two-agent budget collision. Outcome data (sessions, conversions, revenue) covers 22 of the 27 actions. Competitor names and URLs are swapped for fictional ones; everything else matches the source fixtures.</p>
+          <h3>The checks</h3>
+          <ul>
+            <li>Tone of voice: a deterministic judge starts at 1.0 and subtracts for banned phrases (0.25 each), upper-case shouting, exclamation marks, long sentences and emoji. Below the fail line fails, below the warn line warns.</li>
+            <li>Claims: words like "guaranteed" or "double your" fail when they touch revenue, savings, performance or health and no customer or study is named.</li>
+            <li>Competitor: naming any competitor on the never-mention list fails.</li>
+            <li>Regulated: phrases like "risk-free" or "bank-level" warn and need Legal.</li>
+            <li>Spend: an ad budget above the agent's ceiling fails. So does an agent sending more emails in one UTC day than the limit.</li>
+            <li>Conflict: two different agents acting on the same campaign or subject inside the window each get a warning that names the other.</li>
+          </ul>
+          <h3>The gate</h3>
+          <p>Each warn or fail takes the first approval rule that matches its check type and verdict. The strictest decision across the event's checks wins: block over review over auto. A human override is its own row. The latest override for an event counts, and the system decision is kept beside it.</p>
+          <p>In the source build the gate runs in dry-run mode. Agent actions are read from the tools' logs after they happen, and the gate records what it would have held. A pre-flight endpoint runs the same checks and the same decision on a proposed action before it ships.</p>
+          <h3>Drift</h3>
+          <p>Tone scores are averaged per agent, channel and day. A stream's baseline is the mean of its daily means. The source saves it the first time drift is read, and a scheduled job rolls it forward. This page keeps nothing between loads, so every read computes the baseline fresh.</p>
+          <h3>The replay</h3>
+          <p>Each step re-runs every check over the events ingested so far, the way the source's batch run scores a seeded ledger. That is why the first half of the budget collision only gets its warning once the second agent acts. With all 27 events and the default policy, every check verdict, score, gate decision, drift alarm and digest line matches the source repo's own run.</p>
+          <h3>In production</h3>
+          <p>The source is TypeScript on Next.js 15 (App Router), with Drizzle ORM over PGlite, an embedded Postgres. The dashboard has routes for the timeline, findings, per-agent scorecards, approvals, objections, digest, trends and outcomes. Four demo roles control access, and only admin and legal can override a decision. The digest goes to a file by default, or to Slack. The build ran in phases from fixed specs (LOOP.md to LOOP4.md): one commit per milestone, none committed until the repo's verify script passed (typecheck, unit tests and production build, with smoke and end-to-end tests added along the way).</p>
+          <h3>Limits</h3>
+          <ul>
+            <li>Fixture-only. The live Zapier connector and the Claude judge are wired but switched off, and no real account was connected.</li>
+            <li>The mock tone judge is a heuristic. It catches shouting and banned phrases, not subtle off-brand writing.</li>
+            <li>Agent identity is self-declared. Attribution confidence comes from whether the tool sent an agent key, not from a verified credential.</li>
+            <li>Ten days with one or two emails a day is a thin baseline. One bad email moves a daily mean.</li>
+            <li>The outcome data has a correlation planted on purpose. It proves the join works, not that flagged copy converts worse.</li>
+            <li>Not shown here: objections between agents, policy ingest from the brand guideline, and the trends view. All three exist in the source.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+      <nav class="lab-pager" aria-label="More lab projects">
+      <a href="../agent-swarm/"><span class="kicker">← 06</span><b>Agent swarm</b></a>
+      <a href="../mmm/"><span class="kicker">01 →</span><b>Media mix model</b></a>
+    </nav>
+  </section>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="kicker">Get in touch</p>
+    <p class="display">Want this on<br>your agents?</p>
+    <p class="foot__mail"><a class="mail" href="mailto:hello@nikdumroese.com?subject=Lab%3A%20Agent%20governance">hello@nikdumroese.com</a></p>
+    <div class="foot__links">
+      <a href="../index.html">All lab projects</a>
+      <a href="https://linkedin.com/in/nikdumroese" target="_blank" rel="me noopener">LinkedIn ↗</a>
+      <a href="https://github.com/nikdumroese" target="_blank" rel="me noopener">GitHub ↗</a>
+    </div>
+    <div class="foot__base">
+      <span>© 2026 Niklaas Dumroese</span>
+      <span>Agents welcome → <a href="/llms.txt">/llms.txt</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/analytics.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/lab.js"></script>
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
