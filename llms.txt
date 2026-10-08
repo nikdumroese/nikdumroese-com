@@ -23,13 +23,13 @@ I design the pipelines, models, agents, and data that decide how go-to-market te
 
 Working tools that run client-side on synthetic sample data or an uploaded CSV. Index: https://nikdumroese.com/lab/
 
-- [Media mix model & budget optimizer](https://nikdumroese.com/lab/mmm/): Which channels drive revenue, and where should the next euro go? Fits a model to two years of weekly spend, then suggests a better split of the same budget.
-- [Geo-lift incrementality test](https://nikdumroese.com/lab/geo-lift/): Did the campaign cause the sales, or would they have happened anyway? Compares test cities with a control built from the rest, and sizes the test before you run it.
-- [Intent-signal lead scorer](https://nikdumroese.com/lab/lead-scorer/): Which accounts should sales call first, and why? Scores fit and product usage, shows the rule behind every point, and lets real conversions re-weight the model.
-- [Brand & claims gate for AI-written copy](https://nikdumroese.com/lab/claims-check/): Can this AI-written ad go out? Checks it against brand voice, approved claims, competitor mentions and regulated wording, then passes, holds or blocks it.
-- [CRM dedupe & standardiser](https://nikdumroese.com/lab/crm-dedupe/): Which contacts are the same person? Turns a messy export into one clean record each, explains every merge, and keeps your file in your browser.
-- [Multi-agent swarm with no orchestrator](https://nikdumroese.com/lab/agent-swarm/): How do agents agree on work with no one in charge? Step through a real run, see why each proposal passed, and add an objection to change the outcome.
-- [Governance layer for marketing agents](https://nikdumroese.com/lab/agent-governance/): How do you let marketing agents act without losing control? Every action is logged and checked, then runs, waits for approval or is blocked. Decide the held ones and watch the weekly report change.
+- [Media mix model & budget optimizer](https://nikdumroese.com/lab/mmm/): Fits a media mix model to two years of weekly spend and revenue, then moves budget to the channels where the next euro earns most.
+- [Geo-lift incrementality test](https://nikdumroese.com/lab/geo-lift/): Tests whether a campaign caused its sales lift by comparing test cities with a control built from the rest. It also sizes the test before you run it.
+- [Lead scorer with product-usage signals](https://nikdumroese.com/lab/lead-scorer/): Ranks accounts on fit and product usage, shows the rule behind every point, and lets real conversions re-weight the model.
+- [Brand & claims gate for AI-written copy](https://nikdumroese.com/lab/claims-check/): Checks AI-written ad copy against brand voice, approved claims, competitor mentions and regulated wording, then passes, holds or blocks each draft.
+- [CRM dedupe & standardiser](https://nikdumroese.com/lab/crm-dedupe/): Turns a messy contact export into one clean record per person and explains every merge. Your file stays in your browser.
+- [Multi-agent swarm with no one in charge](https://nikdumroese.com/lab/agent-swarm/): Replays a real run in which agents agree on work without a coordinator. See why each proposal passed, then add an objection and watch the outcome change.
+- [Governance layer for marketing agents](https://nikdumroese.com/lab/agent-governance/): Logs and checks every action a marketing agent takes, then runs it, holds it for approval or blocks it. Decide the held ones and the weekly report updates.
 
 ## Open source
 
