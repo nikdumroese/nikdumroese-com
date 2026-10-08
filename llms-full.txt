@@ -115,21 +115,21 @@ Collection GitHub ↗
 All repositories on GitHub ↗
 Lab Live projects
 Run the work yourself.
-Seven tools from the AI, agent and marketing-science side of my work. Each runs in your browser on sample data or your own CSV. Change the inputs; the numbers recompute.
+Seven tools from my work on AI agents and marketing measurement. Each runs in your browser on sample data, and three take your own CSV. Change an input and the results update.
 01 Media mix model & budget optimizer — https://nikdumroese.com/lab/mmm/
-Fits adstock and saturation curves to two years of weekly spend, then moves budget to where the next euro earns most.
+Which channels drive revenue, and where should the next euro go? Fits a model to two years of weekly spend, then suggests a better split of the same budget.
 02 Geo-lift incrementality test — https://nikdumroese.com/lab/geo-lift/
-Builds a synthetic control from untreated regions and tests whether a campaign caused the lift, with placebo-based significance and power planning.
+Did the campaign cause the sales, or would they have happened anyway? Compares test cities with a control built from the rest, and sizes the test before you run it.
 03 Intent-signal lead scorer — https://nikdumroese.com/lab/lead-scorer/
-ICP fit plus product-usage signals, every point traceable to a rule. Learns weights from outcomes and gates outreach copy before it sends.
+Which accounts should sales call first, and why? Scores fit and product usage, shows the rule behind every point, and lets real conversions re-weight the model.
 04 Brand & claims gate for AI-written copy — https://nikdumroese.com/lab/claims-check/
-Checks agent-drafted ad copy against voice, an approved-claims register, competitor and regulated-language rules. Pass, review, or block.
+Can this AI-written ad go out? Checks it against brand voice, approved claims, competitor mentions and regulated wording, then passes, holds or blocks it.
 05 CRM dedupe & standardiser — https://nikdumroese.com/lab/crm-dedupe/
-Drop in a messy contact export. Get one clean record per person, every merge explained, nothing sent to a server.
+Which contacts are the same person? Turns a messy export into one clean record each, explains every merge, and keeps your file in your browser.
 06 Multi-agent swarm with no orchestrator — https://nikdumroese.com/lab/agent-swarm/
-Replays a real run of the swarm. Every proposal decision is recomputed live from the audit log, and you can inject an objection to see the outcome change.
+How do agents agree on work with no one in charge? Step through a real run, see why each proposal passed, and add an objection to change the outcome.
 07 Governance layer for marketing agents — https://nikdumroese.com/lab/agent-governance/
-Every agent action lands in a ledger, gets checked, and runs, waits for a human, or is stopped. Approve or reject held actions and watch drift and the weekly report update.
+How do you let marketing agents act without losing control? Every action is logged and checked, then runs, waits for approval or is blocked. Decide the held ones and watch the weekly report change.
 All lab projects →
 
 ============================================================
