@@ -7,7 +7,7 @@ I build the measurement models, data pipelines and agents that marketing teams r
 ## Pages
 
 - [Home](https://nikdumroese.com/): positioning, selected work (5 case studies), the live Lab, and open-source projects.
-- [Lab](https://nikdumroese.com/lab/): seven live AI, agent and marketing-science tools that run in the browser.
+- [Lab](https://nikdumroese.com/lab/): four live agent and CRM-data tools that run in the browser.
 - [About](https://nikdumroese.com/about.html): background — from performance marketing to performance of GTM — and how I work.
 - [CV (PDF)](https://nikdumroese.com/Nik_Dumroese_CV.pdf): full experience, skills, and certifications.
 
@@ -23,9 +23,6 @@ I build the measurement models, data pipelines and agents that marketing teams r
 
 Working tools that run client-side on synthetic sample data or an uploaded CSV. Index: https://nikdumroese.com/lab/
 
-- [Media mix model & budget optimizer](https://nikdumroese.com/lab/mmm/): Fits a media mix model to two years of weekly spend and revenue, then moves budget to the channels where the next euro earns most.
-- [Geo-lift incrementality test](https://nikdumroese.com/lab/geo-lift/): Tests whether a campaign caused its sales lift by comparing test cities with a control built from the rest. It also sizes the test before you run it.
-- [Lead scorer with product-usage signals](https://nikdumroese.com/lab/lead-scorer/): Ranks accounts on fit and product usage, shows the rule behind every point, and lets real conversions re-weight the model.
 - [Brand & claims gate for AI-written copy](https://nikdumroese.com/lab/claims-check/): Checks AI-written ad copy against brand voice, approved claims, competitor mentions and regulated wording, then passes, holds or blocks each draft.
 - [CRM dedupe & standardiser](https://nikdumroese.com/lab/crm-dedupe/): Turns a messy contact export into one clean record per person and explains every merge. Your file stays in your browser.
 - [Multi-agent swarm with no one in charge](https://nikdumroese.com/lab/agent-swarm/): Replays a real run in which agents agree on work without a coordinator. See why each proposal passed, then add an objection and watch the outcome change.
